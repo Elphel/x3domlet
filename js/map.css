@@ -1,0 +1,26 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #leaflet_map {
+    height: 100vh;
+    width: 100vw;
+}
+
+.measurementtooltip{
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 0px 3px;
+  margin:14px 0px 0px 5px;
+  font-weight: normal;
+  border-radius: 1px;
+}
+
+.leaflet-tooltip-left.measurementtooltip::before {
+  border: 0px;
+  border-left-color: cyan;
+}
+
+.leaflet-tooltip-right.measurementtooltip::before {
+  border: 0px;
+  border-right-color: cyan;
+}
