@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x3d profile="Interchange" version="3.3">
+  <Scene>
+    <group>
+      <transform translation='0 0 1'>
+        <transform translation='5 0 0' rotation='0 0 1 1.57079632679489661923'>
+          <shape> 
+            <appearance> 
+              <material diffuseColor='1 0 0' transparency='0.0'></material> 
+            </appearance> 
+            <Cylinder DEF="cylinder" radius="0.1" height="10.0" />
+          </shape> 
+        </transform>
+        <transform translation='0 5 0' rotation='0 0 0 0'>
+          <shape> 
+              <appearance> 
+                <material diffuseColor='0 1 0' transparency='0.0'></material> 
+              </appearance> 
+              <Cylinder DEF="cylinder" radius="0.1" height="10.0" />
+          </shape>
+        </transform>
+        <transform translation='0 0 5' rotation='1 0 0 1.57079632679489661923'>
+          <shape> 
+              <appearance> 
+                <material diffuseColor='0 0 1' transparency='0.0'></material> 
+              </appearance> 
+              <Cylinder DEF="cylinder" radius="0.1" height="10.0" />
+          </shape>
+        </transform>
+      </transform>
+    </group>
+  </Scene>
+</x3d>

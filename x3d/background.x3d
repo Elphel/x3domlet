@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x3d profile="Interchange" version="3.3">
+  <Scene>
+    <Background 
+      id="Background"
+      class="Background"
+      backUrl=  "background_side.jpeg"
+      bottomUrl="background_floor.jpeg"
+      frontUrl= "background.jpeg"
+      leftUrl=  "background_side.jpeg"
+      rightUrl= "background_side.jpeg"
+      topUrl=   "background_sky.jpeg">
+    </Background>
+  </Scene>
+</x3d>

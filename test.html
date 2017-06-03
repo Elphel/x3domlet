@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Scene+Map</title>
+    
+    <script type='text/javascript' src='js/jquery-3.1.1.js'></script> 
+    
+    <script type='text/javascript' src='js/leaflet/leaflet-src.js'></script>
+    <script type='text/javascript' src='js/leaflet/L.extra.js'></script>
+    <script type='text/javascript' src='js/leaflet/leaflet.camera-view-marker-controls.js'></script>
+    <script type='text/javascript' src='js/leaflet/leaflet.camera-view-marker.js'></script>
+    <script type='text/javascript' src='js/leaflet/leaflet.camera-view-marker.measure.js'></script>
+
+    <script type='text/javascript' src='js/X3DOMObject.js'></script>
+    <script type='text/javascript' src='js/LeafletObject.js'></script>
+<!--     <script type='text/javascript' src='js/LeafletObject.js'></script> -->
+    <script type='text/javascript' src='js/leaflet-x3dom.js'></script>
+
+    <script type='text/javascript' src='js/index.js'></script>
+    <script type='text/javascript' src='js/menu.js'></script>
+    <script type='text/javascript' src='js/help.js'></script>
+    <script type='text/javascript' src='js/align.js'></script>
+    
+    <link rel='stylesheet' type='text/css' href='js/leaflet/leaflet.css'></link>
+<!--     <link rel='stylesheet' type='text/css' href='js/map.css'></link> -->
+    <link rel='stylesheet' type='text/css' href='js/x3dom.css'></link>
+<!--     <link rel='stylesheet' type='text/css' href='js/index.css'></link> -->
+    
+    <link rel='stylesheet' type='text/css' href='js/index_new.css'></link>
+    
+  </head>
+  <body>
+    <div id='x3d_wrapper'>
+      <x3d id="x3d_id" width='1600px' height='800px' showProgress="true" showStat="false" showLog="false"> 
+        <scene>
+          <navigationInfo id="navInfo" type='"examine"' speed='0.01'></navigationInfo>
+          <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0'></Viewpoint>
+          <group>            
+            <inline name="1487451413_967079" namespacename="1487451413_967079" url="x3d/1487451413_967079.x3d"/>
+          </group>
+          <group>
+            <inline name="back" namespacename="back" url="x3d/background.x3d"/>
+          </group>
+        </scene>
+      </x3d>
+    </div>
+    <div id='map_wrapper'>
+      <div id="leaflet_map"></div>
+    </div>
+    <div id='crosshair_h' class='crosshair'></div>
+    <div id='crosshair_v' class='crosshair'></div>
+    <div id='help_wrapper'>
+        <div id='menu_button'></div>
+        <div id='help_button'>?</div>
+        <!--<div id='align_button'></div>-->
+    </div>
+    <div id='info-wrapper'>
+        <div id='window-info'></div>
+        <div id='window-viewinfo'></div>
+    </div>
+    <div id='menu-content'>
+        <div>
+            <h2>Settings</h2>
+            <table>
+                <tr>
+                    <td>Show view info (x, y, z, azimuth, elevation, skew)</td>
+                    <td><input id='viewinfo' type='checkbox' class='my-check-box' /></td>
+                </tr>
+                <tr>
+                    <td>Show more info (hitting ray: id, x, y, z, d<sub>xz</sub>, d<sub>xyz</sub>)</td>
+                    <td><input id='moreinfo' type='checkbox' class='my-check-box' /></td>
+                </tr>
+                <tr>
+                    <td>Show crosshair</td>
+                    <td><input id='crosshair' type='checkbox' class='my-check-box' /></td>
+                </tr>
+                <tr>
+                    <td>Show pointer marker (green sphere over 3D scene)</td>
+                    <td><input id='pointer' type='checkbox' class='my-check-box' /></td>
+                </tr>
+                <tr>
+                    <td>Highlight 3D elements on mouse over</td>
+                    <td><input id='highlight' type='checkbox' class='my-check-box' /></td>
+                </tr>
+                <tr>
+                    <td>View's parallel shift speed</td>
+                    <td><input id='shiftspeed' type='text' class='input' /></td>
+                </tr>
+                <tr>
+                    <td><button>Close</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id='help-content'>
+        <div>
+            <h2>3D Scene + Map</h2>
+            <h3 style='color:rgba(200,200,255,1);'>Map</h3>
+            <table>
+            <tr>
+                <td><b>ctrl + left click</b></td>
+                <td>
+                    <ul>
+                        <li>create markers, relative height = 0</li>
+                        <li>remove markers</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><b>draggable objects (global XZ)</b></td>
+                <td>
+                    <ul>
+                        <li>markers</li>
+                        <li>camera base (green)</li>
+                        <li>heading crosshair (white)</li>
+                    </ul>
+                </td>
+            </tr>
+            </table>
+            <h3 style='color:rgba(200,200,255,1);'>Scene</h3>
+            <table>
+            <tr>
+                <td><b>ctrl + left click</b></td>
+                <td>
+                    <ul>
+                        <li>create markers, relative height = surface hitting point height</li>
+                        <li>remove markers</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><b>mouse wheel (scroll)</b></td>
+                <td>
+                    <ul>
+                        <li>change field of view (= camera focal length)</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><b>mouse wheel (drag)</b></td>
+                <td>
+                    <ul>
+                        <li>move camera over its XY (= parallel shift)</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><b>draggable objects (camera XY)</b></td>
+                <td>
+                    <ul>
+                        <li>markers only</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><button>Close</button></td>
+            </tr>
+            </table>
+        </div>
+    </div>
+   </body>
+</html>
