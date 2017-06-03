@@ -10,9 +10,15 @@ html, body, #leaflet_map {
 .measurementtooltip{
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding: 0px 3px;
-  margin:14px 0px 0px 5px;
+/*   margin:20px 0px 0px 7px; */
   font-weight: normal;
   border-radius: 1px;
+  font-size: 16px;
+  display:block;
+  
+  position:absolute;
+  top: 16px;
+  left: 3px;
 }
 
 .leaflet-tooltip-left.measurementtooltip::before {
@@ -23,4 +29,32 @@ html, body, #leaflet_map {
 .leaflet-tooltip-right.measurementtooltip::before {
   border: 0px;
   border-right-color: cyan;
+}
+
+.hcontrol-button{
+    background-color: red;
+}
+
+.hcontrol-button:hover{
+    background-color: red;
+}
+
+.leaflet-interactive img{
+    user-select:none;
+    pointer-events: none;
+}
+
+.leaflet-interactive path{
+    user-select:none;
+    pointer-events: none;
+}
+
+.leaflet-tooltip-pane { z-index: 350; }
+
+.leaflet-control-zoom-in, .leaflet-control-zoom-out{
+    user-select:none;
+}
+
+.leaflet-control-zoom{
+    user-select:none;
 }

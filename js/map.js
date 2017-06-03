@@ -96,6 +96,7 @@ function drawCamera(basepoint){
       fillOpacity: 0.5,
       radius: 10,
       heading: 45,
+      h_control: true,
       fov: 45*Math.PI/180,
       id: "basecircle"
   }).addTo(map);
