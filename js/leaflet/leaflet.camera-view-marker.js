@@ -199,7 +199,11 @@
                 this._layerPaint = L.layerGroup().addTo(this._map);
             }
             
-            this._controls = {};
+            this._controls = {
+                hc:{
+                    getState: function(){return false;}
+                }
+            };
 
             this.h_control = false;
             
@@ -458,7 +462,9 @@
 
         _mouseMove: function(e){
 
-            this._map.on('click',this._mouseClick,this);  // necassary for _dragCircle. If switched on already within _dragCircle an unwanted click is fired at the end of the drag.
+            // from some plugin - I didn't test if it's true
+            // necassary for _dragCircle. If switched on already within _dragCircle an unwanted click is fired at the end of the drag.
+            this._map.on('click',this._mouseClick,this);  
 
         },
       
@@ -477,6 +483,9 @@
 
             this._map.on('mousemove',this.setHeading,this);
             this._map.on('mouseup',this._mouseUp,this);
+            
+            // prevent image getting grabbed by browser
+            e.originalEvent.preventDefault();
 
         },
 

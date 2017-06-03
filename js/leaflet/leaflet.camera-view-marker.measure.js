@@ -110,6 +110,9 @@
             if (param.target){
                 index = this.draggedMarker._index;
                 latlng = param.latlng;
+                
+                // prevent image getting grabbed by browser
+                param.originalEvent.preventDefault();
             }
             
             var p1_ll = this._latlng;
@@ -279,7 +282,7 @@
 
         },
               
-        _syncMeasureMarkersToBasePoint: function(){
+        _syncMeasureMarkersToBasePoint: function(e){
 
             if (this._measureMarkers.length!=0){
                 if (this._measureBase!=this._latlng){
