@@ -15,7 +15,8 @@ var SETTINGS = {
     'viewinfo':  true,
     'moreinfo':  true,
     'crosshair': false,
-    'shiftspeed': 0.01
+    'shiftspeed': 0.01,
+    'verticaldrag': false
 }
 
 $(function(){

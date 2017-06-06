@@ -260,7 +260,24 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
             X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
             $("#sliding_sphere").find("switch").attr("whichChoice",-1);
         }
-
+        
+        /*
+        if (!SETTINGS.verticaldrag&&Scene.draggedMarker){
+            
+            console.log("dragging not vertically");
+            //$(Scene.draggedMarker) - get id
+            var sphere = $(Scene.draggedMarker).parent().parent();
+            
+            console.log(Scene.draggedMarker.parent().parent());
+            
+            var index = parseInt(sphere.attr("id").substr(7));
+            
+            console.log(index);
+            
+            X3DOMObject.Marker.place(x,y,z,"my-sph-"+index);
+            
+        }
+        */
     });
 
 
@@ -520,20 +537,12 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
         Map.dehighlightMarker(index);
         
         document.getElementById("navInfo").setAttribute("type", '"NONE"');
-        
+
         Scene.lastMouseX = event.offsetX;
         Scene.lastMouseY = event.offsetY;
-        
+
         X3DOMObject.Marker.dragStart(this);
-
-        //$(this).on('mousemove',x3d_markerDrag);
-        /*
-        $(Scene.element).on('mousemove',function(){
-            console.log("preMouseMove");
-            x3d_sceneMouseMove2();
-        },true);
-        */
-
+        
         Scene.element.addEventListener('mousemove',X3DOMObject.Marker.mouseMove,true);
         Scene.element.addEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);
                 
@@ -559,8 +568,8 @@ X3DOMObject.Marker.mouseUp = function(){
     }
     */
     
+    Scene.element.removeEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);    
     Scene.element.removeEventListener('mousemove',X3DOMObject.Marker.mouseMove,true);
-    Scene.element.removeEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);
     
     Scene.draggedTransformNode = null;
     Scene.draggingUpVec        = null;
@@ -627,6 +636,8 @@ X3DOMObject.Marker.mouseMove = function(event){
     }
 
     if (Scene.draggedTransformNode){
+        // once we get out of the marker we will get correct world coordinates
+        console.log(event);
         X3DOMObject.Marker.drag(event.offsetX - Scene.lastMouseX, event.offsetY - Scene.lastMouseY);
     }
 
@@ -858,6 +869,9 @@ X3DOMObject.MapMarker.registerEvents = function(map_mark){
     
 }
 
+/**
+ * info template
+ */
 X3DOMObject.displayInfo = function(e){
     
         var elem = Scene.element;
@@ -910,6 +924,9 @@ X3DOMObject.displayInfo = function(e){
 
 }
 
+/**
+ * view info template
+ */
 X3DOMObject.displayViewInfo = function(e){
     
     if (!e.target){
