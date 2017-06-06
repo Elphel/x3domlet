@@ -12,8 +12,8 @@ var INIT_HEADING = 0;
 var SETTINGS = {
     'pointer':   false,
     'highlight': false,
-    'viewinfo':  false,
-    'moreinfo':  false,
+    'viewinfo':  true,
+    'moreinfo':  true,
     'crosshair': false,
     'shiftspeed': 0.01
 }
@@ -81,12 +81,14 @@ function light_init(){
             INIT_HEADING = heading;
             
             var element = document.getElementById('x3d_id');
-            Scene = new X3DOMObject(element,Data,{});
             
-            $.getScript("js/x3dom-full.debug.js",function(){
+            Scene = new X3DOMObject(element,Data,{});
+            Scene.initResize();
+            
+            $.getScript("js/x3dom/x3dom-full.debug.js",function(){
 
                 Map = new LeafletObject('leaflet_map',Data,{});
-                //wait until it parsed the DOM
+                //wait until it DOM is extended
                 x3dom.runtime.ready = function(){
                     map_resize_init();
                     deep_init();
@@ -148,7 +150,8 @@ function map_resize(e){
 }
 
 function deep_init(){
-
+    
+    //Scene.initResize();
     Scene.FoVEvents();
     Scene.KeyEvents();
 
@@ -160,15 +163,14 @@ function deep_init(){
         progress_counter = progress_counter.split(" ");
         cnt = parseInt(progress_counter[1]);
 
-        if (!Scene._X3DOM_SCENE_INIT&&(cnt==0)){
+        if (!Scene._X3DOM_SCENE_INIT_DONE&&(cnt==0)){
 
-            //if(Scene._DEBUG){
-                Scene.initInfoWindow();
-                Scene.initViewInfoWindow();
-                Scene.registerShapesEvents();
-            //}
+            //Scene.initResize();
+            
+            // now then all shapes are parsed and accessible
+            Scene.ShapeEvents();
 
-            Scene._X3DOM_SCENE_INIT = true;
+            Scene._X3DOM_SCENE_INIT_DONE = true;
 
             x3d_events();
             leaf_events();
@@ -235,7 +237,7 @@ function x3d_events(){
             var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
             
             if (!$(sr.pickObject).hasClass("shapemarker")){
-                Scene.highlightShape(sr.pickObject);
+                X3DOMObject.Shape.highlight(sr.pickObject);
             }
             
             
@@ -268,7 +270,7 @@ function x3d_events(){
         if (e.key=="Shift"){
             // select shape
             var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
-            Scene.dehighlightShape(sr.pickObject);
+            X3DOMObject.Shape.dehighlight(sr.pickObject);
         }
         
         if (e.key=="Control"){
@@ -312,7 +314,7 @@ function x3d_events(){
         if (SETTINGS.highlight&&!SETTINGS.pointer){
             
             var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
-            Scene.highlightShape(sr.pickObject);
+            X3DOMObject.Shape.highlight(sr.pickObject);
             
         }
         
@@ -346,7 +348,7 @@ function x3d_events(){
         
         // hide shadow marker
         Map.marker.removeSlidingMarker();
-        Scene.hideMessage("window-info");
+        ui_hideMessage("window-info");
         
         
     });
@@ -575,11 +577,11 @@ function x3d_mouseMove(){
     var initial_heading = Data.camera.heading;
     //var initial_heading = INIT_HEADING;
     
-    var heading = Scene.getViewDirection();
+    var heading = x3dom_getViewDirection(Scene.element);
     
     Map.marker.setHeading(heading+INIT_HEADING);
     
-    var d = Scene.getViewTranslation();
+    var d = x3dom_getViewTranslation(Scene.element);
     
     var dx;
     var dz;

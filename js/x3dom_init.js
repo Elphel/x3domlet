@@ -1,41 +1,39 @@
 
 var X3DOMObject = function(element,data,options){
 
+    this.element = element;
+    this.data = data;
+    
     var defaults = {
-        debug: true,
-        highlight: true,
-        fov: 30*Math.PI/180,//deg, vertical
-        fov_step: 0.025, //rad
+        debug: true,        // {boot}, unused        
+        highlight: true,    // {bool}, highlight surfaces on mouseover
+        fov: 30*Math.PI/180,// {rad}, default vertical fov
+        fov_step: 0.025,    // {rad}, min change
     };
 
     this._settings = $.extend(defaults,options);
-    
+
+    this._DEBUG = this._settings.debug;    
     this._FOV = this._settings.fov;
     this._FOV_STEP = this._settings.fov_step;
     this._HIGHLIGHT_ON_MOUSEOVER = this._settings.highlight;
-    this._DEBUG = this._settings.debug;
-    
+
+    // tmp vars
     this._resizeTimer = false;
     this._eventCtrlKey = false;
     
-    //this._X3DOM_SCENE_INIT = this._settings.debug;
-    this._X3DOM_SCENE_INIT = false;
-    
-    //this._element = element;
-    this.element = element;
-     
     this.highlighted_marker_index = null;
-    
     this.old_view_translation = null;
-    //this.lastMouseX;
-    //this.lastMouseY;
-    this.data = data;
-
-    this.initialize();
+    
+    // status vars
+    this._X3DOM_SCENE_INIT_DONE = false;
+    this._ctrlKey = false;
+    this._shiftKey = false;
     
 };
 
-X3DOMObject.prototype.initialize = function(){
+// ui, window
+X3DOMObject.prototype.initResize = function(){
     
     var self = this;
 
@@ -49,10 +47,9 @@ X3DOMObject.prototype.initialize = function(){
         },100);
     });
 
-    //self.getX3DOMlibrary();
-
 }
 
+// ui, window
 X3DOMObject.prototype.resize = function(){
     
     var self = this;
@@ -77,12 +74,7 @@ X3DOMObject.prototype.resize = function(){
     
     //fov = Math.PI/2;
     
-    // apply to all viewpoints, but:
-    // https://doc.x3dom.org/author/Navigation/Viewpoint.html
-    // = correct field of view is not guaranteed in X3DOM
-    $(self.element).find("Viewpoint").each(function(){
-        $(this).attr("fieldOfView",fov);
-    });
+    self.setFoV(fov);
     
     self.data.camera.fov = fov;
     
@@ -113,6 +105,10 @@ X3DOMObject.prototype.focusOnCanvas = function(){
     
 }
 
+/**
+ * Intercept scroll and change field of view instead of moving the observer,
+ * which was the default action
+ */
 X3DOMObject.prototype.FoVEvents = function(){
     
     var self = this;
@@ -121,39 +117,63 @@ X3DOMObject.prototype.FoVEvents = function(){
     
     //Chrome?!
     self.element.addEventListener('mousewheel',function(e){
-        var delta = (e.deltaY>0)?self._FOV_STEP:-self._FOV_STEP;
-        self.changeFoV(e,delta);
+        var delta = e.deltaY>0 ? 1 : -1;
+        self.changeFoV(delta*self._FOV_STEP);
+        // prevent zoom
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
     },true);
     
     //Firefox?!
     self.element.addEventListener('DOMMouseScroll',function(e){  
-        var delta = (e.detail>0)?self._FOV_STEP:-self._FOV_STEP;
-        self.changeFoV(e,delta);
+        var delta = e.detail>0 ? 1 : -1;
+        self.changeFoV(delta*self._FOV_STEP);
+        // prevent zoom
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
     },true);
     
     
 }
 
-
-X3DOMObject.prototype.changeFoV = function(e,val){
+/**
+ * Change by delta
+ * @val {rad}
+ */
+X3DOMObject.prototype.changeFoV = function(val){
 
     var fov = this.getFoV()+val;
     this.setFoV(fov);
+    
+    // update Map 
     Map.marker.setFoV(fov);
-
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
     
 }
 
+/**
+ * Set by @val rad
+ */
 X3DOMObject.prototype.setFoV = function(val){
   
     var vp = $(this.element).find("Viewpoint")[0];
     $(vp).prop("fieldOfView",val);
   
+    // apply to all viewpoints, but:
+    // https://doc.x3dom.org/author/Navigation/Viewpoint.html
+    // = correct field of view is not guaranteed in X3DOM
+    /*
+    $(self.element).find("Viewpoint").each(function(){
+        $(this).attr("fieldOfView",fov);
+    });
+    */
+    
 }
 
+/**
+ * Read property from DOM element
+ */
 X3DOMObject.prototype.getFoV = function(){
   
     var vp = $(this.element).find("Viewpoint")[0];
@@ -161,6 +181,9 @@ X3DOMObject.prototype.getFoV = function(){
     
 }
 
+/**
+ * Remember which key is pressed - used for mouse moving / dragging
+ */
 X3DOMObject.prototype.KeyEvents = function(){
     
     var self = this;
@@ -179,123 +202,11 @@ X3DOMObject.prototype.KeyEvents = function(){
     },true);
 
 }
-/*
-X3DOMObject.prototype.mouseMove = function(e){
 
-    //offsetX / offsetY polyfill for FF
-    var target = e.target || e.srcElement;
-    var rect = target.getBoundingClientRect();
-
-    e.offsetX = e.clientX - rect.left;
-    e.offsetY = e.clientY - rect.top;
-
-    if (this.lastMouseX === -1){
-        this.lastMouseX = e.offsetX;
-    }
-    if (this.lastMouseY === -1){
-        this.lastMouseY = e.offsetY;
-    }
-
-    if (this.draggedTransformNode){
-        this.dragMarker(e.offsetX - this.lastMouseX, e.offsetY - this.lastMouseY);
-    }
-
-    this.lastMouseX = e.offsetX;
-    this.lastMouseY = e.offsetY;
-    
-}
-
-
-
-X3DOMObject.prototype.dragMarker = function(dx,dy){
-    
-    var offsetUp    = draggingUpVec.multiply(-dy);
-    var offsetRight = draggingRightVec.multiply(dx);
-
-    this.unsnappedDragPos = this.unsnappedDragPos.add(offsetUp).add(offsetRight);
-
-    $(this.draggedTransformNode).attr("translation", this.unsnappedDragPos.toString());
-    
-    //use callback?
-    
-}
-*//*
-X3DOMObject.prototype.stopDraggingMarker = function(e){
-    
-    this.removeEventListener('mousemove',this.mouseMove,true);
-    this.removeEventListener('mouseup',this.mouseup,true);
-    
-    draggedTransformNode = null;
-    draggingUpVec        = null;
-    draggingRightVec     = null;
-    unsnappedDragPos     = null;
-    
-    document.getElementById("navInfo").setAttribute("type",'"examine"');
-    
-}
-*/
-
-X3DOMObject.prototype.initInfoWindow = function(){
-
-    //...
-    
-    /* 
-    // position - folowing mouse without delay? aha
-    $(this.element).find("canvas").on('mousemove',function(e){
-        $("#window-info").css({
-            top: (e.originalEvent.clientY+20)+"px",
-            left: (e.originalEvent.clientX+20)+"px"
-        });
-    });
-    
-    $("#window-info").on('mouseover',function(){
-        $(this).hide();
-    });
-    */
-    
-}
-
-X3DOMObject.prototype.initViewInfoWindow = function(){
-    
-    /*
-    var el = $("<div>",{id:"messagewindow"}).css({
-        position:"absolute",
-        bottom:"2px",
-        left:"2px",
-        "z-index":10,
-        background:"red",
-        border:"1px solid red",
-        "border-radius": "2px",
-        color:"white",
-        padding:"0px"
-    });
-    $("body").append(el);
-    */
-
-}
-
-X3DOMObject.prototype.showMessage = function(id,msg,bg){
-
-    if (bg != undefined){
-        $("#"+id).css({background:bg});
-    }
-    
-    $("#"+id).show();
-    
-    $("#"+id).html($("<div>").html(msg).css({
-        padding:"5px 10px"
-    })).show();
-
-}
-
-X3DOMObject.prototype.hideMessage = function(id){
-
-    $("#"+id).hide();
-
-}
-
-
-X3DOMObject.prototype.registerShapesEvents = function(){
+/**
+ * The 3D model building blocks are shapes
+ */
+X3DOMObject.prototype.ShapeEvents = function(){
     
     var self = this;
 
@@ -311,124 +222,8 @@ X3DOMObject.prototype.registerShapesEvents = function(){
 
             shapes.each(function(){
             
-                /*
-                this.addEventListener('click',function(e){
-                    
-                    console.log("click1");
-                    //console.log(e.worldX+" "+e.worldY+" "+e.worldZ);
-                    //createSphere(e.worldX,e.worldY,e.worldZ);
-                    
-                });
-                */
-            
-                $(this).on("mousemove",function(e){
-                    
-                    var x = e.originalEvent.worldX;
-                    var y = e.originalEvent.worldY;
-                    var z = e.originalEvent.worldZ;
-
-                    if (self._ctrlKey||SETTINGS.pointer){
-                        X3DOMObject.Marker.place(x,y,z,"sliding_sphere");
-                        $("#sliding_sphere").find("switch").attr("whichChoice",0);
-                    }else{
-                        X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
-                        $("#sliding_sphere").find("switch").attr("whichChoice",-1);
-                    }
-
-                    
-                    /*
-                    var v = new x3dom.fields.SFVec3f(x,y,z);
-                    
-                    //for printing
-                    var x = v.x.toFixed(2);
-                    var y = v.y.toFixed(2);
-                    var z = v.z.toFixed(2);
-                    var l = (v.length()).toFixed(1);
-                    
-                    var msg = "<div>x="+x+"</div>"+
-                                "<div>y="+y+"</div>"+
-                                "<div>z="+z+"</div>"+
-                                "<div>d="+l+"</div>";
-                    
-                    msg = "<div>"+l+" m</div>";
-                                
-                    //self.showMessage("infowindow",msg);
-                    */
-
-                });
-                
-                
-                $(this).on("click",function(e){
-
-                    console.log(e);
-                    
-                    /*
-                    // when ctrlKey then the mouse is always over pointer marker
-                    if (self._ctrlKey){
-                        self.placeMarker(e.originalEvent.worldX,e.originalEvent.worldY,e.originalEvent.worldZ);
-                    }
-                    */
-                    
-                    if ((self._shiftKey)||(SETTINGS.highlight)){
-                        self.toggleShape(this);
-                    }
-                    
-                });
-                
-                $(this).on("mouseover",function(e){
-                
-                    /*
-                    var tmp = $(self).attr("id");
-              
-                    if (tmp == undefined){
-                        tmp = "missing <b>id</b> attribute";
-                    }
-
-                    x3dom.debug.logInfo(tmp);
-                    self.showMessage("shapetitle",tmp);
-                    */
-                
-                    // e.ctrlKey will not work because X3DOM does something to events
-                    if (self._shiftKey){
-            
-                        if (self._HIGHLIGHT_ON_MOUSEOVER){
-                            self.highlightShape(this);
-                        }
-
-                    }
-            
-                });
-            
-                $(this).on("mouseout",function(e){
-
-                    self.dehighlightShape(this);
-                    //self.placeMarker(0,0,0,"sliding_sphere");
-                    //self.hideMessage("shapetitle");
-                    //self.resetInfoWindow();
-
-                });
-                
-                // not working
-                /*
-                $(this).on("keydown",function(e){
-                    console.log("KeyDown");
-                    self.highlightShape(self);
-                });
-                */
-                // not working
-                /*
-                this.addEventListener('keydown',function(e){
-                    console.log("should not work!");
-                });
-                */
-                // not working
-                /*
-                $(this).on("keyup",function(e){
-                    console.log("keyup");
-                    self.highlightShape(self);
-                });
-                */
-            
+                new X3DOMObject.Shape(this);
+                            
             });
         
         }
@@ -437,7 +232,70 @@ X3DOMObject.prototype.registerShapesEvents = function(){
     
 }
 
-X3DOMObject.prototype.highlightShape = function(elem){
+/**
+ * <shape> DOM elements
+ */
+
+X3DOMObject.Shape = function(element){
+    
+    this._elem  = element
+    this._registerEvents();
+    
+}
+
+X3DOMObject.Shape.prototype._registerEvents = function(){
+    
+    var self = Scene;
+    
+    $(this._elem).on("mousemove",function(e){
+        
+        var x = e.originalEvent.worldX;
+        var y = e.originalEvent.worldY;
+        var z = e.originalEvent.worldZ;
+
+        if (self._ctrlKey||SETTINGS.pointer){
+            X3DOMObject.Marker.place(x,y,z,"sliding_sphere");
+            $("#sliding_sphere").find("switch").attr("whichChoice",0);
+        }else{
+            X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
+            $("#sliding_sphere").find("switch").attr("whichChoice",-1);
+        }
+
+    });
+
+
+    $(this._elem).on("click",function(e){
+        
+        // if self._shiftKey then the mouse will always be over the pointer marker
+        
+        if ((self._shiftKey)||(SETTINGS.highlight)){
+            X3DOMObject.Shape.toggle(this);
+        }
+        
+    });
+
+    $(this._elem).on("mouseover",function(e){
+
+        // e.ctrlKey will not work because X3DOM does something to events
+        if (self._shiftKey){
+
+            if (self._HIGHLIGHT_ON_MOUSEOVER){
+                X3DOMObject.Shape.highlight(this);
+            }
+
+        }
+
+    });
+
+    $(this._elem).on("mouseout",function(e){
+
+        X3DOMObject.Shape.dehighlight(this);
+
+    });
+    
+}
+
+X3DOMObject.Shape.highlight = function(elem){
     
     var m = $(elem).find("Material[class='hl']");
     
@@ -451,7 +309,7 @@ X3DOMObject.prototype.highlightShape = function(elem){
 
 }
 
-X3DOMObject.prototype.dehighlightShape = function(elem){
+X3DOMObject.Shape.dehighlight = function(elem){
     
     var self = this;
     
@@ -459,30 +317,30 @@ X3DOMObject.prototype.dehighlightShape = function(elem){
     
     m = $(elem).find("Material[class='sl']");
     if (m.length==1){
-        self.selectShape(elem);
+        X3DOMObject.Shape.select(elem);
     }
   
 }
 
-X3DOMObject.prototype.toggleShape = function(elem){
+X3DOMObject.Shape.toggle = function(elem){
 
     var self = this;
     
     var m = $(elem).find("Material[class='sl']");
         
     if (m.length!=0){
-        self.deselectShape(elem);
+        X3DOMObject.Shape.deselect(elem);
     }else{
-        self.selectShape(elem);
+        X3DOMObject.Shape.select(elem);
     }
   
 }
 
-X3DOMObject.prototype.selectShape = function(elem){
+X3DOMObject.Shape.select = function(elem){
     
   var self = this;
     
-  self.deselectShape(elem);
+  X3DOMObject.Shape.deselect(elem);
   
   var m = $(elem).find("Material[class='sl']");
   
@@ -493,7 +351,7 @@ X3DOMObject.prototype.selectShape = function(elem){
   
 }
 
-X3DOMObject.prototype.deselectShape = function(elem){
+X3DOMObject.Shape.deselect = function(elem){
 
   var tmpapp = $(elem).find("Appearance").find("Material[class='sl']").remove();
 
@@ -555,76 +413,9 @@ X3DOMObject.prototype.updateMarkersIndices = function(){
     
 }
 
-X3DOMObject.prototype.placeMarker = function(x,y,z,id){
-
-    var tr = $("#"+id).find("transform");  
-    $(tr).attr("translation",x+" "+y+" "+z);
-
-}
-
-X3DOMObject.prototype.highlightMarker = function(index){
-    
-    var color = "1 0.5 0.5";
-    
-    $("#my-sph-"+index).find('material').attr("diffuseColor",color);
-    
-}
-
-X3DOMObject.prototype.dehighlightMarker = function(index){
-
-    var elem = $("#my-sph-"+index).find('material');
-    var color = "0.07 1 0.07";
-
-    if (!elem.prop("selected")){
-        elem.attr("diffuseColor",color);
-    }
-
-}
-
-X3DOMObject.prototype.toggleMarker = function(index){
-
-    var elem = $("#my-sph-"+index).find('material');
-    var color = elem.attr("diffuseColor");
-
-    if (elem.prop("selected")){
-        elem.prop("selected",false);
-    }else{
-        elem.prop("selected",true);
-    }
-
-}
-
-X3DOMObject.prototype.getViewDirection = function(){
-    
-    var elem = this.element;
-    
-    var vp_mat = elem.runtime.viewMatrix();
-    
-    var vMatInv  = vp_mat.inverse();
-    var viewDir  = vMatInv.multMatrixVec(new x3dom.fields.SFVec3f(0.0, 0.0, -1.0));
-    
-    var angle = Math.atan2(viewDir.x,-viewDir.z)*180/Math.PI;
-    
-    return angle;
-    
-}
-
-X3DOMObject.prototype.getViewTranslation = function(){
-
-    var elem = this.element;
-
-    var vp_mat = elem.runtime.viewMatrix().inverse();
-    //var vp_rotation = new x3dom.fields.Quaternion(0, 0, 1, 0);
-
-    //vp_rotation.setValue(vp_mat);
-
-    var vp_translation = vp_mat.e3();
-
-    return vp_translation;
-
-}
-
-// Marker
+/**
+ *  Marker object - which is a sphere of 1m radius
+ */
 X3DOMObject.Marker = function(x,y,z){
     
     this._x = x || 0;
@@ -635,6 +426,7 @@ X3DOMObject.Marker = function(x,y,z){
     
 }
 
+
 X3DOMObject.Marker.prototype.init = function(){
     
     this._elem = Scene.createMarker(this._x,this._y,this._z);
@@ -642,8 +434,6 @@ X3DOMObject.Marker.prototype.init = function(){
     this._registerEvents();
     
 }
-
-
 
 
 X3DOMObject.Marker.prototype._registerEvents = function(){
@@ -908,8 +698,8 @@ X3DOMObject.Marker.toggle = function(elem){
     }
     
 }
-// PointerMarker
 
+// PointerMarker
 X3DOMObject.PointerMarker = function(){
   
     //init
@@ -978,6 +768,9 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
     
 }
 
+/**
+ * need to move this to leaflet_init.js
+ */
 X3DOMObject.MapMarker = {};
 
 X3DOMObject.MapMarker.registerEvents = function(map_mark){
@@ -1091,8 +884,8 @@ X3DOMObject.displayInfo = function(e){
                 dist_msg += "<table>";
                 dist_msg += "<tr><th align='center'>shape id</td><td>"+id_msg+"</td></tr>";
                 dist_msg += "</table><table>";
-                dist_msg += "<tr><th align='center'>d<sub>xz</sub></td><td>"+mouse.d_xz+" m</td></tr>";
-                dist_msg += "<tr><th align='center'>d<sub>xyz</sub></td><td>"+mouse.d_xyz+" m</td></tr>";
+                dist_msg += "<tr><th align='left'>d<sub>map</sub></td><td>"+mouse.d_xz+" m</td></tr>";
+                dist_msg += "<tr><th align='left'>d<sub>3d</sub></td><td>"+mouse.d_xyz+" m</td></tr>";
                 dist_msg += "</table>";
                 
             }else{
@@ -1111,7 +904,7 @@ X3DOMObject.displayInfo = function(e){
 
         var msg = "<div>"+dist_msg+"</div>";
 
-        Scene.showMessage("window-info",msg);
+        ui_showMessage("window-info",msg);
 
         return dist;
 
@@ -1171,314 +964,8 @@ X3DOMObject.displayViewInfo = function(e){
 `;
     
     if (SETTINGS.viewinfo){
-        Scene.showMessage("window-viewinfo",msg);
+        ui_showMessage("window-viewinfo",msg);
     }else{
-        Scene.hideMessage("window-viewinfo");
+        ui_hideMessage("window-viewinfo");
     }
 }
-
-// various calcs
-
-function x3dom_getXYPosOr(cnvx,cnvy,round){
-    
-    var elem = Scene.element;
-
-    var x,y,z;
-    var az,el,sk;
-    var id;
-
-    var dist_xyz = 1000;
-    var dist_xz = 1000;
-
-    var shootRay = elem.runtime.shootRay(cnvx,cnvy);
-    
-    if (shootRay.pickPosition != null){
-        
-        var index = Scene.highlighted_marker_index;    
-        
-        if ((index==null)||(Data.markers[index]==undefined)){
-        
-            x = shootRay.pickPosition.x;
-            y = shootRay.pickPosition.y;
-            z = shootRay.pickPosition.z;
-            
-        }else{
-            
-            x = Data.markers[index].x;
-            y = Data.markers[index].y;
-            z = Data.markers[index].z;
-            
-        }
-        
-        dist_xz  = Math.sqrt(x*x+z*z);
-        dist_xyz = Math.sqrt(y*y+dist_xz*dist_xz);
-        
-        if (round){
-            dist_xz.toFixed(2);
-            dist_xyz.toFixed(2);
-        }
-        
-        id = $(shootRay.pickObject).attr("id");
-        
-    }else{
-        
-        var viewingRay = elem.runtime.getViewingRay(cnvx,cnvy);
-        
-        x = viewingRay.dir.x;
-        y = viewingRay.dir.y;
-        z = viewingRay.dir.z;
-        
-        dist_xz = null;
-        dist_xyz = null;
-    }
-    
-    az = Math.atan2(x,-z)*180/Math.PI;
-    az = (az+INIT_HEADING+360)%360;
-    el = Math.atan2(y,Math.sqrt(x*x+z*z))*180/Math.PI;
-    sk = 0;
-    
-    var result = {
-        x: !round? x : x.toFixed(2),
-        y: !round? y : y.toFixed(2),
-        z: !round? z : z.toFixed(2),
-        
-        a: !round? az : az.toFixed(1),
-        e: !round? el : el.toFixed(1),
-        s: !round? sk : sk.toFixed(1)
-    };
-    
-    if (dist_xz!=null){
-        result.d_xz = !round? dist_xz : dist_xz.toFixed(1);
-        result.d_xyz = !round? dist_xyz : dist_xyz.toFixed(1);
-    }else{
-        result.d_xz = dist_xz;
-        result.d_xyz = dist_xyz;
-    }
-    
-    result.id = id;
-    
-    return result;
-
-}
-
-function x3dom_getCameraPosOr(round){
-    
-    var elem = Scene.element;
-    
-    var vm = elem.runtime.viewMatrix().inverse();
-    
-    var tr = vm.e3();
-    
-    var x = tr.x;
-    var y = tr.y;
-    var z = tr.z;
-    
-    var R = vm;
-    
-    var az = Math.atan2(R._02,R._22)*180/Math.PI;
-    
-    az = (az+INIT_HEADING+360)%360;
-    
-    var el = -Math.asin(R._12)*180/Math.PI;
-
-    var sk = Math.atan2(R._10,R._11);
-    
-    if (!round){
-        return {
-            x: x,
-            y: y,
-            z: z,
-            a: az,
-            e: el,
-            s: sk
-        };
-    }else{
-        return {
-            x: x.toFixed(2),
-            y: y.toFixed(2),
-            z: z.toFixed(2),
-            a: az.toFixed(1),
-            e: el.toFixed(1),
-            s: sk.toFixed(1)
-        };        
-    }
-    
-}
-
-function x3dom_setUpRight(){
-
-    var mat = Scene.element.runtime.viewMatrix().inverse();
-    
-    var from = mat.e3();
-    var at = from.subtract(mat.e2());
-
-    var up = new x3dom.fields.SFVec3f(0, 1, 0);
-    
-    var s = mat.e2().cross(up).normalize();
-    
-    var newup = mat.e2().cross(s).normalize().negate();
-    
-    //at = from.add(v);
-    
-    mat = x3dom.fields.SFMatrix4f.lookAt(from, at, newup);
-    //mat = mat.inverse();
-    
-    //var m1  = x3dom.fields.SFMatrix4f.translation(from);
-    //var m1n = x3dom.fields.SFMatrix4f.translation(from.negate());
-    
-    //mat = m1.mult(mat).mult(m1n);
-    
-    var Q = new x3dom.fields.Quaternion(0,0,1,0);
-    Q.setValue(mat);
-    var AA = Q.toAxisAngle();
-
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("position",mat.e3().toString());
-    viewpoint.attr("centerOfRotation",mat.e3().toString());
-    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-
-}
-
-function x3dom_rotation(delta_a){
-    
-    /* 
-     * Printing values:
-     * 
-     *   var mat = Scene.element.runtime.viewMatrix().inverse();
-     *   var rotation = new x3dom.fields.Quaternion(0, 0, 1, 0);
-     *   rotation.setValue(mat);
-     *   var translation = mat.e3();
-     * 
-     */
-    
-    var mat = Scene.element.runtime.viewMatrix();
-
-    mat = mat.inverse();
-    //console.log(mat.toString());
-
-    var from = mat.e3();
-    var at = from.subtract(mat.e2());
-    var up = mat.e1();
-    
-    var q0 = x3dom.fields.Quaternion.axisAngle(up, -delta_a);
-    var m0 = q0.toMatrix();
-    
-    var m1  = x3dom.fields.SFMatrix4f.translation(from);
-    var m1n = x3dom.fields.SFMatrix4f.translation(from.negate());
-    
-    var mres = m1.mult(m0).mult(m1n);
-    
-    newat = mres.multMatrixPnt(at);
-    
-    newmat = x3dom.fields.SFMatrix4f.lookAt(from, newat, up);
-        
-    var Q = new x3dom.fields.Quaternion(0,0,1,0);
-    //Q.setValue(newmat.inverse());
-    Q.setValue(newmat);
-    var AA = Q.toAxisAngle();
-    
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-    viewpoint.attr("position",from.toString());
-    viewpoint.attr("centerOfRotation",from.toString());
-    
-}
-
-// horizontal?
-function x3dom_translation(dx,dy,dz){
-    
-    var mat = Scene.element.runtime.viewMatrix().inverse();
-    var tr = mat.e3();
-
-    var x = tr.x+dx;
-    var y = tr.y+dy;
-    var z = tr.z+dz;
-
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("position",x+" "+y+" "+z);
-    viewpoint.attr("centerOfRotation",x+" "+y+" "+z);
-
-}
-
-function x3dom_altelev(alt,elev){
-
-    //x3dom_matrix_test();
-
-    var mat = Scene.element.runtime.viewMatrix().inverse();
-
-    var from = mat.e3();
-    from.y = alt;
-
-    var az = Math.atan2(mat._02,mat._22);
-    var el = elev;
-    var sk = Math.atan2(mat._10,mat._11);
-
-    var matx = x3dom.fields.SFMatrix4f.rotationX(el);
-    var maty = x3dom.fields.SFMatrix4f.rotationY(az);
-    var matz = x3dom.fields.SFMatrix4f.rotationZ(sk);
-    var matt  = x3dom.fields.SFMatrix4f.translation(from);
-
-    var newmat = matt.mult(maty).mult(matx).mult(matz);
-
-    var Q = new x3dom.fields.Quaternion(0,0,1,0);
-    Q.setValue(newmat);
-    var AA = Q.toAxisAngle();
-
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("position",newmat.e3().toString());
-    viewpoint.attr("centerOfRotation",newmat.e3().toString());
-    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-    
-}
-
-function x3dom_matrix_test(){
-    
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    
-    console.log("Viewpoint DOM element");
-    console.log("position: "+viewpoint.attr("position"));
-    console.log("orientation: "+viewpoint.attr("orientation"));
-    
-    var mat = Scene.element.runtime.viewMatrix().inverse();
-    
-    console.log("inversed viewMatrix");
-    console.log(mat.toString());    
-    
-    var from = mat.e3();
-    var at = from.subtract(mat.e2());
-    var up = mat.e1();
-    
-    console.log("matrix from from-at-up");
-    
-    var newmat = x3dom.fields.SFMatrix4f.lookAt(from, at, up);
-    
-    console.log(newmat.toString());
-    
-    var R = mat;
-    var az = Math.atan2(R._02,R._22)*180/Math.PI;
-    //az = (az+INIT_HEADING+360)%360;
-    //az = (az+360)%360;
-    var el = -Math.asin(R._12)*180/Math.PI;
-    var sk = Math.atan2(R._10,R._11);
-    
-    console.log("Angles:");
-    console.log("az="+az+" el="+el+" sk="+sk);
-    
-    
-    console.log("matrix from angles");    
-    
-    var matx = x3dom.fields.SFMatrix4f.rotationX(el*Math.PI/180);
-    var maty = x3dom.fields.SFMatrix4f.rotationY(az*Math.PI/180);
-    var matz = x3dom.fields.SFMatrix4f.rotationZ(sk*Math.PI/180);
-    
-    var m1  = x3dom.fields.SFMatrix4f.translation(from);
-    var m1n = x3dom.fields.SFMatrix4f.translation(from.negate());
-    
-    var newmat = maty.mult(matx).mult(matz);
-    
-    console.log(newmat.toString());
-    
-}
-
-
-

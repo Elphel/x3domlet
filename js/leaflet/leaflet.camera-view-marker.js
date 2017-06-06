@@ -358,7 +358,7 @@
                 this._basePoint.addTo(this._layerPaint).bringToFront();
                 
                 var cHIcon = L.icon({
-                    iconUrl: 'js/images/crosshair.png',
+                    iconUrl: 'js/leaflet/images/crosshair.png',
                     iconSize: [32, 32]
                 });
                 
