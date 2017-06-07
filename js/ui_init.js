@@ -12,11 +12,30 @@ var INIT_HEADING = 0;
 var SETTINGS = {
     'pointer':   false,
     'highlight': false,
+    'markinfo':  true,
     'viewinfo':  true,
     'moreinfo':  true,
     'crosshair': false,
     'shiftspeed': 0.01,
     'slidingdrag': true
+}
+
+// no comments
+function parseURL(){
+    var parameters=location.href.replace(/\?/ig,"&").split("&");
+    for (var i=0;i<parameters.length;i++) parameters[i]=parameters[i].split("=");
+    for (var i=1;i<parameters.length;i++) {
+        switch (parameters[i][0]) {
+            case "pointer":      SETTINGS.pointer   = true; break;
+            case "highlight":    SETTINGS.highlight = true; break;
+            case "markinfo":     SETTINGS.markinfo  = true; break;
+            case "viewinfo":     SETTINGS.viewinfo  = true; break;
+            case "moreinfo":     SETTINGS.moreinfo  = true; break;
+            case "crosshair":    SETTINGS.crosshair = true; break;
+            case "slidingdrag":  SETTINGS.slidingdrag = true; break;
+            case "shiftspeed":   SETTINGS.shiftspeed = parseFloat(parameters[i][1]); break;
+        }
+    }
 }
 
 $(function(){
@@ -661,22 +680,4 @@ function getAzimuth(p1_ll,p2_ll){
     
     return azimuth;
     
-}
-
-
-// no comments
-function parseURL(){
-    var parameters=location.href.replace(/\?/ig,"&").split("&");
-    for (var i=0;i<parameters.length;i++) parameters[i]=parameters[i].split("=");
-    for (var i=1;i<parameters.length;i++) {
-        switch (parameters[i][0]) {
-            case "pointer":      SETTINGS.pointer   = true; break;
-            case "highlight":    SETTINGS.highlight = true; break;
-            case "viewinfo":     SETTINGS.viewinfo  = true; break;
-            case "moreinfo":     SETTINGS.moreinfo  = true; break;
-            case "crosshair":    SETTINGS.crosshair = true; break;
-            case "slidingdrag":  SETTINGS.slidingdrag = true; break;
-            case "shiftspeed": SETTINGS.shiftspeed = parseFloat(parameters[i][1]); break;
-        }
-    }
 }

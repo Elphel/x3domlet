@@ -65,6 +65,10 @@
             <h2>Settings</h2>
             <table>
                 <tr>
+                    <td>Show marker info (satellite vs 3D model distalnce)</td>
+                    <td><input id='markinfo' type='checkbox' class='my-check-box' /></td>
+                </tr>
+                <tr>
                     <td>Show view info (x, y, z, azimuth, elevation, skew)</td>
                     <td><input id='viewinfo' type='checkbox' class='my-check-box' /></td>
                 </tr>
@@ -97,6 +101,16 @@
     <div id='help-content'>
         <div>
             <h2>3D Scene + Map</h2>
+            <h3 style='color:rgba(200,200,255,1);'>Comparing 3D model and Map (satellite imagery) measurements</h3>
+            <ul>
+                <li>Place a marker in the 3D scene near the feature of interest. Drag the marker closer if needed.<br/>This will set the 3D model distance.</li>
+                <li>Drag the corresponding marker over the map to what looks like the feature of interest to set the map distance.<br/>If the <b>show marker info</b> is enabled the distances and the difference will be displayed.</li>
+            </ul>
+            Update measurements:
+            <ul>
+                <li>Map distance - drag marker over map</li>
+                <li>3D model distance - drag marker over 3D scene</li>
+            </ul>
             <h3 style='color:rgba(200,200,255,1);'>Map</h3>
             <table>
             <tr>
@@ -147,7 +161,8 @@
                 </td>
             </tr>
             <tr>
-                <td><b>draggable objects (camera XY)</b></td>
+<!--                 <td><b>draggable objects (camera XY)</b></td> -->
+                <td><b>draggable objects (stick to surfaces)</b></td>
                 <td>
                     <ul>
                         <li>markers only</li>

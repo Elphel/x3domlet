@@ -1047,7 +1047,7 @@ X3DOMObject.MapMarker.registerEvents = function(map_mark){
  */
 X3DOMObject.displayInfo = function(e){
     
-        if (Data.markers.length==0){
+        if (Data.markers.length==0||!SETTINGS.markinfo){
             ui_hideMessage("window-markinfo");
         }
         //console.log("displayInfo");
@@ -1115,7 +1115,7 @@ X3DOMObject.displayInfo = function(e){
  */
 X3DOMObject.displayViewInfo = function(e){
     
-    if (Data.markers.length==0){
+    if (Data.markers.length==0||!SETTINGS.markinfo){
         ui_hideMessage("window-markinfo");
     }
     
@@ -1219,20 +1219,20 @@ X3DOMObject.displayMarkInfo = function(index){
         
         
         if (!isNaN(d_x3d_float)&&!isNaN(d_map_float)){
-            delta = (d_x3d_float-d_map_float).toFixed(1);
+            delta = (d_map_float-d_x3d_float).toFixed(1);
         }else{
             delta = "-";
         }
         
         
         msg += "<table>";
-        msg += "<tr><th align='left'>d<sub>map</sub></th><td align='left' style='text-align:left;'>"+d_map_msg+"</td></tr>";
-        msg += "<tr><th align='left'>d<sub>3d</sub></th><td align='left' style='text-align:left;'>"+d_x3d_msg+"</td></tr>";
+        msg += "<tr title='drag marker over map to update distance'><th align='left'>d<sub>map</sub></th><td align='left' style='text-align:left;'>"+d_map_msg+"</td></tr>";
+        msg += "<tr title='drag marker over 3d scene to update distance'><th align='left'>d<sub>3d</sub></th><td align='left' style='text-align:left;'>"+d_x3d_msg+"</td></tr>";
         msg += "<tr><th align='center'>&Delta;</th><td align='left' style='text-align:left;'>"+delta+" m</td></tr>";
         msg += "</table>";
     }
     
-    if (hide){
+    if (hide||!SETTINGS.markinfo){
         ui_hideMessage("window-markinfo");
     }else{
         ui_showMessage("window-markinfo",msg);

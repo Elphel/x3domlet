@@ -271,9 +271,11 @@ function x3dom_altelev(alt,elev){
     var from = mat.e3();
     from.y = alt;
 
+    // convert to W2C*C2W
     var az = Math.atan2(mat._02,mat._22);
     var el = elev;
     var sk = Math.atan2(mat._10,mat._11);
+    
 
     var matx = x3dom.fields.SFMatrix4f.rotationX(el);
     var maty = x3dom.fields.SFMatrix4f.rotationY(az);
@@ -293,6 +295,9 @@ function x3dom_altelev(alt,elev){
     
 }
 
+/**
+ * back and forth conversions for test purposes
+ */
 function x3dom_matrix_test(){
     
     var viewpoint = $(Scene.element).find("Viewpoint");
@@ -321,7 +326,7 @@ function x3dom_matrix_test(){
     //az = (az+INIT_HEADING+360)%360;
     //az = (az+360)%360;
     var el = -Math.asin(R._12)*180/Math.PI;
-    var sk = Math.atan2(R._10,R._11);
+    var sk = Math.atan2(R._10,R._11)*180/Math.PI;
     
     console.log("Angles:");
     console.log("az="+az+" el="+el+" sk="+sk);
@@ -343,10 +348,10 @@ function x3dom_matrix_test(){
 }
 
 /**
- * Get World to Camera coordinates tranform matrix
- * what's x3dom's native getWCtoCCMatrix()? canvas-to-world?
+ * Transform to calculate conventional Euler angles for z-y'-x" = z-y-z
+ * unrelated: what's x3dom's native getWCtoCCMatrix()? canvas-to-world?
  */
-function x3dom_W2C(){
+function x3dom_C2E(){
     return new x3dom.fields.SFMatrix4f(
         0, 0, 1, 0,
         1, 0, 0, 0,
@@ -355,6 +360,19 @@ function x3dom_W2C(){
     );
 }
 
-function x3dom_C2W(){
+function x3dom_E2C(){
     return x3dom_W2C().inverse();
+}
+
+function x3dom_YawPitchRoll(m){
+    
+    var yaw = Math.atan2(m._10,m._00);
+    var pitch = -Math.asin(m._20);
+    var roll = Math.atan2(m._21,m._22);
+    
+    return {
+        yaw: yaw,
+        pitch: pitch,
+        roll: roll
+    };
 }
