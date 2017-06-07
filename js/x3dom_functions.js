@@ -51,22 +51,22 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
             x = shootRay.pickPosition.x;
             y = shootRay.pickPosition.y;
             z = shootRay.pickPosition.z;
+        
+            dist_xz  = Math.sqrt(x*x+z*z);
             
         }else{
             
             x = Data.markers[index].x;
             y = Data.markers[index].y;
             z = Data.markers[index].z;
-            
+        
+            dist_xz  = Data.markers[index].d_x3d;
+            if (isNaN(dist_xz)){
+                dist_xz  = Math.sqrt(x*x+z*z);
+            }
         }
         
-        dist_xz  = Math.sqrt(x*x+z*z);
         dist_xyz = Math.sqrt(y*y+dist_xz*dist_xz);
-        
-        if (round){
-            dist_xz.toFixed(2);
-            dist_xyz.toFixed(2);
-        }
         
         id = $(shootRay.pickObject).attr("id");
         
@@ -106,6 +106,7 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
     }
     
     result.id = id;
+    result.index = index;
     
     return result;
 
@@ -336,7 +337,7 @@ function x3dom_matrix_test(){
 
 /**
  * Get World to Camera coordinates tranform matrix
- * what's native getWCtoCCMatrix()?
+ * what's x3dom's native getWCtoCCMatrix()? canvas-to-world?
  */
 function x3dom_W2C(){
     return new x3dom.fields.SFMatrix4f(

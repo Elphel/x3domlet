@@ -240,6 +240,20 @@ html, body, #x3d_wrapper {
     text-align:center;
 }
 
+#window-markinfo{
+    z-index: 10;
+    background: rgba(256,256,256,1);
+    border: 0px solid rgba(100,100,100,0.5);
+    border-radius: 1px;
+    color: black;
+    font-size: 16px;
+    margin-top: 2px;
+}
+
+#window-markinfo td{
+    text-align:center;
+}
+
 .input{
     text-align: right;
     width: 100px;

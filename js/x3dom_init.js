@@ -30,6 +30,8 @@ var X3DOMObject = function(element,data,options){
     this._ctrlKey = false;
     this._shiftKey = false;
     
+    this.markInfoIndex = null;
+    
 };
 
 // ui, window
@@ -432,12 +434,14 @@ X3DOMObject.prototype.updateMarkersIndices = function(){
 
 /**
  *  Marker object - which is a sphere of 1m radius
+ *  @ylevel - level height
  */
-X3DOMObject.Marker = function(x,y,z){
+X3DOMObject.Marker = function(x,y,z,ylevel){
     
     this._x = x || 0;
     this._y = y || 0;
     this._z = z || 0;
+    this._ylevel = ylevel || false;
     
     this.init();
     
@@ -445,6 +449,118 @@ X3DOMObject.Marker = function(x,y,z){
 
 
 X3DOMObject.Marker.prototype.init = function(){
+    
+    if (this._ylevel){
+        
+        //console.log(this._x+" "+this._y+" "+this._z);
+        
+        // temporary solution is to shoot rays - very slow
+        var cPos = Scene.element.runtime.calcCanvasPos(this._x,this._y,this._z);
+        
+        var cx = cPos[0];
+        var cy = 0;
+        var x,y,z,d0,d1;
+        var sr;
+        
+        d0 = Math.sqrt(this._x*this._x+this._z*this._z);
+        
+        for(var i=0;i<$(window).height();i++){
+
+            sr = Scene.element.runtime.shootRay(cx,cy);
+            
+            if (sr.pickPosition != null){
+                
+                x = sr.pickPosition.x;
+                y = sr.pickPosition.y;
+                z = sr.pickPosition.z;
+                d1 = Math.sqrt(x*x+z*z);
+                
+                if ((d1-d0)<0.1){
+                    this._y = y;
+                    break;
+                }
+            }
+            
+            cy += 1;
+            
+        }
+        
+        /*
+        //var from = new x3dom.fields.SFVec3f(this._x, 100, this._z);
+        var from = new x3dom.fields.SFVec3f(0, 0, 0);
+        //var at   = new x3dom.fields.SFVec3f(this._x, -100, this._z);
+        var dir =  new x3dom.fields.SFVec3f(0, -0, -1);//at.subtract(from);
+        // dir gets auto normalized
+        var vray = new x3dom.fields.Ray(from, dir);
+        
+        //var vray = Scene.element.runtime.getViewingRay(0,0);
+        
+        console.log(vray);
+        
+        
+        var scene = Scene.element.runtime.canvas.doc._scene;
+        var info  = Scene.element.runtime.canvas.doc._viewarea._pickingInfo;
+        
+        console.log(Scene.element.runtime.pickMode());
+        //console.log(Scene.element.runtime.changePickMode('idbuf'));
+        //console.log(Scene.element.runtime.changePickMode('color'));
+        console.log(Scene.element.runtime.changePickMode('texcoord'));
+        //console.log(Scene.element.runtime.changePickMode('box'));
+        console.log(Scene.element.runtime.pickMode());
+        
+        
+        var isect = scene.doIntersect(vray);
+
+        console.log(info);
+        
+        console.log("vr");
+        console.log(vray);
+        
+        if (vray.hitObject!=null){
+            console.log($(vray.hitObject._xmlNode).parent().find("ImageTexture").attr("url"));
+            var el = $(vray.hitObject._xmlNode).parent();
+            var bbox = Scene.element.runtime.getSceneBBox();
+            console.log(bbox);
+            
+            this._x = vray.hitPoint.x;
+            this._y = vray.hitPoint.y;
+            this._z = vray.hitPoint.z;
+        }
+        */
+        /*
+        // sane output
+        console.log("scene bbox");
+        var bbox = Scene.element.runtime.getSceneBBox();
+        console.log(bbox);
+        */
+        
+        /*
+        var sr = Scene.element.runtime.shootRay(1000,450);
+        
+        console.log("sr");
+        console.log(sr);
+        */
+        
+        /*
+        //while(vray.hitPoint.y>-100){
+        var n=0;
+        while(n<1000){
+
+            var from = new x3dom.fields.SFVec3f(vray.hitPoint.x,vray.hitPoint.y-0.1,vray.hitPoint.z);
+            var at   = new x3dom.fields.SFVec3f(vray.hitPoint.x, -100, vray.hitPoint.z);
+            var dir =  at.subtract(from).normalize();
+            var vray = new x3dom.fields.Ray(from, dir);
+            var isect = scene.doIntersect(vray);
+            console.log(vray);
+            n++;
+
+        }
+        */
+        
+        //do intersect
+        //hitobject
+        //get y
+    }
     
     this._elem = Scene.createMarker(this._x,this._y,this._z);
     this._shape = this._elem.find("shape");
@@ -636,9 +752,27 @@ X3DOMObject.Marker.mouseMove = function(event){
     }
 
     if (Scene.draggedTransformNode){
-        // once we get out of the marker we will get correct world coordinates
-        console.log(event);
-        X3DOMObject.Marker.drag(event.offsetX - Scene.lastMouseX, event.offsetY - Scene.lastMouseY);
+        // once we mouse out of the marker we will get correct world coordinates
+        //console.log(event);
+        if (!SETTINGS.slidingdrag){
+            X3DOMObject.Marker.drag(event.offsetX - Scene.lastMouseX, event.offsetY - Scene.lastMouseY);
+        }else{
+            var sr = Scene.element.runtime.shootRay(event.clientX,event.clientY);
+            if (sr.pickObject != null){
+                if (!$(sr.pickObject).hasClass("shapemarker")){
+                    var sphere = Scene.draggedTransformNode.parent().parent();
+                    var index = parseInt(sphere.attr("id").substr(7));
+                    X3DOMObject.Marker.place(sr.pickPosition.x,sr.pickPosition.y,sr.pickPosition.z,"my-sph-"+index);
+                    //console.log("got shape");
+                    //Scene.draggedTransformNode
+                    X3DOMObject.Marker.slide(index,sr.pickPosition.x,sr.pickPosition.y,sr.pickPosition.z);
+                    
+                    X3DOMObject.displayInfo(event);
+                    X3DOMObject.displayViewInfo(event);
+                    
+                }
+            }
+        }
     }
 
     Scene.lastMouseX = event.offsetX;
@@ -658,11 +792,18 @@ X3DOMObject.Marker.drag = function(dx,dy){
     var sphere = $(Scene.draggedTransformNode).parent().parent();
     var index = parseInt(sphere.attr("id").substr(7));
 
+    X3DOMObject.Marker.slide(index,Scene.unsnappedDragPos.x,Scene.unsnappedDragPos.y,Scene.unsnappedDragPos.z);
+    
+}
+
+
+X3DOMObject.Marker.slide = function(index,x,y,z){
+
     var c = Data.markers[index];
     
-    c.x = Scene.unsnappedDragPos.x;
-    c.y = Scene.unsnappedDragPos.y;
-    c.z = Scene.unsnappedDragPos.z;
+    c.x = x;
+    c.y = y;
+    c.z = z;
     
     var azimuth = Math.atan2(c.x,-c.z)*180/Math.PI;
     //var initial_heading = Data.camera.heading;
@@ -675,9 +816,15 @@ X3DOMObject.Marker.drag = function(dx,dy){
     c.longitude = p2_ll.lng;
     c.altitude = c.y;
     
+    c.d_x3d = distance;
+    
+    X3DOMObject.displayMarkInfo(index);
+    X3DOMObject.displayInfo({});
+    
     Map.marker.moveMeasureMarker(p2_ll,index);
     
 }
+
 
 X3DOMObject.Marker.place = function(x,y,z,id){
 
@@ -746,8 +893,14 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
             y: parseFloat(xyz[1]) || 0,
             z: parseFloat(xyz[2]) || 0
         });
+        
+        mark.d_x3d = Math.sqrt(mark.x*mark.x+mark.z*mark.z);
+        mark.d_map = "<font style='color:red;'>drag over map</font>";
+        
         Data.markers.push(mark);
-
+        
+        X3DOMObject.displayMarkInfo(Data.markers.length-1);
+        
         // Create marker on the scene
         new X3DOMObject.Marker(mark.x,mark.y,mark.z);
 
@@ -874,9 +1027,15 @@ X3DOMObject.MapMarker.registerEvents = function(map_mark){
  */
 X3DOMObject.displayInfo = function(e){
     
+        console.log("displayInfo");
+    
         var elem = Scene.element;
 
         var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,true);
+        
+        if (Data.markers[mouse.index]!=undefined){
+            X3DOMObject.displayMarkInfo(mouse.index);
+        }
         
         var dist = 1000;
         
@@ -889,6 +1048,8 @@ X3DOMObject.displayInfo = function(e){
             
             if (SETTINGS.moreinfo){
                 
+                console.log("displayInfo actual displaying");
+                
                 $("#window-info").css({"font-size":"16px"});
                 
                 var st = mouse.id;
@@ -897,10 +1058,12 @@ X3DOMObject.displayInfo = function(e){
                 
                 dist_msg += "<table>";
                 dist_msg += "<tr><th align='center'>shape id</td><td>"+id_msg+"</td></tr>";
-                dist_msg += "</table><table>";
-                dist_msg += "<tr><th align='left'>d<sub>map</sub></td><td>"+mouse.d_xz+" m</td></tr>";
-                dist_msg += "<tr><th align='left'>d<sub>3d</sub></td><td>"+mouse.d_xyz+" m</td></tr>";
-                dist_msg += "</table>";
+                dist_msg += "</table>";    
+                dist_msg += "<table>";
+                dist_msg += "<tr><th align='left'>d<sub>xz</sub></td><td>"+mouse.d_xz+" m</td>";
+                dist_msg += "<td>&nbsp;</td>";
+                dist_msg += "<th align='left'>d<sub>xyz</sub></td><td>"+mouse.d_xyz+" m</td></tr>";
+                dist_msg += "</table>";                    
                 
             }else{
 
@@ -936,6 +1099,12 @@ X3DOMObject.displayViewInfo = function(e){
     
     var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,true);
     mouse.s = "0";
+    
+    /*
+    if (Data.markers[mouse.index]!=undefined){
+        X3DOMObject.displayMarkInfo(mouse.index);
+    }
+    */
     
     var camera = x3dom_getCameraPosOr(true);
     
@@ -986,3 +1155,61 @@ X3DOMObject.displayViewInfo = function(e){
         ui_hideMessage("window-viewinfo");
     }
 }
+
+/**
+ * view marker data - satellite vs 3d model
+ */
+X3DOMObject.displayMarkInfo = function(index){
+    
+    console.log("displayMarkInfo");
+    
+    var hide = false;
+    
+    if (Data.markers.length==0){
+        hide = true;
+    }else{
+        msg = "<div>Marker "+index+" (Satellite vs 3D model)</div>";
+        
+        var d_map = Data.markers[index].d_map;
+        var d_x3d = Data.markers[index].d_x3d;
+        
+        var d_map_float = parseFloat(d_map);
+        var d_x3d_float = parseFloat(d_x3d);
+        
+        var delta;
+        
+        if (isNaN(d_map_float)){
+            d_map_msg = d_map;
+        }else{
+            d_map_msg = d_map_float.toFixed(1)+" m";
+        }
+        
+        if (isNaN(d_x3d_float)){
+            d_x3d_msg = d_x3d;
+        }else{
+            d_x3d_msg = d_x3d_float.toFixed(1)+" m";
+        }
+        
+        
+        if (!isNaN(d_x3d_float)&&!isNaN(d_map_float)){
+            delta = (d_x3d_float-d_map_float).toFixed(1);
+        }else{
+            delta = "-";
+        }
+        
+        
+        msg += "<table>";
+        msg += "<tr><th align='left'>d<sub>map</sub></th><td align='left' style='text-align:left;'>"+d_map_msg+"</td></tr>";
+        msg += "<tr><th align='left'>d<sub>3d</sub></th><td align='left' style='text-align:left;'>"+d_x3d_msg+"</td></tr>";
+        msg += "<tr><th align='center'>&Delta;</th><td align='left' style='text-align:left;'>"+delta+" m</td></tr>";
+        msg += "</table>";
+    }
+    
+    if (hide){
+        ui_hideMessage("window-markinfo");
+    }else{
+        ui_showMessage("window-markinfo",msg);
+    }
+    
+}
+

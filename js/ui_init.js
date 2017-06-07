@@ -16,7 +16,7 @@ var SETTINGS = {
     'moreinfo':  true,
     'crosshair': false,
     'shiftspeed': 0.01,
-    'verticaldrag': false
+    'slidingdrag': true
 }
 
 $(function(){
@@ -408,9 +408,15 @@ function leaf_events(){
                 mark.y = 0;
                 mark.z = -distance*Math.cos(Math.PI/180*angle);
                 
+                mark.d_map = distance;
+                mark.d_x3d = "<font style='color:red;'>drag over 3D</font>";
+                
                 Data.markers.push(mark);
                 
-                new X3DOMObject.Marker(mark.x,mark.y,mark.z);
+                X3DOMObject.displayMarkInfo(Data.markers.length-1);
+                
+                //new X3DOMObject.Marker(mark.x,mark.y,mark.z,true);
+                new X3DOMObject.Marker(mark.x,mark.y,mark.z,false);
                 
                 //Scene.createMarker(mark.x,mark.y,mark.z);
                 //x3d_markerEvents(Data.markers.length-1);
@@ -531,6 +537,10 @@ function leaf_drag_marker(){
         
         mark.x = distance*Math.sin(Math.PI/180*angle);
         mark.z = -distance*Math.cos(Math.PI/180*angle);
+        
+        mark.d_map = distance;
+        
+        X3DOMObject.displayMarkInfo(index);
         
         X3DOMObject.Marker.place(mark.x,mark.y,mark.z,"my-sph-"+index);
     
@@ -660,11 +670,12 @@ function parseURL(){
     for (var i=0;i<parameters.length;i++) parameters[i]=parameters[i].split("=");
     for (var i=1;i<parameters.length;i++) {
         switch (parameters[i][0]) {
-            case "pointer":    SETTINGS.pointer   = true; break;
-            case "highlight":  SETTINGS.highlight = true; break;
-            case "viewinfo":   SETTINGS.viewinfo  = true; break;
-            case "moreinfo":   SETTINGS.moreinfo  = true; break;
-            case "crosshair":  SETTINGS.crosshair = true; break;
+            case "pointer":      SETTINGS.pointer   = true; break;
+            case "highlight":    SETTINGS.highlight = true; break;
+            case "viewinfo":     SETTINGS.viewinfo  = true; break;
+            case "moreinfo":     SETTINGS.moreinfo  = true; break;
+            case "crosshair":    SETTINGS.crosshair = true; break;
+            case "slidingdrag":  SETTINGS.slidingdrag = true; break;
             case "shiftspeed": SETTINGS.shiftspeed = parseFloat(parameters[i][1]); break;
         }
     }
