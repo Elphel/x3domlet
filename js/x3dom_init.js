@@ -575,11 +575,14 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
     
     var self = this;
     var marker = this._shape;
-    var id_prefix = $(this._elem).attr("id").substr(0,PREFIX.length);
-    var index = parseInt($(this._elem).attr("id").substr(PREFIX.length));
+    //var id_prefix = $(this._elem).attr("id").substr(0,PREFIX.length);
+    //var index = parseInt($(this._elem).attr("id").substr(PREFIX.length));
     
     marker.on('click',function(e){
         
+        var elem = $(this).parent().parent().parent();
+        var index = parseInt($(elem).attr("id").substr(PREFIX.length));
+        var id_prefix = $(elem).attr("id").substr(0,PREFIX.length);
         //self.dehighlight();
         //X3DOMObject.PointerMarker.dehighlight(self._elem);
         
@@ -587,10 +590,10 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
 
             if (id_prefix==PREFIX){
 
-                self._elem.remove();
+                elem.remove();
                 
                 // REMOVE
-                Data.markers.splice(index);
+                Data.markers.splice(index,1);
                 Scene.updateMarkersIndices();
                 
                 Map.deleteMarker(index);
@@ -599,7 +602,7 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
 
         }else{
 
-            X3DOMObject.Marker.toggle(self._elem);
+            X3DOMObject.Marker.toggle(elem);
             Map.toggleMarker(index);
 
         }
@@ -608,8 +611,13 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
     
     marker.on('mouseover',function(e){
         
-        X3DOMObject.Marker.highlight(self._elem);
+        var elem = $(this).parent().parent().parent();
+        var index = parseInt($(elem).attr("id").substr(PREFIX.length));
+        var id_prefix = $(elem).attr("id").substr(0,PREFIX.length);
+        
+        X3DOMObject.Marker.highlight(elem);
         Map.highlightMarker(index);
+        
         Scene.highlighted_marker_index = index;
         
         if (Scene._ctrlKey){
@@ -630,16 +638,19 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
     
     marker.on('mouseout',function(e){
         
+        var elem = $(this).parent().parent().parent();
+        var index = parseInt($(elem).attr("id").substr(PREFIX.length));
+
         //self.highlightMarker(index);
         Scene.highlighted_marker_index = null;
 
         if (Scene.draggedTransformNode==null){
             
-            if (!self._elem.prop("selected")){
-                X3DOMObject.Marker.dehighlight(self._elem);
+            if (!elem.prop("selected")){
+                X3DOMObject.Marker.dehighlight(elem);
                 Map.dehighlightMarker(index);
             }else{
-                X3DOMObject.Marker.highlight(self._elem);
+                X3DOMObject.Marker.highlight(elem);
                 Map.highlightMarker(index);
             }
 
@@ -649,7 +660,10 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
     
     marker.on('mousedown',function(e){
 
-        X3DOMObject.Marker.dehighlight(self._elem);
+        var elem = $(this).parent().parent().parent();
+        var index = parseInt($(elem).attr("id").substr(PREFIX.length));
+        
+        X3DOMObject.Marker.dehighlight(elem);
         Map.dehighlightMarker(index);
         
         document.getElementById("navInfo").setAttribute("type", '"NONE"');
@@ -666,7 +680,10 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
     
     marker.on('mouseup',function(e){
 
-        X3DOMObject.Marker.highlight(self._elem);
+        var elem = $(this).parent().parent().parent();
+        var index = parseInt($(elem).attr("id").substr(PREFIX.length));
+        
+        X3DOMObject.Marker.highlight(elem);
         Map.highlightMarker(index);
 
     });
@@ -762,6 +779,7 @@ X3DOMObject.Marker.mouseMove = function(event){
                 if (!$(sr.pickObject).hasClass("shapemarker")){
                     var sphere = Scene.draggedTransformNode.parent().parent();
                     var index = parseInt(sphere.attr("id").substr(7));
+                    
                     X3DOMObject.Marker.place(sr.pickPosition.x,sr.pickPosition.y,sr.pickPosition.z,"my-sph-"+index);
                     //console.log("got shape");
                     //Scene.draggedTransformNode
@@ -791,7 +809,7 @@ X3DOMObject.Marker.drag = function(dx,dy){
 
     var sphere = $(Scene.draggedTransformNode).parent().parent();
     var index = parseInt(sphere.attr("id").substr(7));
-
+    
     X3DOMObject.Marker.slide(index,Scene.unsnappedDragPos.x,Scene.unsnappedDragPos.y,Scene.unsnappedDragPos.z);
     
 }
@@ -943,6 +961,8 @@ X3DOMObject.MapMarker.registerEvents = function(map_mark){
     
         map_mark.on('mouseover',function(){
             
+            //console.log(this._index);
+            
             var index = this._index;
             var elem = $("#my-sph-"+index);
 
@@ -1027,7 +1047,10 @@ X3DOMObject.MapMarker.registerEvents = function(map_mark){
  */
 X3DOMObject.displayInfo = function(e){
     
-        console.log("displayInfo");
+        if (Data.markers.length==0){
+            ui_hideMessage("window-markinfo");
+        }
+        //console.log("displayInfo");
     
         var elem = Scene.element;
 
@@ -1048,7 +1071,7 @@ X3DOMObject.displayInfo = function(e){
             
             if (SETTINGS.moreinfo){
                 
-                console.log("displayInfo actual displaying");
+                //console.log("displayInfo actual displaying");
                 
                 $("#window-info").css({"font-size":"16px"});
                 
@@ -1091,6 +1114,10 @@ X3DOMObject.displayInfo = function(e){
  * view info template
  */
 X3DOMObject.displayViewInfo = function(e){
+    
+    if (Data.markers.length==0){
+        ui_hideMessage("window-markinfo");
+    }
     
     if (!e.target){
         e.clientX = $(window).width()/2;
@@ -1161,7 +1188,7 @@ X3DOMObject.displayViewInfo = function(e){
  */
 X3DOMObject.displayMarkInfo = function(index){
     
-    console.log("displayMarkInfo");
+    //console.log("displayMarkInfo");
     
     var hide = false;
     

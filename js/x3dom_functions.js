@@ -44,7 +44,14 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
     
     if (shootRay.pickPosition != null){
         
-        var index = Scene.highlighted_marker_index;    
+        var index = Scene.highlighted_marker_index;
+        
+        if (index==null){
+            if ((Scene.draggedTransformNode!=undefined)&&(Scene.draggedTransformNode!=null)){
+                var sphere = Scene.draggedTransformNode.parent().parent();
+                index = parseInt(sphere.attr("id").substr(7));
+            }
+        }
         
         if ((index==null)||(Data.markers[index]==undefined)){
         
@@ -71,7 +78,7 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
         id = $(shootRay.pickObject).attr("id");
         
     }else{
-        
+
         var viewingRay = elem.runtime.getViewingRay(cnvx,cnvy);
         
         x = viewingRay.dir.x;
