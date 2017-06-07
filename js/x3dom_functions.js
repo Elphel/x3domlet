@@ -243,23 +243,42 @@ function x3dom_rotation(delta_a){
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
     viewpoint.attr("position",from.toString());
     viewpoint.attr("centerOfRotation",from.toString());
-    
+
 }
 
 // horizontal?
 function x3dom_translation(dx,dy,dz){
     
+    var delta = new x3dom.fields.SFVec3f(dx,dy,dz);
+    
     var mat = Scene.element.runtime.viewMatrix().inverse();
     var tr = mat.e3();
 
-    var x = tr.x+dx;
-    var y = tr.y+dy;
-    var z = tr.z+dz;
-
+    var from = mat.e3();
+    var at = from.subtract(mat.e2());
+    
+    console.log(from.toString());
+    
+    var newfrom = from.add(delta);
+    
+    console.log(newfrom.toString());
+    
+    var newat = newfrom.subtract(mat.e2());
+    
+    var up = mat.e1();
+    
+    var newmat = x3dom.fields.SFMatrix4f.lookAt(newfrom, newat, up);
+    
+    var Q = new x3dom.fields.Quaternion(0,0,1,0);
+    //Q.setValue(newmat.inverse());
+    Q.setValue(newmat);
+    var AA = Q.toAxisAngle();
+    
     var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("position",x+" "+y+" "+z);
-    viewpoint.attr("centerOfRotation",x+" "+y+" "+z);
-
+    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
+    viewpoint.attr("position",newfrom.toString());
+    viewpoint.attr("centerOfRotation",newfrom.toString());
+    
 }
 
 function x3dom_altelev(alt,elev){

@@ -7,6 +7,7 @@ var Data = {
 var Scene;
 var Map;
 
+// this var needs to go
 var INIT_HEADING = 0;
 
 var SETTINGS = {
@@ -505,6 +506,7 @@ function leaf_mousemove_nohc(e){
     var p0 = new L.LatLng(Data.camera.latitude,Data.camera.longitude);
     var p1 = new L.LatLng(Camera._latlng.lat,Camera._latlng.lng);
     
+    //update Data
     Data.camera.latitude = Camera._latlng.lat;
     Data.camera.longitude = Camera._latlng.lng;
     
@@ -514,15 +516,15 @@ function leaf_mousemove_nohc(e){
     
     Data.camera.heading = Camera._heading*180/Math.PI;
     
-    var newheading = Data.camera.heading;// - INIT_HEADING;
+    var newheading = Data.camera.heading - INIT_HEADING;
     
     if ((p0.lat!=p1.lat)||(p0.lng!=p1.lng)){
         console.log("translation");
         leaf_translation_v1(p0,p1);
+    }else{
+        //leaf_rotation_v1(newheading,dh);
+        x3dom_rotation(dh);        
     }
-
-    //leaf_rotation_v1(newheading,dh);
-    x3dom_rotation(dh);
     
     X3DOMObject.displayViewInfo({});
     
@@ -586,17 +588,22 @@ function leaf_translation_v1(p0,p1){
         dz = -dz;
     }
 
-    var da = Math.atan2(dz,dx);
+    //transform to camera coordinates
+    var A  = Math.PI/180*INIT_HEADING;
+    var a  = Math.atan2(dx,dz);
     
-    var A = Math.PI/180*INIT_HEADING;
+    console.log(A);
     
-    dx = dl*Math.sin(A-da);
-    dz = -dl*Math.cos(A-da);
-
-    console.log("dx="+dx+" dy="+dy+" dz="+dz+" A="+A+" da="+da);
+    dx = -dl*Math.sin(A-a);
+    dz = -dl*Math.cos(A-a);
+    
+    console.log("dx="+dx+" dy="+dy+" dz="+dz);
     
     // translation over map = xz
-    x3dom_translation(dx,dy,dz)
+    x3dom_translation(dx,dy,dz);
+    
+    // if not updated then moving in 3D scene will make it jump
+    Scene.old_view_translation = x3dom_getViewTranslation(Scene.element);
     
 }
 
