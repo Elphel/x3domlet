@@ -4,7 +4,8 @@ table{
 }
 
 tr, th, td{
-    border: 1px solid rgba(220,220,220,1);
+    border: 0px solid rgba(220,220,220,1);
+    min-width: 80px;
 }
 
 #model_table td{
@@ -14,4 +15,33 @@ tr, th, td{
 ul {
     margin: 0px;
     -webkit-padding-start: 20px;
+}
+
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding: 0;
+    margin: 0;
+}
+
+#leaflet_map{
+    position:absolute;
+    top:0px;
+    left:0px;
+    height: 100vh;
+    width: 100vw;
+}
+
+#table_div{
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:1000;
+    background:white;
+    border-radius: 3px;
+    overflow:hidden;
+    padding:2px;
+}
+
+.odd{
+    background:rgba(120,120,220,1);
 }

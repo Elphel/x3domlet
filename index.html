@@ -3,17 +3,25 @@
   <head>
     <meta charset="utf-8"/>
     <title>x3d models index</title>
+    
     <script type='text/javascript' src='js/jquery/jquery-3.1.1.js'></script>
+    <script type='text/javascript' src='js/leaflet/leaflet-src.js'></script>
     <script type='text/javascript' src='js/index.js'></script>
+    
+    <link rel='stylesheet' type='text/css' href='js/leaflet/leaflet.css'></link>
     <link rel='stylesheet' type='text/css' href='js/index.css'></link>
+    
   </head>
   <body>
+  <div id="table_div">
     <table id='model_table'>
         <tr>
-            <th>Model</th>
+            <th></th>
+            <th>Model name</th>
             <th>Versions</th>
-            <th>Comments</th>
         </tr>
     </table>
+  </div>
+  <div id="leaflet_map"></div>
   </body>
 </html>
