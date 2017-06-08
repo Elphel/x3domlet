@@ -292,6 +292,10 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
         var z = e.originalEvent.worldZ;
 
         if (self._ctrlKey||SETTINGS.pointer){
+            
+            $("#sliding_sphere").find('material').attr("diffuseColor",convert_color_l2x(SETTINGS.markercolor));
+            $("#sliding_sphere").find('Sphere').attr("radius",SETTINGS.markersize/2);
+            
             X3DOMObject.Marker.place(x,y,z,"sliding_sphere");
             $("#sliding_sphere").find("switch").attr("whichChoice",0);
         }else{
@@ -416,17 +420,20 @@ X3DOMObject.prototype.createMarker = function(x,y,z,id){
 
     var self = this;
     
-    sph_class = "";
+    var sph_class = "";
     
     var index = null;
+    
+    var color = convert_color_l2x(SETTINGS.markercolor);
+    var size = SETTINGS.markersize/2;
     
     if ((id=="")||(id==undefined)){
         sph_class = "my-markers";
         index = $("."+sph_class).length;
         id = "my-sph-"+index;
+        color = convert_color_l2x(self.data.markers[index].color);
+        size  = self.data.markers[index].size/2;
     }
-
-    var color = convert_color_l2x(SETTINGS.markercolor);
     
     var html = `
     <group id='`+id+`' class='`+sph_class+`'>
@@ -436,22 +443,19 @@ X3DOMObject.prototype.createMarker = function(x,y,z,id){
         <appearance> 
             <material diffuseColor='`+color+`' transparency='0.0' myColor='`+color+`'></material>
         </appearance> 
-        <Sphere DEF="sphere" radius="`+(SETTINGS.markersize/2)+`" />
+        <Sphere DEF="sphere" radius="`+size+`" />
         </shape> 
     </transform>
     </switch>
     </group>
     `;
-
-    var test = convert_color_x2l(SETTINGS.markercolor);
-    console.log(test);
     
     var sphere_element = $(html);
     
     $(this.element).find("scene").append(sphere_element);
     
-    var shape = $(sphere_element).find("shape");
-    var id_prefix = $(sphere_element).attr("id").substr(0,7);
+    //var shape = $(sphere_element).find("shape");
+    //var id_prefix = $(sphere_element).attr("id").substr(0,7);
     
     return sphere_element;
     // sphere events
@@ -951,7 +955,9 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
         var mark = new X3L({
             x: parseFloat(xyz[0]) || 0,
             y: parseFloat(xyz[1]) || 0,
-            z: parseFloat(xyz[2]) || 0
+            z: parseFloat(xyz[2]) || 0,
+            color: SETTINGS.markercolor,
+            size:  SETTINGS.markersize,
         });
         
         mark.d_x3d = Math.sqrt(mark.x*mark.x+mark.z*mark.z);

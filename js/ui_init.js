@@ -63,6 +63,8 @@ var SETTINGS = {
 //     'kml'    : "scene.kml"
 }
 
+var MARKER_PREFIX = "my-sph-";
+
 // no comments
 function parseURL(){
     var parameters=location.href.replace(/\?/ig,"&").split("&");
@@ -478,7 +480,9 @@ function leaf_events(){
             
                 var mark = new X3L({
                     latitude: Lm._latlng.lat,
-                    longitude: Lm._latlng.lng
+                    longitude: Lm._latlng.lng,
+                    color: SETTINGS.markercolor,
+                    size: SETTINGS.markersize,
                 });
                 
                 var p1_ll = Camera._latlng;
@@ -718,43 +722,5 @@ function x3d_mouseMove(){
     Data.camera.heading = heading+INIT_HEADING;
     
     Scene.old_view_translation = d;
-    
-}
-
-// http://www.movable-type.co.uk/scripts/latlong.html
-// initial bearing
-
-// precision problems?!
-
-function getAzimuth2(p1,p2){
-
-    //p1 - start point
-    //p2 - end point
-    
-    var dlat = p2.lat-p1.lat;
-    var dlon = p2.lng-p1.lng;
-
-    var y = Math.sin(dlon)*Math.cos(p2.lat);
-    var x = Math.cos(p1.lat)*Math.sin(p2.lat)-Math.sin(p1.lat)*Math.cos(p2.lat)*Math.cos(dlon);
-    
-    var azimuth = ((2*Math.PI + Math.atan2(y,x))*180/Math.PI) % 360;
-    
-    return azimuth;
-  
-}
-
-function getAzimuth(p1_ll,p2_ll){
-    
-    var Camera = Map.marker;
-    
-    var p1 = Camera._map.latLngToLayerPoint(p1_ll);
-    var p2 = Camera._map.latLngToLayerPoint(p2_ll);
-    
-    var dx = p2.x - p1.x;
-    var dz = p2.y - p1.y;
-    
-    var azimuth = (180/Math.PI*Math.atan2(dx,-dz)+360)%360;
-    
-    return azimuth;
     
 }

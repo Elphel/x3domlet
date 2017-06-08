@@ -136,8 +136,7 @@ LeafletObject.prototype.highlightMarker = function(index){
 
 LeafletObject.prototype.dehighlightMarker = function(index){
 
-    var color = $("#my-sph-"+index).find("material").attr("myColor");
-    color = convert_color_x2l(color);
+    color = Data.markers[index].color;
     
     var style = {color:color,fillColor:color};
 
@@ -165,35 +164,3 @@ LeafletObject.prototype.deleteMarker = function(index){
     this.marker.removeMeasureMarker(index);
 
 }
-
-function convert_color_x2l(color){
-    
-    var rgb = color.split(" ");
-    
-    var r = parseInt(rgb[0]*15);
-    var g = parseInt(rgb[1]*15);
-    var b = parseInt(rgb[2]*15);
-    
-    r = r.toString(16);
-    g = g.toString(16);
-    b = b.toString(16);
-    
-    return "#"+r+g+b;
-    
-}
-
-function convert_color_l2x(color){
-    
-    var r = parseInt(color[1],16);
-    var g = parseInt(color[2],16);
-    var b = parseInt(color[3],16);
-    
-    r = r/15;
-    g = g/15;
-    b = b/15;
-    
-    return r+" "+g+" "+b;
-    
-}
-
-

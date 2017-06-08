@@ -20,7 +20,10 @@ var X3L = function(options){
         tilt: 90,
         roll: 0,
         
-        fov: 0
+        fov: 0,
+        
+        color: "#1f1",
+        size: 2,
     };
     
     this._data = $.extend(defaults,options);
@@ -38,6 +41,9 @@ var X3L = function(options){
     this.roll = this._data.roll;
     
     this.fov = this._data.fov;
+    
+    this.color = this._data.color;
+    this.size = this._data.size;
 
 };
 
