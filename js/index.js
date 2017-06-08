@@ -117,6 +117,10 @@ function register_row_events(elem){
         
         map.panTo(new L.LatLng(lat, lng));
         
+        if (markers[lat+lng]!=undefined){
+            markers[lat+lng].openPopup();
+        }
+        
     });
     
 }
