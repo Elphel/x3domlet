@@ -314,6 +314,8 @@ function x3d_initial_camera_placement(){
     
     var viewpoint = $(Scene.element).find("Viewpoint");
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
+    viewpoint.attr("position",Rc_w.e3().toString());
+    viewpoint.attr("centerOfRotation",Rc_w.e3().toString());
     
 }
 

@@ -65,39 +65,48 @@
             <table>
                 <tr>
                     <td>Show marker info (satellite vs 3D model distalnce)</td>
-                    <td><input id='markinfo' type='checkbox' class='my-check-box' /></td>
+                    <td><input id='markinfo' type='checkbox' class='my-check-box donothide' /></td>
                 </tr>
                 <tr>
                     <td>Show view info (x, y, z, azimuth, elevation, skew)</td>
-                    <td><input id='viewinfo' type='checkbox' class='my-check-box' /></td>
+                    <td><input id='viewinfo' type='checkbox' class='my-check-box donothide' /></td>
                 </tr>
                 <tr>
                     <td>Show more info (hitting ray: id, x, y, z, d<sub>xz</sub>, d<sub>xyz</sub>)</td>
-                    <td><input id='moreinfo' type='checkbox' class='my-check-box' /></td>
+                    <td><input id='moreinfo' type='checkbox' class='my-check-box donothide' /></td>
                 </tr>
                 <tr>
                     <td>Show crosshair</td>
-                    <td><input id='crosshair' type='checkbox' class='my-check-box' /></td>
+                    <td><input id='crosshair' type='checkbox' class='my-check-box donothide' /></td>
                 </tr>
                 <tr>
                     <td>Show pointer marker (green sphere over 3D scene)</td>
-                    <td><input id='pointer' type='checkbox' class='my-check-box' /></td>
+                    <td><input id='pointer' type='checkbox' class='my-check-box donothide' /></td>
                 </tr>
                 <tr>
                     <td>Highlight 3D elements on mouse over</td>
-                    <td><input id='highlight' type='checkbox' class='my-check-box' /></td>
+                    <td><input id='highlight' type='checkbox' class='my-check-box donothide' /></td>
                 </tr>
                 <tr>
                     <td>View's parallel shift speed</td>
-                    <td><input id='shiftspeed' type='text' class='input' /></td>
+                    <td><input id='shiftspeed' type='text' class='input donothide' /></td>
                 </tr>
                 <tr>
                     <td>3D marker diameter, m</td>
-                    <td><input id='markersize' type='text' class='input' /></td>
+                    <td><input id='markersize' type='text' class='input donothide' /></td>
                 </tr>
                 <tr>
                     <td>3D marker color</td>
-                    <td><input id='markercolor' type='text' class='input' /></td>
+                    <td><input id='markercolor' type='text' class='input donothide' /></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><button id='reset_view' class='donothide'>Reset view</button></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
                 </tr>
                 <tr>
                     <td><button>Close</button></td>

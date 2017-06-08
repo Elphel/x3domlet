@@ -60,9 +60,9 @@ function menu_init(){
     
     // changing a checkbox will not close menu
     menu.on('click',function(e){
-        var class1 = $(e.target).hasClass("my-check-box");
-        var class2 = $(e.target).hasClass("input");
-        if (!class1&&!class2){
+        var test = $(e.target).hasClass("donothide");
+        
+        if (!test){
             menu.hide();
         }
     });
@@ -86,6 +86,8 @@ function menu_init(){
     shiftspeed_init();
     
     marker_size_color_init();
+    
+    reset_view_init();
 }
 
 function crosshair_init(){
@@ -128,3 +130,12 @@ function marker_size_color_init(){
     
 }
 
+function reset_view_init(){
+    
+    $("#reset_view").on('click',function(){
+        x3d_initial_camera_placement();
+        x3d_mouseMove();
+        Scene.resize();
+    });
+    
+}
