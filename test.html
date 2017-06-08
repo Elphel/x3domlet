@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <title>Scene+Map</title>
     
-    <script type='text/javascript' src='js/jquery/jquery-3.1.1.js'></script> 
+    <script type='text/javascript' src='js/jquery/jquery-3.1.1.js'></script>
     
     <script type='text/javascript' src='js/leaflet/leaflet-src.js'></script>
     <script type='text/javascript' src='js/leaflet/L.extra.js'></script>
@@ -27,7 +27,7 @@
     <link rel='stylesheet' type='text/css' href='js/leaflet/leaflet.css'></link>
     <link rel='stylesheet' type='text/css' href='js/x3dom/x3dom.css'></link>
     
-    <link rel='stylesheet' type='text/css' href='js/index.css'></link>
+    <link rel='stylesheet' type='text/css' href='js/ui.css'></link>
     
   </head>
   <body>
@@ -36,12 +36,9 @@
         <scene>
           <navigationInfo id="navInfo" type='"examine"' speed='0.01'></navigationInfo>
           <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0'></Viewpoint>
-          <group>            
-            <inline name="mymodel" namespacename="mymodel" url="x3d/1487451413_967079.x3d"/>
-          </group>
-          <group>
-            <inline name="back" namespacename="back" url="x3d/background.x3d"/>
-          </group>
+<!--          <group>
+            <inline name="back" namespacename="back" url="models/m1/v1/background.x3d"/>
+          </group>-->
         </scene>
       </x3d>
     </div>
@@ -101,7 +98,7 @@
     <div id='help-content'>
         <div>
             <h2>3D Scene + Map</h2>
-            <h3 style='color:rgba(200,200,255,1);'>Comparing 3D model and Map (satellite imagery) measurements</h3>
+            <h3 style='color:rgba(200,200,255,1);'>Comparing 3D model and Map (satellite imagery) measurements</h3
             <ul>
                 <li>Place a marker in the 3D scene near the feature of interest. Drag the marker closer if needed.<br/>This will set the 3D model distance.</li>
                 <li>Drag the corresponding marker over the map to what looks like the feature of interest to set the map distance.<br/>If the <b>show marker info</b> is enabled the distances and the difference will be displayed.</li>

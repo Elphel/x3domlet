@@ -14,7 +14,7 @@
 		<altitude>1305.1</altitude>
 		<heading>65</heading>
 		<tilt>90</tilt>
-		<roll>0</roll>
+		<roll>00</roll>
 	</Camera>
 	<Icon>
 		<href>x3d/1487451413_967079.x3d</href>
