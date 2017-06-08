@@ -1,3 +1,40 @@
+/*
+
+  Copyright (C) 2017 Elphel Inc.
+
+  License: GPLv3
+
+  https://www.elphel.com
+
+*/
+/** 
+ * @file -
+ * @brief -
+ * 
+ * @copyright Copyright (C) 2017 Elphel Inc.
+ * @author Oleg Dzhimiev <oleg@elphel.com>
+ *
+ * @licstart  The following is the entire license notice for the 
+ * JavaScript code in this page.
+ *
+ *   The JavaScript code in this page is free software: you can
+ *   redistribute it and/or modify it under the terms of the GNU
+ *   General Public License (GNU GPL) as published by the Free Software
+ *   Foundation, either version 3 of the License, or (at your option)
+ *   any later version.  The code is distributed WITHOUT ANY WARRANTY;
+ *   without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+ *
+ *   As additional permission under GNU GPL version 3 section 7, you
+ *   may distribute non-source (e.g., minimized or compacted) forms of
+ *   that code without the copy of the GNU GPL normally required by
+ *   section 4, provided you include this license notice and a URL
+ *   through which recipients can access the Corresponding Source.
+ *
+ *  @licend  The above is the entire license notice
+ *  for the JavaScript code in this page.
+ */
+
 /**
  * output in units (meters)
  */
@@ -167,6 +204,8 @@ function x3dom_getCameraPosOr(round){
     
 }
 
+// this upright is for world coordinates, not the camera's
+// the up vector should be taken from the initial camera orientation in kml.
 function x3dom_setUpRight(){
 
     var mat = Scene.element.runtime.viewMatrix().inverse();
@@ -174,7 +213,8 @@ function x3dom_setUpRight(){
     var from = mat.e3();
     var at = from.subtract(mat.e2());
 
-    var up = new x3dom.fields.SFVec3f(0, 1, 0);
+    //var up = new x3dom.fields.SFVec3f(0, 1, 0);
+    var up = Data.camera.Matrices.V_trueUp_w;
     
     var s = mat.e2().cross(up).normalize();
     

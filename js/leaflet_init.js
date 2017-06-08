@@ -1,3 +1,40 @@
+/*
+
+  Copyright (C) 2017 Elphel Inc.
+
+  License: GPLv3
+
+  https://www.elphel.com
+
+*/
+/** 
+ * @file -
+ * @brief -
+ * 
+ * @copyright Copyright (C) 2017 Elphel Inc.
+ * @author Oleg Dzhimiev <oleg@elphel.com>
+ *
+ * @licstart  The following is the entire license notice for the 
+ * JavaScript code in this page.
+ *
+ *   The JavaScript code in this page is free software: you can
+ *   redistribute it and/or modify it under the terms of the GNU
+ *   General Public License (GNU GPL) as published by the Free Software
+ *   Foundation, either version 3 of the License, or (at your option)
+ *   any later version.  The code is distributed WITHOUT ANY WARRANTY;
+ *   without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+ *
+ *   As additional permission under GNU GPL version 3 section 7, you
+ *   may distribute non-source (e.g., minimized or compacted) forms of
+ *   that code without the copy of the GNU GPL normally required by
+ *   section 4, provided you include this license notice and a URL
+ *   through which recipients can access the Corresponding Source.
+ *
+ *  @licend  The above is the entire license notice
+ *  for the JavaScript code in this page.
+ */
+
 // http://stackoverflow.com/questions/9394190/leaflet-map-api-with-google-satellite-layer
 
 // http://leafletjs.com/examples/extending/extending-1-classes.html
@@ -99,7 +136,10 @@ LeafletObject.prototype.highlightMarker = function(index){
 
 LeafletObject.prototype.dehighlightMarker = function(index){
 
-    var style = {color:'#1f1',fillColor:"#0f3"};
+    var color = $("#my-sph-"+index).find("material").attr("myColor");
+    color = convert_color_x2l(color);
+    
+    var style = {color:color,fillColor:color};
 
     this.marker._measureMarkers[index].setStyle(style);
     this.marker._measureLines[index].setStyle(style);
@@ -125,3 +165,35 @@ LeafletObject.prototype.deleteMarker = function(index){
     this.marker.removeMeasureMarker(index);
 
 }
+
+function convert_color_x2l(color){
+    
+    var rgb = color.split(" ");
+    
+    var r = parseInt(rgb[0]*15);
+    var g = parseInt(rgb[1]*15);
+    var b = parseInt(rgb[2]*15);
+    
+    r = r.toString(16);
+    g = g.toString(16);
+    b = b.toString(16);
+    
+    return "#"+r+g+b;
+    
+}
+
+function convert_color_l2x(color){
+    
+    var r = parseInt(color[1],16);
+    var g = parseInt(color[2],16);
+    var b = parseInt(color[3],16);
+    
+    r = r/15;
+    g = g/15;
+    b = b/15;
+    
+    return r+" "+g+" "+b;
+    
+}
+
+

@@ -1,3 +1,39 @@
+/*
+
+  Copyright (C) 2017 Elphel Inc.
+
+  License: GPLv3
+
+  https://www.elphel.com
+
+*/
+/** 
+ * @file -
+ * @brief -
+ * 
+ * @copyright Copyright (C) 2017 Elphel Inc.
+ * @author Oleg Dzhimiev <oleg@elphel.com>
+ *
+ * @licstart  The following is the entire license notice for the 
+ * JavaScript code in this page.
+ *
+ *   The JavaScript code in this page is free software: you can
+ *   redistribute it and/or modify it under the terms of the GNU
+ *   General Public License (GNU GPL) as published by the Free Software
+ *   Foundation, either version 3 of the License, or (at your option)
+ *   any later version.  The code is distributed WITHOUT ANY WARRANTY;
+ *   without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+ *
+ *   As additional permission under GNU GPL version 3 section 7, you
+ *   may distribute non-source (e.g., minimized or compacted) forms of
+ *   that code without the copy of the GNU GPL normally required by
+ *   section 4, provided you include this license notice and a URL
+ *   through which recipients can access the Corresponding Source.
+ *
+ *  @licend  The above is the entire license notice
+ *  for the JavaScript code in this page.
+ */
 
 var X3DOMObject = function(element,data,options){
 
@@ -390,20 +426,25 @@ X3DOMObject.prototype.createMarker = function(x,y,z,id){
         id = "my-sph-"+index;
     }
 
+    var color = convert_color_l2x(SETTINGS.markercolor);
+    
     var html = `
     <group id='`+id+`' class='`+sph_class+`'>
     <switch whichChoice='0'>
     <transform translation='`+x+` `+y+` `+z+`' rotation='0 0 0 0'>
         <shape class='shapemarker'> 
         <appearance> 
-            <material diffuseColor='0.07 1 0.07' transparency='0.0'></material> 
+            <material diffuseColor='`+color+`' transparency='0.0' myColor='`+color+`'></material>
         </appearance> 
-        <Sphere DEF="sphere" radius="1" />
+        <Sphere DEF="sphere" radius="`+(SETTINGS.markersize/2)+`" />
         </shape> 
     </transform>
     </switch>
     </group>
     `;
+
+    var test = convert_color_x2l(SETTINGS.markercolor);
+    console.log(test);
     
     var sphere_element = $(html);
     
@@ -860,7 +901,8 @@ X3DOMObject.Marker.highlight = function(elem){
 
 X3DOMObject.Marker.dehighlight = function(elem){
     
-    var color = "0.07 1 0.07";
+    //var color = "0.07 1 0.07";
+    var color = elem.find('material').attr("myColor");
     elem.find('material').attr("diffuseColor",color);
     
 }
@@ -885,7 +927,7 @@ X3DOMObject.PointerMarker = function(){
 
 X3DOMObject.PointerMarker.prototype._init = function(){
 
-    this._elem = Scene.createMarker(0,0,0,"sliding_sphere");;
+    this._elem = Scene.createMarker(0,0,0,"sliding_sphere");
     this._shape = this._elem.find("shape");
     this._registerEvents();
     

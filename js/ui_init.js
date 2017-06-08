@@ -1,3 +1,39 @@
+/*
+
+  Copyright (C) 2017 Elphel Inc.
+
+  License: GPLv3
+
+  https://www.elphel.com
+
+*/
+/** 
+ * @file -
+ * @brief -
+ * 
+ * @copyright Copyright (C) 2017 Elphel Inc.
+ * @author Oleg Dzhimiev <oleg@elphel.com>
+ *
+ * @licstart  The following is the entire license notice for the 
+ * JavaScript code in this page.
+ *
+ *   The JavaScript code in this page is free software: you can
+ *   redistribute it and/or modify it under the terms of the GNU
+ *   General Public License (GNU GPL) as published by the Free Software
+ *   Foundation, either version 3 of the License, or (at your option)
+ *   any later version.  The code is distributed WITHOUT ANY WARRANTY;
+ *   without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+ *
+ *   As additional permission under GNU GPL version 3 section 7, you
+ *   may distribute non-source (e.g., minimized or compacted) forms of
+ *   that code without the copy of the GNU GPL normally required by
+ *   section 4, provided you include this license notice and a URL
+ *   through which recipients can access the Corresponding Source.
+ *
+ *  @licend  The above is the entire license notice
+ *  for the JavaScript code in this page.
+ */
 
 var Data = {
     camera:{},
@@ -17,8 +53,14 @@ var SETTINGS = {
     'viewinfo':  true,
     'moreinfo':  true,
     'crosshair': false,
-    'shiftspeed': 0.01,
-    'slidingdrag': true
+    'shiftspeed' : 0.01,
+    'markersize' : 2,
+    'markercolor': "#1f1",
+    'slidingdrag': true,
+    'basepath': "models",
+    'path'   : "1487451413_967079",
+    'version': "v1",
+//     'kml'    : "scene.kml"
 }
 
 // no comments
@@ -35,6 +77,10 @@ function parseURL(){
             case "crosshair":    SETTINGS.crosshair = true; break;
             case "slidingdrag":  SETTINGS.slidingdrag = true; break;
             case "shiftspeed":   SETTINGS.shiftspeed = parseFloat(parameters[i][1]); break;
+            case "markersize":   SETTINGS.markersize = parseFloat(parameters[i][1]); break;
+            case "path":         SETTINGS.path = parameters[i][1]; break;
+            case "ver":          SETTINGS.version = parameters[i][1]; break;
+//             case "kml":          SETTINGS.kml = parameters[i][1]; break;
         }
     }
 }
@@ -72,8 +118,19 @@ function title_init(){
 
 function light_init(){
   
+    var x3delement = $("#x3d_id").find("scene");
+    
+    var model_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
+    
+    var model = $(`
+        <group>
+            <inline name='mymodel' namespacename='mymodel' url='`+model_url+`'></inline>
+        </group>`);
+    
+    x3delement.append(model);
+    
     $.ajax({
-        url: "kml/test.kml",
+        url: SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml",
         success: function(response){
 
             var longitude = parseFloat($(response).find("Camera").find("longitude").text());
@@ -114,7 +171,7 @@ function light_init(){
                     map_resize_init();
                     deep_init();
                     align_init();
-                    //x3d_initial_camera_placement();
+                    x3d_initial_camera_placement();
                 };
             });
             
@@ -200,7 +257,6 @@ function deep_init(){
     
 }
 
-// inactive
 function x3d_initial_camera_placement(){
     
     // Roll compensation
@@ -211,33 +267,47 @@ function x3d_initial_camera_placement(){
     // Altitude is relative. Do not care.
 
     // Roll
-    var z = new x3dom.fields.SFVec3f(0,0,1);
-    var qr = x3dom.fields.Quaternion.axisAngle(z,-roll);
-    var M_roll = qr.toMatrix();
+    var x = new x3dom.fields.SFVec3f(1,0,0);
+    var qr = x3dom.fields.Quaternion.axisAngle(x,roll);
+    var Mr = qr.toMatrix();
 
     // Tilt
-    var x = new x3dom.fields.SFVec3f(1,0,0);
-    var qt = x3dom.fields.Quaternion.axisAngle(x,-tilt);
-    var M_tilt = qt.toMatrix();
+    var y = new x3dom.fields.SFVec3f(0,1,0);
+    var qt = x3dom.fields.Quaternion.axisAngle(y,tilt);
+    var Mt = qt.toMatrix();
 
     // Heading
-    var y = new x3dom.fields.SFVec3f(0,1,0);
-    var qh = x3dom.fields.Quaternion.axisAngle(y,-heading);
-    var M_heading = qh.toMatrix();
+    var z = new x3dom.fields.SFVec3f(0,0,1);
+    var qh = x3dom.fields.Quaternion.axisAngle(z,heading);
+    var Mh = qh.toMatrix();
 
-    var M = M_heading.mult(M_tilt).mult(M_roll);
+    var R = Mh.mult(Mt).mult(Mr);
+    
+    var T = x3dom_C2E();
+    
+    // rw = real world with North
+    // w = virtual world = x3dom frame reference
+    var R_rw2w = T.inverse().mult(R).mult(T);
+
+    var M_rw2w = R_rw2w.inverse();
+
+    var Rmap_rw = T.inverse().mult(Mh).mult(T);
+    
+    var Rc_w = M_rw2w.mult(T.inverse()).mult(Mh).mult(T);
     
     // store matrices
     Data.camera.Matrices = {
-        Head: M_heading,
-        Tilt: M_tilt,
-        Roll: M_roll,
-        R: M
+        R_h_eul: Mh,
+        R_t_eul: Mt,
+        R_r_eul: Mr,
+        R_rw2w : R_rw2w,
+        M_rw2w : M_rw2w,
+        V_trueUp_w: Rc_w.e1()
     };
-    
+
     // set view
     var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
-    Q.setValue(M.inverse());
+    Q.setValue(Rc_w);
     var AA = Q.toAxisAngle();
     
     var viewpoint = $(Scene.element).find("Viewpoint");
