@@ -80,7 +80,7 @@ LeafletObject.prototype.initialize = function(){
     'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
     {
       maxZoom: this._settings.maxzoom,
-      attribution: 'Thanks to comrade Google for our happy childhood',
+      attribution: 'Google imagery',
       subdomains:['mt0','mt1','mt2','mt3'],
     }
   );

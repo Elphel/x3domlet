@@ -79,6 +79,8 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
 
     var shootRay = elem.runtime.shootRay(cnvx,cnvy);
     
+    var valid_distance = true;
+    
     if (shootRay.pickPosition != null){
         
         var index = Scene.highlighted_marker_index;
@@ -124,11 +126,25 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
         
         dist_xz = null;
         dist_xyz = null;
+        
+        valid_distance = false;
     }
     
-    az = Math.atan2(x,-z)*180/Math.PI;
-    az = (az+INIT_HEADING+360)%360;
-    el = Math.atan2(y,Math.sqrt(x*x+z*z))*180/Math.PI;
+    var R0 = Data.camera.Matrices.R0;
+    var p_w = new x3dom.fields.SFVec3f(x,y,z);
+    var p_rw = R0.multMatrixVec(p_w);
+    
+    if (valid_distance){
+        dist_xz = Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z);
+        dist_xyz = Math.sqrt(p_rw.y*p_rw.y+dist_xz*dist_xz);   
+    }else{
+        dist_xz = null;
+        dist_xyz = null;
+    }
+
+    az = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
+    az = (az+360)%360;
+    el = Math.atan2(p_rw.y,Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z))*180/Math.PI;
     sk = 0;
     
     var result = {
@@ -166,53 +182,40 @@ function x3dom_getCameraPosOr(round){
     
     var elem = Scene.element;
     
-    var vm = elem.runtime.viewMatrix().inverse();
+    var m = elem.runtime.viewMatrix().inverse();
     
-    var tr = vm.e3();
+    var tr = m.e3();
     
-    var x = tr.x;
-    var y = tr.y;
-    var z = tr.z;
+    var R0 = Data.camera.Matrices.R0;
+    var T0 = x3dom_toYawPitchRoll();
     
-    var R = vm;
+    m = T0.mult(R0).mult(m).mult(T0.inverse());
+    
+    var ypr = x3dom_YawPitchRoll(m);
 
-    // double check below, random correct result?
-    
-    //var mat = Data.camera.Matrices.Rw_rw;
-    var mat = Data.camera.Matrices.M_rw2w;
-    var T = x3dom_C2E();
-    
-    mat = T.mult(mat).mult(vm).mult(T.inverse());
-    
-    var test = x3dom_YawPitchRoll(mat);
+    ypr.yaw = (180/Math.PI*ypr.yaw+360)%360;
+    ypr.pitch *= 180/Math.PI;
+    ypr.roll *= 180/Math.PI;
 
-    test.yaw = (-180/Math.PI*test.yaw+360)%360;
-    test.pitch *= 180/Math.PI;
-    test.roll *= 180/Math.PI;
-    
-    //console.log(test);
-
-    az = test.yaw;
-    el = test.pitch;
-    sk = test.roll;
+    //x3dom_matrix_test();
     
     if (!round){
         return {
-            x: x,
-            y: y,
-            z: z,
-            a: az,
-            e: el,
-            s: sk
+            x: tr.x,
+            y: tr.y,
+            z: tr.z,
+            a: ypr.yaw,
+            e: ypr.pitch,
+            s: ypr.roll
         };
     }else{
         return {
-            x: x.toFixed(2),
-            y: y.toFixed(2),
-            z: z.toFixed(2),
-            a: az.toFixed(1),
-            e: el.toFixed(1),
-            s: sk.toFixed(1)
+            x: tr.x.toFixed(2),
+            y: tr.y.toFixed(2),
+            z: tr.z.toFixed(2),
+            a: ypr.yaw.toFixed(1),
+            e: ypr.pitch.toFixed(1),
+            s: ypr.roll.toFixed(1)
         };        
     }
     
@@ -228,7 +231,7 @@ function x3dom_setUpRight(){
     var at = from.subtract(mat.e2());
 
     //var up = new x3dom.fields.SFVec3f(0, 1, 0);
-    var up = Data.camera.Matrices.V_trueUp_w;
+    var up = Data.camera.Matrices.Up0;
     
     var s = mat.e2().cross(up).normalize();
     
@@ -253,7 +256,7 @@ function x3dom_setUpRight(){
     viewpoint.attr("centerOfRotation",mat.e3().toString());
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
     
-    Data.camera.Matrices.Rc_w = mat;
+    Data.camera.Matrices.RC_w = mat;
 
 }
 
@@ -300,7 +303,7 @@ function x3dom_rotation(delta_a){
     viewpoint.attr("position",from.toString());
     viewpoint.attr("centerOfRotation",from.toString());
     
-    Data.camera.Matrices.Rc_w = newmat;
+    Data.camera.Matrices.RC_w = newmat;
 
 }
 
@@ -337,31 +340,42 @@ function x3dom_translation(dx,dy,dz){
     viewpoint.attr("position",newfrom.toString());
     viewpoint.attr("centerOfRotation",newfrom.toString());
     
-    Data.camera.Matrices.Rc_w = newmat;
+    Data.camera.Matrices.RC_w = newmat;
     
 }
 
 function x3dom_altelev(alt,elev){
 
+    console.log(elev);
+    
     //x3dom_matrix_test();
 
     var mat = Scene.element.runtime.viewMatrix().inverse();
+    var R0 = Data.camera.Matrices.R0;
+    var T = x3dom_toYawPitchRoll();
 
+    var m_rw = T.mult(R0).mult(mat).mult(T.inverse());
+    var ypr = x3dom_YawPitchRoll(m_rw);
+    
     var from = mat.e3();
     from.y = alt;
-
-    // convert to W2C*C2W
-    var az = Math.atan2(mat._02,mat._22);
-    var el = elev;
-    var sk = Math.atan2(mat._10,mat._11);
     
+    var az = ypr.yaw;
+    var el = elev;
+    var sk = ypr.roll;
 
-    var matx = x3dom.fields.SFMatrix4f.rotationX(el);
-    var maty = x3dom.fields.SFMatrix4f.rotationY(az);
-    var matz = x3dom.fields.SFMatrix4f.rotationZ(sk);
+    var Mh = x3dom.fields.SFMatrix4f.rotationZ(az);
+    var Mt = x3dom.fields.SFMatrix4f.rotationY(el);
+    var Mr = x3dom.fields.SFMatrix4f.rotationX(sk);
+    
+    var R = Mh.mult(Mt).mult(Mr);
+    
+    var R_rw = T.inverse().mult(R).mult(T);
+    var R_w = R0.inverse().mult(R_rw);
+    
     var matt  = x3dom.fields.SFMatrix4f.translation(from);
 
-    var newmat = matt.mult(maty).mult(matx).mult(matz);
+    var newmat = matt.mult(R_w);
 
     var Q = new x3dom.fields.Quaternion(0,0,1,0);
     Q.setValue(newmat);
@@ -372,7 +386,7 @@ function x3dom_altelev(alt,elev){
     viewpoint.attr("centerOfRotation",newmat.e3().toString());
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
     
-    Data.camera.Matrices.Rc_w = newmat;
+    Data.camera.Matrices.RC_w = newmat;
 }
 
 /**
@@ -380,31 +394,54 @@ function x3dom_altelev(alt,elev){
  */
 function x3dom_matrix_test(){
     
+    console.log("begin==================================");
+    
     var viewpoint = $(Scene.element).find("Viewpoint");
     
     console.log("Viewpoint DOM element");
     console.log("position: "+viewpoint.attr("position"));
     console.log("orientation: "+viewpoint.attr("orientation"));
+
+    /* 
+     * 1. view matrix:
+     *      - from world to camera
+     *          - cols - world basis in camera coords
+     * 2. view matrix inverted:
+     *      - from camera to world
+     *          - cols - camera basis in world coords
+     *      - rotation matrix by def, order is not conv:
+     *          - yx'z" vs zy'x"
+     */
+
+    var mat = Scene.element.runtime.viewMatrix();
     
-    var mat = Scene.element.runtime.viewMatrix().inverse();
+    console.log("1. View Matrix from runtime");
+    console.log(mat.toString());
     
-    console.log("inversed viewMatrix");
-    console.log(mat.toString());    
+    var mat_i = mat.inverse();
     
-    var from = mat.e3();
-    var at = from.subtract(mat.e2());
-    var up = mat.e1();
+    console.log("2. Inverted View Matrix");
+    console.log(mat_i.toString());
     
-    console.log("matrix from from-at-up");
+    var from = mat_i.e3();
+    var at   = from.subtract(mat_i.e2());
+    var up   = mat_i.e1();
     
-    var newmat = x3dom.fields.SFMatrix4f.lookAt(from, at, up);
+    console.log("3. From-At-Up");
     
-    console.log(newmat.toString());
+    var mat_fau = x3dom.fields.SFMatrix4f.lookAt(from, at, up);
+    
+    console.log(mat_fau.toString());
+    
+    var T = x3dom_toYawPitchRoll();
+    
+    var mat_eul = T.mult(mat_i).mult(T.inverse());
+    var eangles = x3dom_YawPitchRoll_degs(mat_eul);
+    
+    console.log(eangles);
     
     var R = mat;
     var az = Math.atan2(R._02,R._22)*180/Math.PI;
-    //az = (az+INIT_HEADING+360)%360;
-    //az = (az+360)%360;
     var el = -Math.asin(R._12)*180/Math.PI;
     var sk = Math.atan2(R._10,R._11)*180/Math.PI;
     
@@ -425,25 +462,13 @@ function x3dom_matrix_test(){
     
     console.log(newmat.toString());
     
+    console.log("end==================================");
 }
 
 /**
  * Transform to calculate conventional Euler angles for z-y'-x" = z-y-z
  * unrelated: what's x3dom's native getWCtoCCMatrix()? canvas-to-world?
  */
-function x3dom_C2E(){
-    return new x3dom.fields.SFMatrix4f(
-        0, 0, 1, 0,
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 0, 1,
-    );
-}
-
-function x3dom_E2C(){
-    return x3dom_C2E().inverse();
-}
-
 function x3dom_YawPitchRoll(m){
     
     var yaw = Math.atan2(m._10,m._00);
@@ -457,6 +482,42 @@ function x3dom_YawPitchRoll(m){
     };
 }
 
+function x3dom_toYawPitchRoll(){
+    return new x3dom.fields.SFMatrix4f(
+        0, 0,-1, 0,
+        1, 0, 0, 0,
+        0,-1, 0, 0,
+        0, 0, 0, 1,
+    );
+}
+
+function x3dom_YawPitchRoll_degs(m){
+    
+    var yaw = Math.atan2(m._10,m._00);
+    var pitch = -Math.asin(m._20);
+    var roll = Math.atan2(m._21,m._22);
+    
+    return {
+        yaw: yaw*180/Math.PI,
+        pitch: pitch*180/Math.PI,
+        roll: roll*180/Math.PI
+    };
+}
+
+/*
+function x3dom_YawPitchRoll_2_degs(m){
+    
+    var pitch = Math.PI+Math.asin(m._20);
+    var roll = Math.atan2(m._21/Math.cos(pitch),m._22/Math.cos(pitch));
+    var yaw = Math.atan2(m._10/Math.cos(pitch),m._00/Math.cos(pitch));
+    
+    return {
+        yaw: yaw*180/Math.PI,
+        pitch: pitch*180/Math.PI,
+        roll: roll*180/Math.PI
+    };
+}
+*/
 function x3dom_delta_map2scene(p0,p1){
     
     var pi = new L.LatLng(p0.lat,p1.lng);
@@ -469,10 +530,9 @@ function x3dom_delta_map2scene(p0,p1){
 
     if (p1.lng<p0.lng) dp_rw.x = -dp_rw.x;
     if (p1.lat>p0.lat) dp_rw.z = -dp_rw.z;
-
-    // rotate, not transform - because rotated is the camera
-    var mat = Data.camera.Matrices.Rw_rw;
-    var dp_w = mat.multMatrixVec(dp_rw);
+    
+    var M0 = Data.camera.Matrices.R0.inverse();
+    var dp_w = M0.multMatrixVec(dp_rw);
     
     return dp_w;
     

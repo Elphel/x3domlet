@@ -43,9 +43,6 @@ var Data = {
 var Scene;
 var Map;
 
-// this var needs to go
-var INIT_HEADING = 0;
-
 var SETTINGS = {
     'pointer':   false,
     'highlight': false,
@@ -158,8 +155,6 @@ function light_init(){
                 fov: fov || 0,
             });
             
-            INIT_HEADING = heading;
-            
             var element = document.getElementById('x3d_id');
             
             Scene = new X3DOMObject(element,Data,{});
@@ -268,38 +263,31 @@ function x3d_initial_camera_placement(){
     
     // Altitude is relative. Do not care.
 
-    // Roll
-    var x = new x3dom.fields.SFVec3f(1,0,0);
-    var qr = x3dom.fields.Quaternion.axisAngle(x,roll);
-    var Mr = qr.toMatrix();
-
-    // Tilt
-    var y = new x3dom.fields.SFVec3f(0,1,0);
-    var qt = x3dom.fields.Quaternion.axisAngle(y,tilt);
-    var Mt = qt.toMatrix();
-
-    // Heading
-    var z = new x3dom.fields.SFVec3f(0,0,1);
-    var qh = x3dom.fields.Quaternion.axisAngle(z,heading);
-    var Mh = qh.toMatrix();
-
-    var R = Mh.mult(Mt).mult(Mr);
-    
-    var T = x3dom_C2E();
+    // Heading,Tilt,Roll
+    var Mh = x3dom.fields.SFMatrix4f.rotationZ(heading);
+    var Mt = x3dom.fields.SFMatrix4f.rotationY(tilt);
+    var Mr = x3dom.fields.SFMatrix4f.rotationX(roll);
     
     // rw = real world with North
     // w = virtual world = x3dom frame reference
-    var Rw_rw = T.inverse().mult(R).mult(T);
-
-    var M_rw2w = Rw_rw.inverse();
-
+    
+    // proper Euler rotation
+    var R = Mh.mult(Mt).mult(Mr);
+    // convert to proper Euler
+    var T = x3dom_toYawPitchRoll();
+    
+    var R0 = T.inverse().mult(R).mult(T);
+    
     // _rw - real world
     //  _w - virt world
-    var Rc_rw = T.inverse().mult(Mh).mult(T);
     
-    var Rc_w = M_rw2w.mult(Rc_rw);
-    //var Rm_w = M_rw2w.mult(Rm_rw);
+    // exclude roll?
+    //var RC0_rw = T.inverse().mult(Mh).mult(Mt).mult(T);
+
+    // exclude tilt and roll
+    var RC0_rw = T.inverse().mult(Mh).mult(T);
     
+    var RC_w = R0.inverse().mult(RC0_rw);
     // store matrices
     Data.camera.Matrices = {
         Ah: heading,
@@ -308,25 +296,23 @@ function x3d_initial_camera_placement(){
         R_h_eul: Mh,
         R_t_eul: Mt,
         R_r_eul: Mr,
-        Rw_rw : Rw_rw,
-        M_rw2w : M_rw2w,
-        V_trueUp_w: Rc_w.e1(),
-        Rc_w: Rc_w,
-        //Rm_w: Rm_w
+        R0 : R0,
+        Up0: RC_w.e1(),
+        RC_w: RC_w,
     };
 
     // set view
     var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
-    Q.setValue(Rc_w);
+    Q.setValue(RC_w);
     var AA = Q.toAxisAngle();
     
     var viewpoint = $(Scene.element).find("Viewpoint");
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-    viewpoint.attr("position",Rc_w.e3().toString());
-    viewpoint.attr("centerOfRotation",Rc_w.e3().toString());
+    viewpoint.attr("position",RC_w.e3().toString());
+    viewpoint.attr("centerOfRotation",RC_w.e3().toString());
     
     // update every time
-    Data.camera.Matrices.Rc_w = Rc_w;
+    Data.camera.Matrices.RC_w = RC_w;
     
 }
 
@@ -588,28 +574,19 @@ function leaf_mousemove_hc(){
 function leaf_mousemove_nohc(e){
     
     var Camera = Map.marker;
-    
-    //old
+
     var p0 = new L.LatLng(Data.camera.latitude,Data.camera.longitude);
     var p1 = new L.LatLng(Camera._latlng.lat,Camera._latlng.lng);
-    
-    //update Data
-    Data.camera.latitude = Camera._latlng.lat;
-    Data.camera.longitude = Camera._latlng.lng;
-    
+        
     var dh = Camera._heading - Math.PI/180*Data.camera.heading;
     
-    //console.log(Camera._heading);
-    
-    Data.camera.heading = Camera._heading*180/Math.PI;
-    
-    var newheading = Data.camera.heading - INIT_HEADING;
+    Data.camera.heading   = Camera._heading*180/Math.PI;
+    Data.camera.latitude  = Camera._latlng.lat;
+    Data.camera.longitude = Camera._latlng.lng;
     
     if ((p0.lat!=p1.lat)||(p0.lng!=p1.lng)){
-        //console.log("translation");
         leaf_translation_v1(p0,p1);
     }else{
-        //leaf_rotation_v1(newheading,dh);
         x3dom_rotation(dh);        
     }
     
@@ -669,42 +646,41 @@ function x3d_mouseMove(){
     
     var Camera = Map.marker;
     
-    //var initial_heading = Data.camera.heading;
-    //var initial_heading = INIT_HEADING;
+    var mat = Scene.element.runtime.viewMatrix().inverse();
+    var R0 = Data.camera.Matrices.R0;
+    var T = x3dom_toYawPitchRoll();
     
-    var heading = x3dom_getViewDirection(Scene.element);
+    var m_rw = T.mult(R0).mult(mat).mult(T.inverse());
+    var ypr = x3dom_YawPitchRoll_degs(m_rw);
     
-    Map.marker.setHeading(heading+INIT_HEADING);
+    var heading = ypr.yaw;
     
-    var d = x3dom_getViewTranslation(Scene.element);
+    Map.marker.setHeading(heading);
     
-    var dx;
-    var dz;
+    var dp_w = mat.e3();
     
-    if (Scene.old_view_translation == null){
-        dx = 0;
-        dz = 0;
-    }else{
-        dx = d.x - Scene.old_view_translation.x;
-        dz = d.z - Scene.old_view_translation.z;
+    if (Scene.old_view_translation != null){
+        dp_w = dp_w.subtract(Scene.old_view_translation);
     }
     
-    var distance = Math.sqrt(dx*dx+dz*dz);
-    var angle = 180/Math.PI*Math.atan2(dx,-dz);
-
+    // from w to rw
+    dp_rw = R0.multMatrixVec(dp_w);
+    
+    var distance = Math.sqrt(dp_rw.x*dp_rw.x+dp_rw.z*dp_rw.z);
+    var angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
+    
     var initial_coordinates = [Data.camera.latitude,Data.camera.longitude];
     
     var p0 = new L.LatLng(initial_coordinates[0],initial_coordinates[1]);//Camera._latlng;
-    
-    var p1 = p0.CoordinatesOf(angle+INIT_HEADING,distance);
+    var p1 = p0.CoordinatesOf(angle,distance);
 
     Map.marker.setBasePoint(p1);
     Map.marker._syncMeasureMarkersToBasePoint();
 
     Data.camera.latitude = p1.lat;
     Data.camera.longitude = p1.lng;
-    Data.camera.heading = heading+INIT_HEADING;
+    Data.camera.heading = heading;
     
-    Scene.old_view_translation = d;
+    Scene.old_view_translation = mat.e3();
     
 }

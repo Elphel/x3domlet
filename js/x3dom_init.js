@@ -861,24 +861,28 @@ X3DOMObject.Marker.drag = function(dx,dy){
 
 
 X3DOMObject.Marker.slide = function(index,x,y,z){
-
+        
+    var R0 = Data.camera.Matrices.R0;
+    //var T = x3dom_toYawPitchRoll();
+    
+    var p_w = new x3dom.fields.SFVec3f(x,y,z);
+    var p_rw = R0.multMatrixVec(p_w);
+    
+    var distance = Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z);
+    var angle = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
+    
+    var p1_ll = Map.marker._latlng;
+    var p2_ll = p1_ll.CoordinatesOf(angle,distance);
+    
     var c = Data.markers[index];
     
     c.x = x;
     c.y = y;
-    c.z = z;
-    
-    var azimuth = Math.atan2(c.x,-c.z)*180/Math.PI;
-    //var initial_heading = Data.camera.heading;
-    var distance = Math.sqrt(c.x*c.x+c.z*c.z);
-    
-    var p1_ll = Map.marker._latlng;
-    var p2_ll = p1_ll.CoordinatesOf(azimuth+INIT_HEADING,distance);
-    
+    c.z = z;    
     c.latitude = p2_ll.lat;
     c.longitude = p2_ll.lng;
     c.altitude = c.y;
-    
+    //d_x3d - map distance calculated from the model
     c.d_x3d = distance;
     
     X3DOMObject.displayMarkInfo(index);
@@ -971,10 +975,14 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
         new X3DOMObject.Marker(mark.x,mark.y,mark.z);
 
         // Create marker on the map
-        var azimuth = Math.atan2(mark.x,-mark.z)*180/Math.PI;
-        var distance = Math.sqrt(mark.x*mark.x+mark.z*mark.z);
+        var R0 = Data.camera.Matrices.R0;
+        var p_w = new x3dom.fields.SFVec3f(mark.x,mark.y,mark.z);
+        var p_rw = R0.multMatrixVec(p_w);
+        
+        var distance = Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z);
+        var angle = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
 
-        Camera.createMeasureMarker(azimuth+INIT_HEADING,distance);
+        Camera.createMeasureMarker(angle,distance);
         
         var map_mark = Camera._measureMarkers[Camera._measureMarkers.length-1];
         
