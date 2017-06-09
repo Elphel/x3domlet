@@ -289,22 +289,30 @@ function x3d_initial_camera_placement(){
     
     // rw = real world with North
     // w = virtual world = x3dom frame reference
-    var R_rw2w = T.inverse().mult(R).mult(T);
+    var Rw_rw = T.inverse().mult(R).mult(T);
 
-    var M_rw2w = R_rw2w.inverse();
+    var M_rw2w = Rw_rw.inverse();
 
-    var Rmap_rw = T.inverse().mult(Mh).mult(T);
+    // _rw - real world
+    //  _w - virt world
+    var Rc_rw = T.inverse().mult(Mh).mult(T);
     
-    var Rc_w = M_rw2w.mult(T.inverse()).mult(Mh).mult(T);
+    var Rc_w = M_rw2w.mult(Rc_rw);
+    //var Rm_w = M_rw2w.mult(Rm_rw);
     
     // store matrices
     Data.camera.Matrices = {
+        Ah: heading,
+        At: tilt,
+        Ar: roll,
         R_h_eul: Mh,
         R_t_eul: Mt,
         R_r_eul: Mr,
-        R_rw2w : R_rw2w,
+        Rw_rw : Rw_rw,
         M_rw2w : M_rw2w,
-        V_trueUp_w: Rc_w.e1()
+        V_trueUp_w: Rc_w.e1(),
+        Rc_w: Rc_w,
+        //Rm_w: Rm_w
     };
 
     // set view
@@ -316,6 +324,9 @@ function x3d_initial_camera_placement(){
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
     viewpoint.attr("position",Rc_w.e3().toString());
     viewpoint.attr("centerOfRotation",Rc_w.e3().toString());
+    
+    // update every time
+    Data.camera.Matrices.Rc_w = Rc_w;
     
 }
 
@@ -493,9 +504,9 @@ function leaf_events(){
                 //var azimuth = getAzimuth(p1_ll,p2_ll);
                 var azimuth = getAzimuth(p1_ll,p2_ll);
                 
-                var initial_heading = INIT_HEADING;
+                //var initial_heading = Data.camera.Matrices.Ah*180/Math.PI;
                 
-                var angle = azimuth - initial_heading;
+                var angle = azimuth - Data.camera.Matrices.Ah*180/Math.PI;
                 var distance = p1_ll.distanceTo(p2_ll);
                 
                 //console.log("angle from lat lng: "+angle);
@@ -595,7 +606,7 @@ function leaf_mousemove_nohc(e){
     var newheading = Data.camera.heading - INIT_HEADING;
     
     if ((p0.lat!=p1.lat)||(p0.lng!=p1.lng)){
-        console.log("translation");
+        //console.log("translation");
         leaf_translation_v1(p0,p1);
     }else{
         //leaf_rotation_v1(newheading,dh);
@@ -625,58 +636,29 @@ function leaf_drag_marker(){
         
         mark.latitude = p2_ll.lat;
         mark.longitude = p2_ll.lng;
-        
-        var azimuth = getAzimuth(p1_ll,p2_ll);
-        //var initial_heading = Data.camera.heading;
-        
-        var angle = azimuth - INIT_HEADING;
+
         var distance = p1_ll.distanceTo(p2_ll);
         
-        mark.x = distance*Math.sin(Math.PI/180*angle);
-        mark.z = -distance*Math.cos(Math.PI/180*angle);
+        var dp_w = x3dom_delta_map2scene(p1_ll,p2_ll);
+        
+        mark.x = dp_w.x;
+        mark.z = dp_w.z;
         
         mark.d_map = distance;
         
         X3DOMObject.displayMarkInfo(index);
         
         X3DOMObject.Marker.place(mark.x,mark.y,mark.z,"my-sph-"+index);
-    
+
     }
     
 }
 
 function leaf_translation_v1(p0,p1){
     
-    var pi = new L.LatLng(p0.lat,p1.lng);
+    var dp_w = x3dom_delta_map2scene(p0,p1);
     
-    var dx = p0.distanceTo(pi);
-    var dy = 0;
-    var dz = p1.distanceTo(pi);
-    var dl = p0.distanceTo(p1);
-    
-    //console.log(dx+" "+dz+" "+dl);
-    
-    if (p1.lng<p0.lng){
-        dx = -dx;
-    }
-    
-    if (p1.lat<p0.lat){
-        dz = -dz;
-    }
-
-    //transform to camera coordinates
-    var A  = Math.PI/180*INIT_HEADING;
-    var a  = Math.atan2(dx,dz);
-    
-    console.log(A);
-    
-    dx = -dl*Math.sin(A-a);
-    dz = -dl*Math.cos(A-a);
-    
-    console.log("dx="+dx+" dy="+dy+" dz="+dz);
-    
-    // translation over map = xz
-    x3dom_translation(dx,dy,dz);
+    x3dom_translation(dp_w.x,dp_w.y,dp_w.z);
     
     // if not updated then moving in 3D scene will make it jump
     Scene.old_view_translation = x3dom_getViewTranslation(Scene.element);
@@ -687,7 +669,7 @@ function x3d_mouseMove(){
     
     var Camera = Map.marker;
     
-    var initial_heading = Data.camera.heading;
+    //var initial_heading = Data.camera.heading;
     //var initial_heading = INIT_HEADING;
     
     var heading = x3dom_getViewDirection(Scene.element);

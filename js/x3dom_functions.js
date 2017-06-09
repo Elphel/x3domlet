@@ -162,6 +162,8 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
  */
 function x3dom_getCameraPosOr(round){
     
+    //console.log("Getting PosOr");
+    
     var elem = Scene.element;
     
     var vm = elem.runtime.viewMatrix().inverse();
@@ -173,14 +175,26 @@ function x3dom_getCameraPosOr(round){
     var z = tr.z;
     
     var R = vm;
-    
-    var az = Math.atan2(R._02,R._22)*180/Math.PI;
-    
-    az = (az+INIT_HEADING+360)%360;
-    
-    var el = -Math.asin(R._12)*180/Math.PI;
 
-    var sk = Math.atan2(R._10,R._11);
+    // double check below, random correct result?
+    
+    //var mat = Data.camera.Matrices.Rw_rw;
+    var mat = Data.camera.Matrices.M_rw2w;
+    var T = x3dom_C2E();
+    
+    mat = T.mult(mat).mult(vm).mult(T.inverse());
+    
+    var test = x3dom_YawPitchRoll(mat);
+
+    test.yaw = (-180/Math.PI*test.yaw+360)%360;
+    test.pitch *= 180/Math.PI;
+    test.roll *= 180/Math.PI;
+    
+    //console.log(test);
+
+    az = test.yaw;
+    el = test.pitch;
+    sk = test.roll;
     
     if (!round){
         return {
@@ -238,6 +252,8 @@ function x3dom_setUpRight(){
     viewpoint.attr("position",mat.e3().toString());
     viewpoint.attr("centerOfRotation",mat.e3().toString());
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
+    
+    Data.camera.Matrices.Rc_w = mat;
 
 }
 
@@ -283,6 +299,8 @@ function x3dom_rotation(delta_a){
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
     viewpoint.attr("position",from.toString());
     viewpoint.attr("centerOfRotation",from.toString());
+    
+    Data.camera.Matrices.Rc_w = newmat;
 
 }
 
@@ -297,11 +315,11 @@ function x3dom_translation(dx,dy,dz){
     var from = mat.e3();
     var at = from.subtract(mat.e2());
     
-    console.log(from.toString());
+    //console.log(from.toString());
     
     var newfrom = from.add(delta);
     
-    console.log(newfrom.toString());
+    //console.log(newfrom.toString());
     
     var newat = newfrom.subtract(mat.e2());
     
@@ -318,6 +336,8 @@ function x3dom_translation(dx,dy,dz){
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
     viewpoint.attr("position",newfrom.toString());
     viewpoint.attr("centerOfRotation",newfrom.toString());
+    
+    Data.camera.Matrices.Rc_w = newmat;
     
 }
 
@@ -352,6 +372,7 @@ function x3dom_altelev(alt,elev){
     viewpoint.attr("centerOfRotation",newmat.e3().toString());
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
     
+    Data.camera.Matrices.Rc_w = newmat;
 }
 
 /**
@@ -420,7 +441,7 @@ function x3dom_C2E(){
 }
 
 function x3dom_E2C(){
-    return x3dom_W2C().inverse();
+    return x3dom_C2E().inverse();
 }
 
 function x3dom_YawPitchRoll(m){
@@ -434,4 +455,25 @@ function x3dom_YawPitchRoll(m){
         pitch: pitch,
         roll: roll
     };
+}
+
+function x3dom_delta_map2scene(p0,p1){
+    
+    var pi = new L.LatLng(p0.lat,p1.lng);
+
+    var dx = p0.distanceTo(pi);
+    var dy = 0;
+    var dz = p1.distanceTo(pi);
+
+    var dp_rw = new x3dom.fields.SFVec3f(dx,dy,dz);
+
+    if (p1.lng<p0.lng) dp_rw.x = -dp_rw.x;
+    if (p1.lat>p0.lat) dp_rw.z = -dp_rw.z;
+
+    // rotate, not transform - because rotated is the camera
+    var mat = Data.camera.Matrices.Rw_rw;
+    var dp_w = mat.multMatrixVec(dp_rw);
+    
+    return dp_w;
+    
 }
