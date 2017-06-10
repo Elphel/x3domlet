@@ -36,34 +36,6 @@
  */
 
 /**
- * output in units (meters)
- */
-function x3dom_getViewTranslation(elem){
-
-    var vp_mat = elem.runtime.viewMatrix().inverse();
-    var vp_translation = vp_mat.e3();
-
-    return vp_translation;
-    
-}
-
-/**
- * output in degrees
- */
-function x3dom_getViewDirection(elem){
-    
-    var vp_mat = elem.runtime.viewMatrix();
-    
-    var vMatInv  = vp_mat.inverse();
-    var viewDir  = vMatInv.multMatrixVec(new x3dom.fields.SFVec3f(0.0, 0.0, -1.0));
-    
-    var angle = Math.atan2(viewDir.x,-viewDir.z)*180/Math.PI;
-    
-    return angle;
-    
-}
-
-/**
  * get position and orientation in the 3D scene defined by mouse's canvas x,y 
  */
 function x3dom_getXYPosOr(cnvx,cnvy,round){
@@ -341,7 +313,7 @@ function x3dom_altelev(alt,elev){
 }
 
 /**
- * back and forth conversions for test purposes
+ * back and forth conversions for tests
  */
 function x3dom_matrix_test(){
     
