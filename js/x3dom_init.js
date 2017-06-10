@@ -861,15 +861,10 @@ X3DOMObject.Marker.drag = function(dx,dy){
 
 
 X3DOMObject.Marker.slide = function(index,x,y,z){
-        
-    var R0 = Data.camera.Matrices.R0;
-    //var T = x3dom_toYawPitchRoll();
     
-    var p_w = new x3dom.fields.SFVec3f(x,y,z);
-    var p_rw = R0.multMatrixVec(p_w);
-    
-    var distance = Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z);
-    var angle = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
+    var da = x3dom_getDistAngle(x,y,z);
+    var distance = da[0];
+    var angle = da[1];
     
     var p1_ll = Map.marker._latlng;
     var p2_ll = p1_ll.CoordinatesOf(angle,distance);
@@ -878,7 +873,7 @@ X3DOMObject.Marker.slide = function(index,x,y,z){
     
     c.x = x;
     c.y = y;
-    c.z = z;    
+    c.z = z;
     c.latitude = p2_ll.lat;
     c.longitude = p2_ll.lng;
     c.altitude = c.y;
@@ -973,15 +968,12 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
         
         // Create marker on the scene
         new X3DOMObject.Marker(mark.x,mark.y,mark.z);
+        
+        var da = x3dom_getDistAngle(mark.x,mark.y,mark.z);
+        var distance = da[0];
+        var angle = da[1];
 
         // Create marker on the map
-        var R0 = Data.camera.Matrices.R0;
-        var p_w = new x3dom.fields.SFVec3f(mark.x,mark.y,mark.z);
-        var p_rw = R0.multMatrixVec(p_w);
-        
-        var distance = Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z);
-        var angle = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
-
         Camera.createMeasureMarker(angle,distance);
         
         var map_mark = Camera._measureMarkers[Camera._measureMarkers.length-1];

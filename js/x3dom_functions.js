@@ -229,34 +229,15 @@ function x3dom_setUpRight(){
     
     var from = mat.e3();
     var at = from.subtract(mat.e2());
-
-    //var up = new x3dom.fields.SFVec3f(0, 1, 0);
     var up = Data.camera.Matrices.Up0;
     
     var s = mat.e2().cross(up).normalize();
     
     var newup = mat.e2().cross(s).normalize().negate();
     
-    //at = from.add(v);
-    
     mat = x3dom.fields.SFMatrix4f.lookAt(from, at, newup);
-    //mat = mat.inverse();
     
-    //var m1  = x3dom.fields.SFMatrix4f.translation(from);
-    //var m1n = x3dom.fields.SFMatrix4f.translation(from.negate());
-    
-    //mat = m1.mult(mat).mult(m1n);
-    
-    var Q = new x3dom.fields.Quaternion(0,0,1,0);
-    Q.setValue(mat);
-    var AA = Q.toAxisAngle();
-
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("position",mat.e3().toString());
-    viewpoint.attr("centerOfRotation",mat.e3().toString());
-    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-    
-    Data.camera.Matrices.RC_w = mat;
+    x3dom_setViewpoint(mat);
 
 }
 
@@ -293,17 +274,7 @@ function x3dom_rotation(delta_a){
     
     newmat = x3dom.fields.SFMatrix4f.lookAt(from, newat, up);
         
-    var Q = new x3dom.fields.Quaternion(0,0,1,0);
-    //Q.setValue(newmat.inverse());
-    Q.setValue(newmat);
-    var AA = Q.toAxisAngle();
-    
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-    viewpoint.attr("position",from.toString());
-    viewpoint.attr("centerOfRotation",from.toString());
-    
-    Data.camera.Matrices.RC_w = newmat;
+    x3dom_setViewpoint(newmat);
 
 }
 
@@ -327,26 +298,14 @@ function x3dom_translation(dx,dy,dz){
     var newat = newfrom.subtract(mat.e2());
     
     var up = mat.e1();
-    
+
     var newmat = x3dom.fields.SFMatrix4f.lookAt(newfrom, newat, up);
-    
-    var Q = new x3dom.fields.Quaternion(0,0,1,0);
-    //Q.setValue(newmat.inverse());
-    Q.setValue(newmat);
-    var AA = Q.toAxisAngle();
-    
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-    viewpoint.attr("position",newfrom.toString());
-    viewpoint.attr("centerOfRotation",newfrom.toString());
-    
-    Data.camera.Matrices.RC_w = newmat;
+
+    x3dom_setViewpoint(newmat);
     
 }
 
 function x3dom_altelev(alt,elev){
-
-    console.log(elev);
     
     //x3dom_matrix_test();
 
@@ -367,26 +326,18 @@ function x3dom_altelev(alt,elev){
     var Mh = x3dom.fields.SFMatrix4f.rotationZ(az);
     var Mt = x3dom.fields.SFMatrix4f.rotationY(el);
     var Mr = x3dom.fields.SFMatrix4f.rotationX(sk);
-    
+
     var R = Mh.mult(Mt).mult(Mr);
-    
+
     var R_rw = T.inverse().mult(R).mult(T);
     var R_w = R0.inverse().mult(R_rw);
-    
+
     var matt  = x3dom.fields.SFMatrix4f.translation(from);
 
     var newmat = matt.mult(R_w);
 
-    var Q = new x3dom.fields.Quaternion(0,0,1,0);
-    Q.setValue(newmat);
-    var AA = Q.toAxisAngle();
+    x3dom_setViewpoint(newmat);
 
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("position",newmat.e3().toString());
-    viewpoint.attr("centerOfRotation",newmat.e3().toString());
-    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-    
-    Data.camera.Matrices.RC_w = newmat;
 }
 
 /**
@@ -537,3 +488,82 @@ function x3dom_delta_map2scene(p0,p1){
     return dp_w;
     
 }
+
+// x,y,z - x3dom internal coords
+function x3dom_getDistAngle(x,y,z){
+    
+    var R0 = Data.camera.Matrices.R0;
+    var p_w = new x3dom.fields.SFVec3f(x,y,z);
+    var p_rw = R0.multMatrixVec(p_w);
+    
+    var d = Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z);
+    var a = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
+    
+    return Array(d,a);
+    
+}
+
+function x3dom_update_map(){
+    
+    var Camera = Map.marker;
+    
+    // real world ypr from viewmatrix
+    
+    var mat = Scene.element.runtime.viewMatrix().inverse();
+    var R0 = Data.camera.Matrices.R0;
+    var T = x3dom_toYawPitchRoll();
+    
+    var m_rw = T.mult(R0).mult(mat).mult(T.inverse());
+    var ypr = x3dom_YawPitchRoll_degs(m_rw);
+    
+    var heading = ypr.yaw;
+    
+    Map.marker.setHeading(heading);
+    
+    // real world angle distance of some point
+    
+    var dp_w = mat.e3();
+    
+    if (Scene.old_view_translation != null){
+        dp_w = dp_w.subtract(Scene.old_view_translation);
+    }
+    
+    // from w to rw
+    dp_rw = R0.multMatrixVec(dp_w);
+    
+    var distance = Math.sqrt(dp_rw.x*dp_rw.x+dp_rw.z*dp_rw.z);
+    var angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
+    
+    var initial_coordinates = [Data.camera.latitude,Data.camera.longitude];
+    
+    var p0 = new L.LatLng(initial_coordinates[0],initial_coordinates[1]);//Camera._latlng;
+    var p1 = p0.CoordinatesOf(angle,distance);
+
+    Map.marker.setBasePoint(p1);
+    Map.marker._syncMeasureMarkersToBasePoint();
+
+    Data.camera.latitude = p1.lat;
+    Data.camera.longitude = p1.lng;
+    Data.camera.heading = heading;
+    
+    Scene.old_view_translation = mat.e3();
+    
+}
+
+// uses globals
+function x3dom_setViewpoint(m){
+
+    var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
+    Q.setValue(m);
+    var AA = Q.toAxisAngle();
+
+    var viewpoint = $(Scene.element).find("Viewpoint");
+    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
+    viewpoint.attr("position",m.e3().toString());
+    viewpoint.attr("centerOfRotation",m.e3().toString());
+
+    // update every time
+    Data.camera.Matrices.RC_w = m;
+
+}
+

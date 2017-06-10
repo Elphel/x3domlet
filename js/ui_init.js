@@ -255,8 +255,7 @@ function deep_init(){
 }
 
 function x3d_initial_camera_placement(){
-    
-    // Roll compensation
+
     var heading = Data.camera.heading*Math.PI/180;
     var tilt = (Data.camera.tilt-90)*Math.PI/180;
     var roll = Data.camera.roll*Math.PI/180;
@@ -290,29 +289,12 @@ function x3d_initial_camera_placement(){
     var RC_w = R0.inverse().mult(RC0_rw);
     // store matrices
     Data.camera.Matrices = {
-        Ah: heading,
-        At: tilt,
-        Ar: roll,
-        R_h_eul: Mh,
-        R_t_eul: Mt,
-        R_r_eul: Mr,
         R0 : R0,
         Up0: RC_w.e1(),
         RC_w: RC_w,
     };
-
-    // set view
-    var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
-    Q.setValue(RC_w);
-    var AA = Q.toAxisAngle();
     
-    var viewpoint = $(Scene.element).find("Viewpoint");
-    viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
-    viewpoint.attr("position",RC_w.e3().toString());
-    viewpoint.attr("centerOfRotation",RC_w.e3().toString());
-    
-    // update every time
-    Data.camera.Matrices.RC_w = RC_w;
+    x3dom_setViewpoint(RC_w);
     
 }
 
@@ -487,20 +469,14 @@ function leaf_events(){
                 var p1_ll = Camera._latlng;
                 var p2_ll = Lm._latlng;
 
-                //var azimuth = getAzimuth(p1_ll,p2_ll);
-                var azimuth = getAzimuth(p1_ll,p2_ll);
-                
-                //var initial_heading = Data.camera.Matrices.Ah*180/Math.PI;
-                
-                var angle = azimuth - Data.camera.Matrices.Ah*180/Math.PI;
                 var distance = p1_ll.distanceTo(p2_ll);
                 
-                //console.log("angle from lat lng: "+angle);
+                p_w = x3dom_delta_map2scene(p1_ll,p2_ll);
                 
-                mark.x = distance*Math.sin(Math.PI/180*angle);
-                mark.y = 0;
-                mark.z = -distance*Math.cos(Math.PI/180*angle);
-                
+                mark.x = p_w.x;
+                mark.y = p_w.y;
+                mark.z = p_w.z;
+
                 mark.d_map = distance;
                 mark.d_x3d = "<font style='color:red;'>drag over 3D</font>";
                 
@@ -644,43 +620,6 @@ function leaf_translation_v1(p0,p1){
 
 function x3d_mouseMove(){
     
-    var Camera = Map.marker;
-    
-    var mat = Scene.element.runtime.viewMatrix().inverse();
-    var R0 = Data.camera.Matrices.R0;
-    var T = x3dom_toYawPitchRoll();
-    
-    var m_rw = T.mult(R0).mult(mat).mult(T.inverse());
-    var ypr = x3dom_YawPitchRoll_degs(m_rw);
-    
-    var heading = ypr.yaw;
-    
-    Map.marker.setHeading(heading);
-    
-    var dp_w = mat.e3();
-    
-    if (Scene.old_view_translation != null){
-        dp_w = dp_w.subtract(Scene.old_view_translation);
-    }
-    
-    // from w to rw
-    dp_rw = R0.multMatrixVec(dp_w);
-    
-    var distance = Math.sqrt(dp_rw.x*dp_rw.x+dp_rw.z*dp_rw.z);
-    var angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
-    
-    var initial_coordinates = [Data.camera.latitude,Data.camera.longitude];
-    
-    var p0 = new L.LatLng(initial_coordinates[0],initial_coordinates[1]);//Camera._latlng;
-    var p1 = p0.CoordinatesOf(angle,distance);
-
-    Map.marker.setBasePoint(p1);
-    Map.marker._syncMeasureMarkersToBasePoint();
-
-    Data.camera.latitude = p1.lat;
-    Data.camera.longitude = p1.lng;
-    Data.camera.heading = heading;
-    
-    Scene.old_view_translation = mat.e3();
+    x3dom_update_map();
     
 }
