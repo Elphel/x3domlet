@@ -159,11 +159,13 @@ function x3dom_getCameraPosOr(round){
     var tr = m.e3();
     
     var R0 = Data.camera.Matrices.R0;
-    var T0 = x3dom_toYawPitchRoll();
     
-    m = T0.mult(R0).mult(m).mult(T0.inverse());
+    //var T0 = x3dom_toYawPitchRoll();
+    m = R0.mult(m);
     
-    var ypr = x3dom_YawPitchRoll(m);
+    //m = x3dom_TxMxTi(m);
+    
+    var ypr = x3dom_YawPitchRoll_nc(m);
 
     ypr.yaw = (180/Math.PI*ypr.yaw+360)%360;
     ypr.pitch *= 180/Math.PI;
@@ -270,10 +272,11 @@ function x3dom_altelev(alt,elev){
 
     var mat = Scene.element.runtime.viewMatrix().inverse();
     var R0 = Data.camera.Matrices.R0;
-    var T = x3dom_toYawPitchRoll();
+    //var T = x3dom_toYawPitchRoll();
 
-    var m_rw = T.mult(R0).mult(mat).mult(T.inverse());
-    var ypr = x3dom_YawPitchRoll(m_rw);
+    var mat = R0.mult(mat);
+    var ypr = x3dom_YawPitchRoll_nc(mat);
+    var ypr2 = x3dom_YawPitchRoll_nc_degs(mat);
     
     var from = mat.e3();
     from.y = alt;
@@ -288,9 +291,12 @@ function x3dom_altelev(alt,elev){
 
     var R = Mh.mult(Mt).mult(Mr);
 
-    var R_rw = T.inverse().mult(R).mult(T);
+    //var R_rw = T.inverse().mult(R).mult(T);
+    var R_rw = x3dom_TixMxT(R);
     var R_w = R0.inverse().mult(R_rw);
 
+    var ypr2 = x3dom_YawPitchRoll_nc_degs(R_w);
+    
     var matt  = x3dom.fields.SFMatrix4f.translation(from);
 
     var newmat = matt.mult(R_w);
@@ -379,6 +385,40 @@ function x3dom_matrix_test(){
  * Transform to calculate conventional Euler angles for z-y'-x" = z-y-z
  * unrelated: what's x3dom's native getWCtoCCMatrix()? canvas-to-world?
  */
+
+function x3dom_toYawPitchRoll(){
+    return new x3dom.fields.SFMatrix4f(
+        0, 0,-1, 0,
+        1, 0, 0, 0,
+        0,-1, 0, 0,
+        0, 0, 0, 1
+    );
+}
+
+/*
+ * For Yaw Pitch Roll
+ */
+function x3dom_TixMxT(m){
+    return new x3dom.fields.SFMatrix4f(
+        m._11,-m._12,-m._10, m._03,
+       -m._21, m._22, m._20, m._13,
+       -m._01, m._02, m._00, m._23,
+        m._30, m._31, m._32, m._33
+    );
+}
+
+/*
+ * For Yaw Pitch Roll
+ */
+function x3dom_TxMxTi(m){
+    return new x3dom.fields.SFMatrix4f(
+        m._22,-m._20, m._21, m._03,
+       -m._02, m._00,-m._01, m._13,
+        m._12,-m._10, m._11, m._23,
+        m._30, m._31, m._32, m._33
+    );
+}
+
 function x3dom_YawPitchRoll(m){
     
     var yaw = Math.atan2(m._10,m._00);
@@ -392,26 +432,44 @@ function x3dom_YawPitchRoll(m){
     };
 }
 
-function x3dom_toYawPitchRoll(){
-    return new x3dom.fields.SFMatrix4f(
-        0, 0,-1, 0,
-        1, 0, 0, 0,
-        0,-1, 0, 0,
-        0, 0, 0, 1
-    );
-}
-
 function x3dom_YawPitchRoll_degs(m){
     
-    var yaw = Math.atan2(m._10,m._00);
-    var pitch = -Math.asin(m._20);
-    var roll = Math.atan2(m._21,m._22);
+    var a = x3dom_YawPitchRoll(m);
     
     return {
-        yaw: yaw*180/Math.PI,
-        pitch: pitch*180/Math.PI,
-        roll: roll*180/Math.PI
+        yaw: a.yaw*180/Math.PI,
+        pitch: a.pitch*180/Math.PI,
+        roll: a.roll*180/Math.PI
     };
+}
+
+/*
+ * from not converted matrix
+ */
+function x3dom_YawPitchRoll_nc(m){
+    
+    var yaw = -Math.atan2(m._02,m._22);
+    var pitch = -Math.asin(m._12);
+    var roll = -Math.atan2(m._10,m._11);
+    
+    return {
+        yaw: yaw,
+        pitch: pitch,
+        roll: roll
+    };
+    
+}
+
+function x3dom_YawPitchRoll_nc_degs(m){
+    
+    var a = x3dom_YawPitchRoll_nc(m);
+    
+    return {
+        yaw: a.yaw*180/Math.PI,
+        pitch: a.pitch*180/Math.PI,
+        roll: a.roll*180/Math.PI
+    };
+    
 }
 
 /*
@@ -470,10 +528,13 @@ function x3dom_update_map(){
     
     var mat = Scene.element.runtime.viewMatrix().inverse();
     var R0 = Data.camera.Matrices.R0;
-    var T = x3dom_toYawPitchRoll();
+    //var T = x3dom_toYawPitchRoll();
     
-    var m_rw = T.mult(R0).mult(mat).mult(T.inverse());
-    var ypr = x3dom_YawPitchRoll_degs(m_rw);
+    //var m_rw = T.mult(R0).mult(mat).mult(T.inverse());
+    
+    mat = R0.mult(mat);
+    
+    var ypr = x3dom_YawPitchRoll_nc_degs(mat);
     
     var heading = ypr.yaw;
     
