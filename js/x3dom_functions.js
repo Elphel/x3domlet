@@ -213,28 +213,20 @@ function x3dom_setUpRight(){
 
 }
 
-function x3dom_rotation(delta_a){
-    
-    /* 
-     * Printing values:
-     * 
-     *   var mat = Scene.element.runtime.viewMatrix().inverse();
-     *   var rotation = new x3dom.fields.Quaternion(0, 0, 1, 0);
-     *   rotation.setValue(mat);
-     *   var translation = mat.e3();
-     * 
-     */
+/*
+ * rotation by delta angle around camera's current Up vector
+ */
+function x3dom_rotation(dangle){
     
     var mat = Scene.element.runtime.viewMatrix();
 
     mat = mat.inverse();
-    //console.log(mat.toString());
 
     var from = mat.e3();
     var at = from.subtract(mat.e2());
     var up = mat.e1();
     
-    var q0 = x3dom.fields.Quaternion.axisAngle(up, -delta_a);
+    var q0 = x3dom.fields.Quaternion.axisAngle(up, -dangle);
     var m0 = q0.toMatrix();
     
     var m1  = x3dom.fields.SFMatrix4f.translation(from);
@@ -250,26 +242,21 @@ function x3dom_rotation(delta_a){
 
 }
 
-// horizontal?
+/*
+ * translate camera in x3dom space
+ */
 function x3dom_translation(dx,dy,dz){
     
     var delta = new x3dom.fields.SFVec3f(dx,dy,dz);
     
     var mat = Scene.element.runtime.viewMatrix().inverse();
-    var tr = mat.e3();
 
     var from = mat.e3();
     var at = from.subtract(mat.e2());
-    
-    //console.log(from.toString());
+    var up = mat.e1();
     
     var newfrom = from.add(delta);
-    
-    //console.log(newfrom.toString());
-    
     var newat = newfrom.subtract(mat.e2());
-    
-    var up = mat.e1();
 
     var newmat = x3dom.fields.SFMatrix4f.lookAt(newfrom, newat, up);
 
