@@ -1196,9 +1196,9 @@ X3DOMObject.displayViewInfo = function(e){
 </tr>
 <tr>
     <th></th>
-    <th style='width:50px;'>x</th>
-    <th style='width:50px;'>y</th>
-    <th style='width:50px;'>z</th>
+    <th style='width:60px;'>x</th>
+    <th style='width:60px;'>y</th>
+    <th style='width:60px;'>z</th>
     <th>azimuth</th>
     <th>elevation</th>
     <th>skew</th>
