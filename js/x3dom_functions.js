@@ -278,21 +278,19 @@ function x3dom_translation(dx,dy,dz){
 function x3dom_altelev(alt,elev){
     
     //x3dom_matrix_test();
-
+    
     var mat = Scene.element.runtime.viewMatrix().inverse();
     var R0 = Data.camera.Matrices.R0;
-    //var T = x3dom_toYawPitchRoll();
+    //var T = x3dom_toYawPitchRoll();    
+    var from = mat.e3();
+    from.y = alt;
+    
 
     var mat = R0.mult(mat);
     var ypr = x3dom_YawPitchRoll_nc(mat);
     var ypr2 = x3dom_YawPitchRoll_nc_degs(mat);
-    console.log("Check1");
-    console.log(ypr2);
-    
-    var from = mat.e3();
-    
-    console.log(from);
-    from.y = alt;
+    //console.log("Check1");
+    //console.log(ypr2);
     
     var az = ypr.yaw;
     var el = elev;
@@ -309,16 +307,14 @@ function x3dom_altelev(alt,elev){
     var R_w = R0.inverse().mult(R_rw);
 
     var ypr2 = x3dom_YawPitchRoll_nc_degs(R_rw);
-    console.log("Check2");
-    console.log(ypr2);
+    //console.log("Check2");
+    //console.log(ypr2);
     
     var matt  = x3dom.fields.SFMatrix4f.translation(from);
 
     var newmat = matt.mult(R_w);
 
     x3dom_setViewpoint(newmat);
-    
-    console.log(newmat.e3());
 
 }
 
@@ -599,6 +595,8 @@ function x3dom_update_map(){
 // uses globals
 function x3dom_setViewpoint(m){
 
+    console.log("Setting a viewpoint");
+    
     var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
     Q.setValue(m);
     var AA = Q.toAxisAngle();
