@@ -165,10 +165,14 @@ function light_init(){
                 Map = new LeafletObject('leaflet_map',Data,{});
                 //wait until it DOM is extended
                 x3dom.runtime.ready = function(){
+
                     map_resize_init();
                     deep_init();
                     align_init();
                     x3d_initial_camera_placement();
+                    x3d_events();
+                    leaf_events();
+                    
                 };
             });
             
@@ -239,7 +243,7 @@ function deep_init(){
         cnt = parseInt(progress_counter[1]);
 
         if (!Scene._X3DOM_SCENE_INIT_DONE&&(cnt==0)){
-
+            
             //Scene.initResize();
             
             // now then all shapes are parsed and accessible
@@ -247,8 +251,6 @@ function deep_init(){
 
             Scene._X3DOM_SCENE_INIT_DONE = true;
 
-            x3d_events();
-            leaf_events();
         }
     };
     
@@ -544,6 +546,8 @@ function leaf_mousemove_hc(){
     var elevation = Camera._elevation; //rads
     
     x3dom_altelev(altitude,elevation);
+    
+    X3DOMObject.displayViewInfo({});
     
 }
 

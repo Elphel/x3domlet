@@ -35,6 +35,15 @@
  *  for the JavaScript code in this page.
  */
 
+function x3dom_getViewTranslation(elem){
+    
+    var m = elem.runtime.viewMatrix().inverse();
+    var tr = m.e3();
+    
+    return tr;
+    
+}
+
 /**
  * get position and orientation in the 3D scene defined by mouse's canvas x,y 
  */
@@ -277,8 +286,12 @@ function x3dom_altelev(alt,elev){
     var mat = R0.mult(mat);
     var ypr = x3dom_YawPitchRoll_nc(mat);
     var ypr2 = x3dom_YawPitchRoll_nc_degs(mat);
+    console.log("Check1");
+    console.log(ypr2);
     
     var from = mat.e3();
+    
+    console.log(from);
     from.y = alt;
     
     var az = ypr.yaw;
@@ -295,13 +308,17 @@ function x3dom_altelev(alt,elev){
     var R_rw = x3dom_TixMxT(R);
     var R_w = R0.inverse().mult(R_rw);
 
-    var ypr2 = x3dom_YawPitchRoll_nc_degs(R_w);
+    var ypr2 = x3dom_YawPitchRoll_nc_degs(R_rw);
+    console.log("Check2");
+    console.log(ypr2);
     
     var matt  = x3dom.fields.SFMatrix4f.translation(from);
 
     var newmat = matt.mult(R_w);
 
     x3dom_setViewpoint(newmat);
+    
+    console.log(newmat.e3());
 
 }
 
