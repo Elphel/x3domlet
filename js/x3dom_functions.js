@@ -547,8 +547,12 @@ function x3dom_update_map(){
     var R0 = Data.camera.Matrices.R0;
     //var T = x3dom_toYawPitchRoll();
     
+    var p_w = mat.e3();
+    var dp_w = mat.e3();
+    
     //var m_rw = T.mult(R0).mult(mat).mult(T.inverse());
     
+    // R0 - rw -> w
     mat = R0.mult(mat);
     
     var ypr = x3dom_YawPitchRoll_nc_degs(mat);
@@ -559,8 +563,6 @@ function x3dom_update_map(){
     
     // real world angle distance of some point
     
-    var dp_w = mat.e3();
-    
     if (Scene.old_view_translation != null){
         dp_w = dp_w.subtract(Scene.old_view_translation);
     }
@@ -569,7 +571,14 @@ function x3dom_update_map(){
     dp_rw = R0.multMatrixVec(dp_w);
     
     var distance = Math.sqrt(dp_rw.x*dp_rw.x+dp_rw.z*dp_rw.z);
-    var angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
+    
+    var angle = 0;
+    
+    if (dp_rw.z!=0){
+        angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
+    }
+    
+    //angle = angle + heading;
     
     var initial_coordinates = [Data.camera.latitude,Data.camera.longitude];
     
@@ -583,7 +592,7 @@ function x3dom_update_map(){
     Data.camera.longitude = p1.lng;
     Data.camera.heading = heading;
     
-    Scene.old_view_translation = mat.e3();
+    Scene.old_view_translation = p_w;
     
 }
 
