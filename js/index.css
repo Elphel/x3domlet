@@ -45,3 +45,7 @@ body {
 .odd{
     background:rgba(120,120,220,1);
 }
+
+.arow:hover td{
+    background:rgba(220,220,220,0.4);
+}

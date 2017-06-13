@@ -30,17 +30,17 @@ function parse_list(res){
     
     $(res).find("model").each(function(){
 
-        var row = $("<tr class='arow odd'>");
+        var row = $("<tr class='arow'>");
         var name = $(this).attr("name");
         var thumb = $(this).attr("thumb");
 
         if (thumb.length!=""){
-            row.append("<td valign='top'><img alt='n/a' src='models/"+name+"/thumb.jpeg'></img></td>");
+            row.append("<td class='acell' valign='top'><img alt='n/a' src='models/"+name+"/thumb.jpeg'></img></td>");
         }else{
-            row.append("<td valign='top' align='center'>&ndash;</td>");
+            row.append("<td class='acell' valign='top' align='center'>&ndash;</td>");
         }
 
-        row.append("<td valign='top'>"+name+"</td>");
+        row.append("<td class='acell' valign='top'>"+name+"</td>");
 
         var vlist = "";
         $(this).find("version").each(function(i,v){
@@ -56,7 +56,7 @@ function parse_list(res){
         
         vlist = vlist.slice(0,-7);
         
-        row.append("<td valign='top'><div>"+vlist+"</div></td>");
+        row.append("<td class='acell' valign='top'><div>"+vlist+"</div></td>");
         
         row.attr("index",index);
         
@@ -156,7 +156,7 @@ function init_maps(){
   map = L.map('leaflet_map',{
     layers:[googleSat],
     zoomControl:false,
-  }).setView([40.7233861, -111.9328843], 13);
+  }).setView([40.7233861, -111.9328843], 12);
 
   new L.Control.Zoom({ position: 'topright' }).addTo(map);
   
