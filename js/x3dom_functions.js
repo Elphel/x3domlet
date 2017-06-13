@@ -595,7 +595,7 @@ function x3dom_update_map(){
 // uses globals
 function x3dom_setViewpoint(m){
 
-    console.log("Setting a viewpoint");
+    //console.log("Setting a viewpoint");
     
     var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
     Q.setValue(m);

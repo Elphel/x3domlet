@@ -120,11 +120,25 @@ function light_init(){
     var x3delement = $("#x3d_id").find("scene");
     
     var model_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
+    var model_back_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+"-texture-bgnd-ext.jpeg";
     
     var model = $(`
         <group>
             <inline name='mymodel' namespacename='mymodel' url='`+model_url+`'></inline>
-        </group>`);
+        </group>
+        <group>
+            <Background 
+                id="Background"
+                class="Background"
+                backUrl=  "js/images/background_side.jpeg"
+                bottomUrl="js/images/background_floor.jpeg"
+                frontUrl= "`+model_back_url+`"
+                leftUrl=  "js/images/background_side.jpeg"
+                rightUrl= "js/images/background_side.jpeg"
+                topUrl=   "js/images/background_sky.jpeg">
+            </Background>
+        </group>
+        `);
     
     x3delement.append(model);
     
