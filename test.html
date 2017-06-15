@@ -3,9 +3,21 @@
   <head>
     <meta charset="utf-8"/>
     <title>Scene+Map</title>
-    
-    <script type='text/javascript' src='js/jquery/jquery-3.1.1.js'></script>
-    
+
+    <!-- build:css css/test.css -->
+    <!-- bower:css -->
+    <!-- endbower -->
+    <link rel='stylesheet' type='text/css' href='js/leaflet/leaflet.css'></link>
+    <link rel='stylesheet' type='text/css' href='js/x3dom/x3dom.css'></link>
+
+    <link rel='stylesheet' type='text/css' href='js/ui.css'></link>
+    <!-- endbuild -->
+
+    <!-- build:js js/test.js -->
+    <!-- bower:js -->
+    <script src='bower_components/jquery/dist/jquery.js'></script>
+    <!-- endbower -->
+
     <script type='text/javascript' src='js/leaflet/leaflet-src.js'></script>
     <script type='text/javascript' src='js/leaflet/L.extra.js'></script>
     <script type='text/javascript' src='js/leaflet/leaflet.camera-view-marker-controls.js'></script>
@@ -14,7 +26,8 @@
 
     <script type='text/javascript' src='js/x3dom_init.js'></script>
     <script type='text/javascript' src='js/x3dom_functions.js'></script>
-    
+    <script type='text/javascript' src='js/x3dom/x3dom-full.debug.js'></script>
+
     <script type='text/javascript' src='js/leaflet_init.js'></script>
     <script type='text/javascript' src='js/x3l.js'></script>
 
@@ -23,18 +36,14 @@
     <script type='text/javascript' src='js/ui_help.js'></script>
     <script type='text/javascript' src='js/ui_functions.js'></script>
     <script type='text/javascript' src='js/ui_align.js'></script>
-    
+
     <script type='text/javascript' src='js/util_functions.js'></script>
-    
-    <link rel='stylesheet' type='text/css' href='js/leaflet/leaflet.css'></link>
-    <link rel='stylesheet' type='text/css' href='js/x3dom/x3dom.css'></link>
-    
-    <link rel='stylesheet' type='text/css' href='js/ui.css'></link>
-    
+    <!-- endbuild -->
+
   </head>
   <body>
     <div id='x3d_wrapper'>
-      <x3d id="x3d_id" width='1600px' height='800px' showProgress="true" showStat="false" showLog="false"> 
+      <x3d id="x3d_id" width="100%" height="100%" showProgress="true" showStat="false" showLog="false">
         <scene>
           <navigationInfo id="navInfo" type='"examine"' speed='0.01'></navigationInfo>
           <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0'></Viewpoint>
