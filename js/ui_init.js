@@ -174,8 +174,7 @@ function light_init(){
             Scene = new X3DOMObject(element,Data,{});
             Scene.initResize();
 
-    //        $.getScript("js/x3dom/x3dom-full.debug.js",function(){
-
+            $.getScript("js/x3dom/x3dom-full.debug.js",function(){
                 Map = new LeafletObject('leaflet_map',Data,{});
                 //wait until it DOM is extended
                 x3dom.runtime.ready = function(){
@@ -188,8 +187,7 @@ function light_init(){
                     leaf_events();
 
                 };
-      //      });
-
+            });
         },
     });
 
