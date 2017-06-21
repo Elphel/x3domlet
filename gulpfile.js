@@ -24,7 +24,7 @@ var gulp=require('gulp'),
 var app;
 var config={
   documentRoot: './',
-  host: 'localhost',
+  host: '0.0.0.0',
   port: 8080,
   home: 'index.html',
   bowerDir: './bower_components',
