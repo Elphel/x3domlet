@@ -7,6 +7,9 @@ You can either run the demo:
 
 ## 1. Standalone installation
 ### 1.1. Install dependencies
+
+You need php-cgi installed.
+
 Change to the x3domlet directory
 ```
 cd x3domlet
