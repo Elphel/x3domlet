@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Scene (NoMap)</title>
+    
+    <script type='text/javascript' src='js/jquery/jquery-3.1.1.js'></script>
+    <script type='text/javascript' src='js/x3dom/x3dom-full.debug.js'></script>
+
+<!--     <script type='text/javascript' src='js/nomap_vr_init.js'></script> -->
+
+    <link rel='stylesheet' type='text/css' href='js/x3dom/x3dom.css'></link>
+    
+    <style type='text/css'>
+        body {margin:0; padding:0; background-color:#04344c; background-color:#ddeeff; }
+        .stereo-view {float:left; }
+        .stereo-view x3d {float:left; }
+    </style>
+    <script>
+        // Get display size
+        var deviceOrientation = 'portrait';
+        notFirstTime = false;
+        //alert ('Checking device orientation and display size');
+        while (deviceOrientation == 'portrait') {
+            insideWidth = window.innerWidth;
+            insideHeight = window.innerHeight;
+            if (insideWidth > insideHeight) {deviceOrientation = 'landscape';}
+            if (notFirstTime) {alert ("Please oriention device to landscape and press 'OK'");}
+            notFirstTime = true;
+        }
+        x3dWidth = Math.floor((insideWidth-12)/2);
+        x3dHeight = insideHeight;
+        //x3dHeight = x3dHeight/2;
+        x3dHeight = x3dHeight - 2;
+    </script>
+  </head>
+  <body>
+    <div class='stereo-view-1'>
+        <!--view-source:http://realism.com/sample/model/stereo/VAM_246-1-1870/model-ig0b75.x3d?=&headlight=true&ipd=30&%20=-->
+        <!--view-source:http://realism.com/x3d-examples/HTML5-Fall2014/stereo/kelpie.sgl.html -->
+    
+        <script>
+            document.writeln ("<x3d id='all_view' showStat='false' showLog='false' disableDoubleClick='true' keysEnabled='true' x='0px' y='0px' width='"+(2*x3dWidth)+"px' height='"+x3dHeight+"px'>");
+            var x3dDimStr = x3dWidth + ' ' + x3dHeight + ' 4';
+        </script>
+    
+        <scene>
+            <navigationInfo type='"EXAMINE" "WALK"'></navigationInfo>
+	
+            <background DEF='bgnd' 
+                backUrl=  "js/images/background_side.jpeg" 
+                bottomUrl="js/images/background_floor.jpeg" 
+                frontUrl= "models/1488240695_710844/V0/1488240695_710844-texture-bgnd-ext.jpeg"
+                leftUrl=  "js/images/background_side.jpeg" 
+                rightUrl= "js/images/background_side.jpeg" 
+                topUrl=   "js/images/background_sky.jpeg">
+            </background>
+            
+            <transform translation='0 0 0' rotation='0 1 0 0'>
+                <viewpoint DEF='viewpoint' id='x3d_viewpoint' position='0 0 0' orientation='0 1 0 0' zNear='0.001' zFar='2000'></viewpoint>
+            </transform>
+            
+            <group id='unrendered_scene' render='false'>
+                <group DEF='scene'>
+                    <transform DEF='Viewpoint-Left'  id='x3d_viewpoint'       translation='0 0 0' rotation='0 1 0 0'>
+                    <transform DEF='Viewpoint-gamma' id='x3d_viewpoint_gamma' translation='0 0 0'  rotation='0 1 0 0'>
+                    <transform DEF='Viewpoint-beta'  id='x3d_viewpoint_beta'  translation='0 0 0'  rotation='1 0 0 0'>
+                    <transform DEF='Viewpoint-alpha' id='x3d_viewpoint_alpha' translation='0 0 0'  rotation='0 0 1 0'>
+                    <transform translation='0 0 0'>	<!-- account for model center != center-of-mass -->
+                        <inline url='models/1488240695_710844/V0/1488240695_710844.x3d'></inline>
+                    </transform>
+                    </transform>
+                    </transform>
+                    </transform>
+                    </transform>
+                </group>
+            </group>
+            
+            <group DEF='left' render='true'>
+                <shape>
+                    <appearance>
+                        <!-- The dimensions is the size of each display side -->
+                        <script>
+                            document.writeln ("<renderedTexture interpupillaryDistance='0.3' id='rtLeft' stereoMode='LEFT_EYE' update='ALWAYS' dimensions='"+x3dDimStr+"' repeatS='false' repeatT='false'>");
+                        </script>
+                        
+                        <viewpoint USE='viewpoint' containerField='viewpoint'></viewpoint>
+                        
+                        <background USE='bgnd' containerField='background'></background>
+                        
+                        <group USE='scene' containerField="scene"></group>
+                        
+                    </renderedTexture>
+                    
+                    <composedShader>
+                        <field name='tex' type='SFInt32' value='0'></field>
+                        <field name='leftEye' type='SFFloat' value='1'></field>
+                        <shaderPart type='VERTEX'>
+                            attribute vec3 position;
+                            attribute vec2 texcoord;
+
+                            uniform mat4 modelViewProjectionMatrix;
+                            varying vec2 fragTexCoord;
+
+                            void main()
+                            {
+                                vec2 pos = sign(position.xy);
+                                fragTexCoord = texcoord;
+                                gl_Position = vec4((pos.x/2.0)-0.5, pos.y, 0.0, 1.0); 
+                            }
+                        </shaderPart>
+                        <!-- The division of pos.x relates to the fraction of the window that is used -->
+                        <shaderPart DEF="frag" type='FRAGMENT'>
+                            #ifdef GL_ES
+                            precision highp float;
+                            #endif
+
+                            uniform sampler2D tex;
+                            uniform float leftEye;
+                            varying vec2 fragTexCoord;
+
+                            void main()
+                            {
+                                gl_FragColor = texture2D(tex, fragTexCoord);
+                            }
+                        </shaderPart>
+                    </composedShader>
+                    </appearance>
+                    <plane solid="false"></plane>
+                </shape>
+            </group>		<!-- End of tag for left window -->
+
+            <group DEF='right'>
+                <shape>
+                    <appearance>
+                        <script>
+                            document.writeln ("<renderedTexture interpupillaryDistance='0.3' id='rtRight' stereoMode='RIGHT_EYE' update='ALWAYS' dimensions='"+x3dDimStr+"' repeatS='false' repeatT='false'>");
+                        </script>
+                        
+                        <viewpoint USE='viewpoint' containerField='viewpoint'></viewpoint>
+                        
+                        <background USE='bgnd' containerField='background'></background>
+                        
+                        <group USE='scene' containerField="scene"></group>
+                    
+                    </renderedTexture>
+                    
+                    <composedShader>
+                        <field name='tex' type='SFInt32' value='0'></field>
+                        <field name='leftEye' type='SFFloat' value='0'></field>
+                        <shaderPart type='VERTEX'>
+                            attribute vec3 position;
+                            attribute vec2 texcoord;
+
+                            uniform mat4 modelViewProjectionMatrix;
+                            varying vec2 fragTexCoord;
+
+                            void main()
+                            {
+                                vec2 pos = sign(position.xy);
+                                fragTexCoord = texcoord;
+                                gl_Position = vec4((pos.x + 1.0)/2.0, pos.y, 0.0, 1.0);
+                            }
+                        </shaderPart>
+                        <shaderPart USE="frag" type='FRAGMENT'>
+                        </shaderPart>
+                    </composedShader>
+                    </appearance>
+                    <plane solid="false"></plane>
+                </shape>
+            </group>
+        </scene>
+        </x3d>
+    </div>
+    
+    <script language='JavaScript'>
+        // --> Check to see if there are DeviceOrientation events in the DOM
+
+        var previousAngles = {'alpha':0, 'beta':0, 'gamma':0};
+        var vectors = {'alpha':"0 1 0 ", 'beta':"1 0 0 ", 'gamma':"0 0 1 "};
+        var deg2rad = Math.PI / 180;
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', function(eventData) {
+                gamma = eventData.gamma;
+		beta = eventData.beta;
+		alpha = 360-eventData.alpha;
+		rotate (alpha, 'alpha');
+		rotate (beta,  'beta');
+		rotate (gamma, 'gamma'); 
+            }, false);
+        }else{
+            alert ('No Device Motion Sensor');
+        }
+
+        function rotate (angle, label) {
+            intAngle = Math.floor(angle + 0.5);
+            if (intAngle == previousAngles[label]) {return; }
+            previousAngles[label] = intAngle;
+            
+            if (label == 'alpha') {
+		rotateView ("x3d_viewpoint_"+label, vectors[label]+" "+intAngle*deg2rad);
+//              rotateView ("x3d_viewpointR_"+label, vectors[label]+" "+intAngle*deg2rad);
+//              rotateView ("x3d_viewpointL_"+label, vectors[label]+" "+intAngle*deg2rad);
+            }
+        }
+        
+        function rotateView (label, vector) {
+            view = document.getElementById(label);
+            view.setAttribute('set_rotation',vector);
+        }
+    </script>
+  </body>
+</html>
