@@ -239,6 +239,12 @@ X3DOMObject.prototype.KeyEvents = function(){
         }
     },true);
 
+    self.element.addEventListener('keypress',function(e){
+        if (e.key=="r"){
+            $("#reset_view").click();
+        }
+    });
+    
 }
 
 /**
