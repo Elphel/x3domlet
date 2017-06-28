@@ -938,6 +938,7 @@ X3DOMObject.PointerMarker.prototype._init = function(){
 
     this._elem = Scene.createMarker(0,0,0,"sliding_sphere");
     this._shape = this._elem.find("shape");
+    this._shape.attr('isPickable',false);
     this._registerEvents();
 
     this._elem.find("switch").attr("whichChoice",-1);
@@ -1291,5 +1292,5 @@ X3DOMObject.displayMarkInfo = function(index){
     }else{
         ui_showMessage("window-markinfo",msg);
     }
-
+    
 }
