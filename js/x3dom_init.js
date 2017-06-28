@@ -950,7 +950,18 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
     var self = this;
     var Camera = Map.marker;
 
-    self._shape.on("click",function(e){
+    // PointerMarker MouseEvent are not triggered when isPickable is false
+    $(window).on('mousedown',function(e){
+        self._shape.attr('isPickable',true);
+    });
+
+    $(window).on('mouseup',function(){
+      self._shape.attr('isPickable',false);
+    });
+
+    // window mousedown above is run after x3dom mousedown handler
+    // so we must listen to x3dom 'mouseup' instead of 'click' below
+    self._shape.on("mouseup",function(e){
         
         X3DOMObject.Marker.dehighlight(self._elem);
         
