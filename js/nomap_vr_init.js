@@ -16,41 +16,41 @@ function parseURL(){
 }
 
 $(function(){
-    
+
     parseURL();
     init();
-    
+
 });
 
 function init(){
-    
+
     init_resize();
-    
+
     var x3delement = $("#x3d_id").find("scene");
-    
+
     var model_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
-    
+
     var model = $(`
     <group>
         <inline name='mymodel' namespacename='mymodel' url='`+model_url+`'></inline>
     </group>`);
-    
+
     x3delement.append(model);
-    
+
     $.getScript("js/x3dom/x3dom-full.debug.js",function(){
         //wait until it DOM is extended
         x3dom.runtime.ready = function(){
             deep_init();
         };
     });
-    
+
 }
 
 var resizeTimer = false;
 var FOV = 30*Math.PI/180;
 
 function init_resize(){
-    
+
     resize();
 
     //bind resize
@@ -60,40 +60,40 @@ function init_resize(){
             resize();
         },100);
     });
-    
+
 }
 
 function resize(){
 
     var element = document.getElementById('x3d_id');
-    
+
     var w = $(window).width();
     var h = $(window).height();
 
     $(element).attr("width",w);
     $(element).attr("height",h);
-    
+
     var fov = w/h*FOV;
-    
+
     //fov = Math.PI/2;
-    
+
     setFoV(fov);
-    
+
 }
 
 function setFoV(val){
-    
+
     var element = document.getElementById('x3d_id');
-    
+
     var vp = $(element).find("Viewpoint")[0];
     $(vp).prop("fieldOfView",val);
-    
+
 }
 
 var X3DOM_SCENE_INIT_DONE = false;
 
 function deep_init(){
-    /*    
+    /*
     var element = document.getElementById('x3d_id');
 
     element.runtime.enterFrame = function(){

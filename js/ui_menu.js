@@ -7,14 +7,14 @@
   https://www.elphel.com
 
 */
-/** 
+/**
  * @file -
  * @brief -
- * 
+ *
  * @copyright Copyright (C) 2017 Elphel Inc.
  * @author Oleg Dzhimiev <oleg@elphel.com>
  *
- * @licstart  The following is the entire license notice for the 
+ * @licstart  The following is the entire license notice for the
  * JavaScript code in this page.
  *
  *   The JavaScript code in this page is free software: you can
@@ -36,7 +36,7 @@
  */
 
 function menu_init(){
-    
+
     // init checkboxes
     for (var setting in SETTINGS){
         if (typeof SETTINGS[setting] === 'boolean'){
@@ -50,29 +50,29 @@ function menu_init(){
             $("#"+setting).val(SETTINGS[setting]);
         }
     }
-    
+
     // init options menu
     var menu = $("#menu-content");
-    
+
     $("#menu_button").on("click",function(){
         menu.show();
     });
-    
+
     // changing a checkbox will not close menu
     menu.on('click',function(e){
         var test = $(e.target).hasClass("donothide");
-        
+
         if (!test){
             menu.hide();
         }
     });
-    
+
     // change checkbox
     $(".my-check-box").on('click',function(e){
-        
+
         var state = $(this).prop("checked");
         var id    = $(this).attr("id");
-        
+
         if (state==true){
             SETTINGS[id] = true;
         }else{
@@ -84,9 +84,9 @@ function menu_init(){
     crosshair_init();
 
     shiftspeed_init();
-    
+
     marker_size_color_init();
-    
+
     reset_view_init();
 }
 
@@ -117,7 +117,7 @@ function shiftspeed_init(){
 }
 
 function marker_size_color_init(){
-    
+
     $('#markersize').on('change',function(e){
         SETTINGS.markersize = $(this).val();
     });
@@ -127,15 +127,15 @@ function marker_size_color_init(){
         SETTINGS.markercolor = $(this).val();
     });
     $('#markercolor').change();
-    
+
 }
 
 function reset_view_init(){
-    
+
     $("#reset_view").on('click',function(){
         x3d_initial_camera_placement();
         x3d_mouseMove();
         Scene.resize();
     });
-    
+
 }
