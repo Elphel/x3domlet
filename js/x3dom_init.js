@@ -441,24 +441,24 @@ X3DOMObject.prototype.createMarker = function(x,y,z,id){
         size  = self.data.markers[index].size/2;
     }
 
-    var html = `
-    <group id='`+id+`' class='`+sph_class+`'>
-    <switch whichChoice='0'>
-    <transform translation='`+x+` `+y+` `+z+`' rotation='0 0 0 0'>
-        <shape class='shapemarker'>
-        <appearance>
-            <material diffuseColor='`+color+`' transparency='0.0' myColor='`+color+`'></material>
-        </appearance>
-        <Sphere DEF="sphere" radius="`+size+`" />
-        </shape>
-    </transform>
-    </switch>
-    </group>
-    `;
+    var html = [
+      '<group id="'+id+'" class="'+sph_class+'">',
+      '  <switch whichChoice="0">',
+      '    <transform translation="'+x+' '+y+' '+z+'" rotation="0 0 0 0">',
+      '      <shape class="shapemarker">',
+      '        <appearance>',
+      '          <material diffuseColor="'+color+'" transparency="0.0" myColor="'+color+'"></material>',
+      '        </appearance>',
+      '        <Sphere DEF="sphere" radius="'+size+'" />',
+      '      </shape>',
+      '    </transform>',
+      '  </switch>',
+      '</group>'
+    ].join('\n');
 
     var sphere_element = $(html);
 
-    $(this.element).find("scene").append(sphere_element);
+    $('scene',this.element).append(sphere_element);
 
     //var shape = $(sphere_element).find("shape");
     //var id_prefix = $(sphere_element).attr("id").substr(0,7);

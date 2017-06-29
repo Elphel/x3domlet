@@ -122,23 +122,23 @@ function light_init(){
     var model_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
     var model_back_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+"-texture-bgnd-ext.jpeg";
 
-    var model = $(`
-        <group>
-            <inline name='mymodel' namespacename='mymodel' url='`+model_url+`'></inline>
-        </group>
-        <group>
-            <Background
-                id="Background"
-                class="Background"
-                backUrl=  "js/images/background_side.jpeg"
-                bottomUrl="js/images/background_floor.jpeg"
-                frontUrl= "`+model_back_url+`"
-                leftUrl=  "js/images/background_side.jpeg"
-                rightUrl= "js/images/background_side.jpeg"
-                topUrl=   "js/images/background_sky.jpeg">
-            </Background>
-        </group>
-        `);
+    var model = $([
+        '<group>',
+        '    <inline name="mymodel" namespacename="mymodel" url="'+model_url+'"></inline>',
+        '</group>',
+        '<group>',
+        '    <Background ',
+        '        id="Background"',
+        '        class="Background"',
+        '        backUrl=  "js/images/background_side.jpeg"',
+        '        bottomUrl="js/images/background_floor.jpeg"',
+        '        frontUrl= "'+model_back_url+'"',
+        '        leftUrl=  "js/images/background_side.jpeg"',
+        '        rightUrl= "js/images/background_side.jpeg"',
+        '        topUrl=   "js/images/background_sky.jpeg">',
+        '    </Background>',
+        '</group>'
+      ].join('\n'));
 
     x3delement.append(model);
 
@@ -175,7 +175,6 @@ function light_init(){
             Scene.initResize();
 
             $.getScript("js/x3dom/x3dom-full.debug.js",function(){
-
                 Map = new LeafletObject('leaflet_map',Data,{});
                 //wait until it DOM is extended
                 x3dom.runtime.ready = function(){
@@ -189,7 +188,6 @@ function light_init(){
 
                 };
             });
-
         },
     });
 

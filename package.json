@@ -1,0 +1,42 @@
+{
+  "name": "x3domlet",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://git.elphel.com/Elphel/x3domlet"
+  },
+  "author": "Oleg Dzhimiev <oleg@elphel.com>",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "cors": "^2.8.3",
+    "express": "^4.15.3",
+    "extend": "^3.0.1",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-bower": "0.0.13",
+    "gulp-clean-css": "^3.4.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-cssmin": "^0.2.0",
+    "gulp-foreach": "^0.1.0",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-rev": "^7.1.2",
+    "gulp-sourcemaps": "^2.6.0",
+    "gulp-uglify": "^3.0.0",
+    "gulp-usemin": "^0.3.28",
+    "gulp4": "^4.0.1",
+    "node-php": "0.0.1",
+    "opn": "^5.0.0",
+    "q": "^1.5.0",
+    "shelljs": "^0.7.8",
+    "wiredep": "^4.0.0",
+    "gulp-clean": "^0.3.2"
+  },
+  "description": "x3dom + leaflet",
+  "dependencies": {
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "start": "node scripts/postinstall.js && gulp"
+  },
+  "main": "gulpfile.js"
+}
