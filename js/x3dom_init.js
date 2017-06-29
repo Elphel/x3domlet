@@ -734,7 +734,7 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
                 X3DOMObject.Marker.mouseUp.apply(self,[event]);
             }
         });
-                
+
     });
 
     marker.on('mouseup',function(e){
@@ -759,12 +759,12 @@ X3DOMObject.Marker.mouseUp = function(){
         X3DOMObject.Marker.toggle(elem);
     }
     */
-    
+
     Scene.markerToDrag=null;
-    Scene.element.removeEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);    
+    Scene.element.removeEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);
     Scene.element.removeEventListener('mousemove',X3DOMObject.Marker.mouseMove,true);
     $(window).off('.drag_marker');
-    
+
     Scene.draggedTransformNode = null;
     Scene.draggingUpVec        = null;
     Scene.draggingRightVec     = null;
@@ -976,7 +976,7 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
     // window mousedown above is run after x3dom mousedown handler
     // so we must listen to x3dom 'mouseup' instead of 'click' below
     self._shape.on("mouseup",function(e){
-        
+
         X3DOMObject.Marker.dehighlight(self._elem);
 
         var xyz = $(this).parent().attr("translation");
@@ -1317,5 +1317,5 @@ X3DOMObject.displayMarkInfo = function(index){
     }else{
         ui_showMessage("window-markinfo",msg);
     }
-    
+
 }
