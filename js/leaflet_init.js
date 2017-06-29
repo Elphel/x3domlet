@@ -7,14 +7,14 @@
   https://www.elphel.com
 
 */
-/** 
+/**
  * @file -
  * @brief -
- * 
+ *
  * @copyright Copyright (C) 2017 Elphel Inc.
  * @author Oleg Dzhimiev <oleg@elphel.com>
  *
- * @licstart  The following is the entire license notice for the 
+ * @licstart  The following is the entire license notice for the
  * JavaScript code in this page.
  *
  *   The JavaScript code in this page is free software: you can
@@ -51,25 +51,25 @@ var LeafletObject = function(id,data,options){
     };
 
     this._settings = $.extend(defaults,options);
-        
+
     this._id = id;
     //[40.7233861, -111.9328843];
     this.center = [data.camera.latitude,data.camera.longitude];
-    
+
     this.heading = data.camera.heading;
     //this.heading = 0;//data.camera.heading;
 
     this.fov = data.camera.fov;
-    
+
     this.initialize();
-    
+
 };
 
 LeafletObject.prototype.initialize = function(){
 
   // https: also suppported.
   var Esri_WorldImagery = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom: this._settings.maxzoom,
       attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
@@ -84,14 +84,14 @@ LeafletObject.prototype.initialize = function(){
       subdomains:['mt0','mt1','mt2','mt3'],
     }
   );
-  
-  var OSMTiles = L.tileLayer('http://a.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+
+  var OSMTiles = L.tileLayer('http://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
       maxZoom: this._settings.maxzoom,
       attribution: 'Map data and images &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
     }
   );
-  
+
   this._map = L.map(this._id,{
     layers:[googleSat]
   }).setView(this.center, this._settings.zoom);
@@ -103,13 +103,13 @@ LeafletObject.prototype.initialize = function(){
   };
 
   L.control.layers(baseMaps).addTo(this._map);
- 
+
   this.drawCamera();
-    
+
 }
 
 LeafletObject.prototype.drawCamera = function(){
-    
+
     this.marker = L.cameraViewMarker(this.center, {
         color: '#191',
         fillColor: '#0f3',
@@ -121,7 +121,7 @@ LeafletObject.prototype.drawCamera = function(){
         h_control: true,
         id: "basecircle"
     }).addTo(this._map);
-    
+
 }
 
 LeafletObject.prototype.highlightMarker = function(index){
@@ -131,13 +131,13 @@ LeafletObject.prototype.highlightMarker = function(index){
     this.marker._measureMarkers[index].setStyle(style).bringToFront();
     this.marker._measureMarkers[index]._tooltip.bringToFront();
     this.marker._measureLines[index].setStyle(style).bringToFront();
-    
+
 }
 
 LeafletObject.prototype.dehighlightMarker = function(index){
 
     color = Data.markers[index].color;
-    
+
     var style = {color:color,fillColor:color};
 
     this.marker._measureMarkers[index].setStyle(style);
@@ -148,15 +148,15 @@ LeafletObject.prototype.dehighlightMarker = function(index){
 LeafletObject.prototype.toggleMarker = function(index){
 
     //console.log("Toggling "+index);
-    
+
     if (!this.marker._measureMarkers[index]._selected){
         this.marker._measureMarkers[index]._selected = true;
     }else{
         this.marker._measureMarkers[index]._selected = false;
     }
-    
+
     //console.log(this.marker._measureMarkers[index]._selected);
-    
+
 }
 
 LeafletObject.prototype.deleteMarker = function(index){
