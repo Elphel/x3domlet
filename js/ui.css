@@ -1,4 +1,5 @@
 body{
+  user-select: none;
   padding: 0px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: 0px;
@@ -53,7 +54,7 @@ html, body, #x3d_wrapper {
   border-radius: 1px;
   font-size: 16px;
   display:block;
-  
+
   position:absolute;
   top: 16px;
   left: 3px;
@@ -167,7 +168,7 @@ html, body, #x3d_wrapper {
     background-image:url('images/settings.png');
     background-size: 32px 32px;
     background-repeat: no-repeat;
-    
+
     background-color:white;
     width: 32px;
     height: 32px;
@@ -190,7 +191,7 @@ html, body, #x3d_wrapper {
     background-image:url('images/align.png');
     background-size: 32px 32px;
     background-repeat: no-repeat;
-    
+
     background-color:white;
     width: 32px;
     height: 32px;

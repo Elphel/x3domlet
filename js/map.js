@@ -1,7 +1,7 @@
-/* 
+/*
  * TODO:
- *    * 
- * 
+ *    *
+ *
  */
 
 // http://stackoverflow.com/questions/9394190/leaflet-map-api-with-google-satellite-layer
@@ -14,7 +14,7 @@ $(function(){
 });
 
 function light_init(){
-  
+
   $.ajax({
     url: "kml/test.kml",
     success: function(data){
@@ -23,15 +23,15 @@ function light_init(){
         parseFloat($(data).find("Camera").find("latitude").text()),
         parseFloat($(data).find("Camera").find("longitude").text())
       ];
-      
+
       var heading = parseFloat($(data).find("Camera").find("longitude").text());
-      
+
       init_maps(marker);
 
     },
   });
-  
-  
+
+
 }
 
 var map;
@@ -40,10 +40,10 @@ var markers = Array();
 function init_maps(center){
 
   var elphelinc = center;//[40.7233861, -111.9328843];
-  
+
   // https: also suppported.
   var Esri_WorldImagery = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom: 21,
       attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
@@ -58,14 +58,14 @@ function init_maps(center){
       subdomains:['mt0','mt1','mt2','mt3'],
     }
   );
-  
-  var OSMTiles = L.tileLayer('http://a.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+
+  var OSMTiles = L.tileLayer('http://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
       maxZoom: 21,
       attribution: 'Map data and images &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
     }
   );
-  
+
   map = L.map('leaflet_map',{
     layers:[googleSat]
   }).setView(elphelinc, 17);
@@ -75,21 +75,21 @@ function init_maps(center){
     "Google": googleSat,
     "Open Street Map": OSMTiles
   };
-  
+
   //Esri_WorldImagery.addTo(map);
   //googleSat.addTo(map);
-  
+
   //custom control:
   //http://www.coffeegnome.net/control-button-leaflet/
-  
+
   L.control.layers(baseMaps).addTo(map);
- 
+
   drawCamera(elphelinc);
-  
+
 }
 
 function drawCamera(basepoint){
-  
+
   var circle = L.cameraViewMarker(basepoint, {
       color: '#191',
       fillColor: '#0f3',

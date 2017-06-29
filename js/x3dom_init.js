@@ -244,7 +244,7 @@ X3DOMObject.prototype.KeyEvents = function(){
             $("#reset_view").click();
         }
     });
-    
+
 }
 
 /**
@@ -711,6 +711,7 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
 
     marker.on('mousedown',function(e){
 
+        var self = this;
         var elem = $(this).parent().parent().parent();
         var index = parseInt($(elem).attr("id").substr(PREFIX.length));
 
@@ -727,6 +728,13 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
         Scene.element.addEventListener('mousemove',X3DOMObject.Marker.mouseMove,true);
         Scene.element.addEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);
 
+        // check for button released outside the window
+        $(window).on('mouseover.drag_marker',function(e) {
+            if (e && e.buttons===0 && Scene.markerToDrag) {
+                X3DOMObject.Marker.mouseUp.apply(self,[event]);
+            }
+        });
+                
     });
 
     marker.on('mouseup',function(e){
@@ -751,10 +759,12 @@ X3DOMObject.Marker.mouseUp = function(){
         X3DOMObject.Marker.toggle(elem);
     }
     */
-
-    Scene.element.removeEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);
+    
+    Scene.markerToDrag=null;
+    Scene.element.removeEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);    
     Scene.element.removeEventListener('mousemove',X3DOMObject.Marker.mouseMove,true);
-
+    $(window).off('.drag_marker');
+    
     Scene.draggedTransformNode = null;
     Scene.draggingUpVec        = null;
     Scene.draggingRightVec     = null;
@@ -767,6 +777,8 @@ X3DOMObject.Marker.mouseUp = function(){
 
 // from https://x3dom.org/x3dom/example/MovingObjectsWithDOMEvents.html
 X3DOMObject.Marker.dragStart = function(elem){
+
+    Scene.markerToDrag=elem;
 
     // move up from <shape> to <transform>
     var transformNode = $(elem).parent();
@@ -825,7 +837,9 @@ X3DOMObject.Marker.mouseMove = function(event){
         if (!SETTINGS.slidingdrag){
             X3DOMObject.Marker.drag(event.offsetX - Scene.lastMouseX, event.offsetY - Scene.lastMouseY);
         }else{
+            Scene.markerToDrag.isPickable=false;
             var sr = Scene.element.runtime.shootRay(event.clientX,event.clientY);
+            Scene.markerToDrag.isPickable=true;
             if (sr.pickObject != null){
                 if (!$(sr.pickObject).hasClass("shapemarker")){
                     var sphere = Scene.draggedTransformNode.parent().parent();
@@ -1205,42 +1219,42 @@ X3DOMObject.displayViewInfo = function(e){
     //Map.marker.setAltitude(camera.y);
     //Map.marker.setElevation(camera.e*Math.PI/180);
 
-    var msg = [
-'<table>',
-'<tr>',
-'    <td></td>',
-'    <td colspan="3" align="center">position, m</td>',
-'    <td colspan="3" align="center">orientation, &deg;</td>',
-'</tr>',
-'<tr>',
-'    <th></th>',
-'    <th style="width:60px;">x</th>',
-'    <th style="width:60px;">y</th>',
-'    <th style="width:60px;">z</th>',
-'    <th>azimuth</th>',
-'    <th>elevation</th>',
-'    <th>skew</th>',
-'</tr>',
-'<tr>',
-'    <td>mouse</td>',
-'    <td>'+mouse.x+'</td>',
-'    <td>'+mouse.y+'</td>',
-'    <td>'+mouse.z+'</td>',
-'    <td>'+mouse.a+'</td>',
-'    <td>'+mouse.e+'</td>',
-'    <td>'+mouse.s+'</td>',
-'</tr>',
-'<tr>',
-'    <td>camera</td>',
-'    <td>'+camera.x+'</td>',
-'    <td>'+camera.y+'</td>',
-'    <td>'+camera.z+'</td>',
-'    <td>'+camera.a+'</td>',
-'    <td>'+camera.e+'</td>',
-'    <td>'+camera.s+'</td>',
-'</tr>',
-'</table>'
-].join('\n');
+    var msg = `
+<table>
+<tr>
+    <td></td>
+    <td colspan='3' align='center'>position, m</td>
+    <td colspan='3' align='center'>orientation, &deg;</td>
+</tr>
+<tr>
+    <th></th>
+    <th style='width:60px;'>x</th>
+    <th style='width:60px;'>y</th>
+    <th style='width:60px;'>z</th>
+    <th>azimuth</th>
+    <th>elevation</th>
+    <th>skew</th>
+</tr>
+<tr>
+    <td>mouse</td>
+    <td>`+mouse.x+`</td>
+    <td>`+mouse.y+`</td>
+    <td>`+mouse.z+`</td>
+    <td>`+mouse.a+`</td>
+    <td>`+mouse.e+`</td>
+    <td>`+mouse.s+`</td>
+</tr>
+<tr>
+    <td>camera</td>
+    <td>`+camera.x+`</td>
+    <td>`+camera.y+`</td>
+    <td>`+camera.z+`</td>
+    <td>`+camera.a+`</td>
+    <td>`+camera.e+`</td>
+    <td>`+camera.s+`</td>
+</tr>
+</table>
+`;
 
     if (SETTINGS.viewinfo){
         ui_showMessage("window-viewinfo",msg);

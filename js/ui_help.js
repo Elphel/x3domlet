@@ -1,6 +1,6 @@
 
 function help_init(){
-    
+
     /*
     var help_content = `
 <div>
@@ -16,11 +16,11 @@ function help_init(){
         display:"none"
     }).html(help_content);
     */
-    
+
     var help = $("#help-content");
-    
+
     help.hide();
-    
+
     $("#help_button").on("click",function(){
         help.show();
     });
@@ -28,5 +28,5 @@ function help_init(){
     help.on('click',function(){
         help.hide();
     });
-    
+
 }
