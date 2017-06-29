@@ -711,6 +711,7 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
 
     marker.on('mousedown',function(e){
 
+        var self = this;
         var elem = $(this).parent().parent().parent();
         var index = parseInt($(elem).attr("id").substr(PREFIX.length));
 
@@ -727,6 +728,13 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
         Scene.element.addEventListener('mousemove',X3DOMObject.Marker.mouseMove,true);
         Scene.element.addEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);
 
+        // check for button released outside the window
+        $(window).on('mouseover.drag_marker',function(e) {
+            if (e && e.buttons===0 && Scene.markerToDrag) {
+                X3DOMObject.Marker.mouseUp.apply(self,[event]);
+            }
+        });
+                
     });
 
     marker.on('mouseup',function(e){
@@ -751,10 +759,12 @@ X3DOMObject.Marker.mouseUp = function(){
         X3DOMObject.Marker.toggle(elem);
     }
     */
-
-    Scene.element.removeEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);
+    
+    Scene.markerToDrag=null;
+    Scene.element.removeEventListener('mouseup',X3DOMObject.Marker.mouseUp,true);    
     Scene.element.removeEventListener('mousemove',X3DOMObject.Marker.mouseMove,true);
-
+    $(window).off('.drag_marker');
+    
     Scene.draggedTransformNode = null;
     Scene.draggingUpVec        = null;
     Scene.draggingRightVec     = null;
@@ -767,6 +777,8 @@ X3DOMObject.Marker.mouseUp = function(){
 
 // from https://x3dom.org/x3dom/example/MovingObjectsWithDOMEvents.html
 X3DOMObject.Marker.dragStart = function(elem){
+
+    Scene.markerToDrag=elem;
 
     // move up from <shape> to <transform>
     var transformNode = $(elem).parent();
@@ -825,7 +837,9 @@ X3DOMObject.Marker.mouseMove = function(event){
         if (!SETTINGS.slidingdrag){
             X3DOMObject.Marker.drag(event.offsetX - Scene.lastMouseX, event.offsetY - Scene.lastMouseY);
         }else{
+            Scene.markerToDrag.isPickable=false;
             var sr = Scene.element.runtime.shootRay(event.clientX,event.clientY);
+            Scene.markerToDrag.isPickable=true;
             if (sr.pickObject != null){
                 if (!$(sr.pickObject).hasClass("shapemarker")){
                     var sphere = Scene.draggedTransformNode.parent().parent();
@@ -938,6 +952,7 @@ X3DOMObject.PointerMarker.prototype._init = function(){
 
     this._elem = Scene.createMarker(0,0,0,"sliding_sphere");
     this._shape = this._elem.find("shape");
+    this._shape.attr('isPickable',false);
     this._registerEvents();
 
     this._elem.find("switch").attr("whichChoice",-1);
@@ -949,8 +964,19 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
     var self = this;
     var Camera = Map.marker;
 
-    self._shape.on("click",function(e){
+    // PointerMarker MouseEvent are not triggered when isPickable is false
+    $(window).on('mousedown',function(e){
+        self._shape.attr('isPickable',true);
+    });
 
+    $(window).on('mouseup',function(){
+      self._shape.attr('isPickable',false);
+    });
+
+    // window mousedown above is run after x3dom mousedown handler
+    // so we must listen to x3dom 'mouseup' instead of 'click' below
+    self._shape.on("mouseup",function(e){
+        
         X3DOMObject.Marker.dehighlight(self._elem);
 
         var xyz = $(this).parent().attr("translation");
@@ -1291,5 +1317,5 @@ X3DOMObject.displayMarkInfo = function(index){
     }else{
         ui_showMessage("window-markinfo",msg);
     }
-
+    
 }
