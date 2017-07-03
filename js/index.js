@@ -6,12 +6,18 @@ var markers = [];
 $(function(){
 
     //init();
-
+    parseURL();
     init_maps();
+
+    var url = 'list.php';
+
+    if (SETTINGS.showall){
+      url += "?showall";
+    }
 
     $.ajax({
 
-        url: "list.php",
+        url: url,
         success: function(response){
 
             List = response;
@@ -23,6 +29,21 @@ $(function(){
     });
 
 });
+
+var SETTINGS = {
+  'showall':false
+};
+
+// no comments
+function parseURL(){
+    var parameters=location.href.replace(/\?/ig,"&").split("&");
+    for (var i=0;i<parameters.length;i++) parameters[i]=parameters[i].split("=");
+    for (var i=1;i<parameters.length;i++) {
+        switch (parameters[i][0]) {
+            case "showall": SETTINGS.showall = true; break;
+        }
+    }
+}
 
 function parse_list(res){
 
