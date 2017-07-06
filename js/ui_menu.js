@@ -133,9 +133,7 @@ function marker_size_color_init(){
 function reset_view_init(){
 
     $("#reset_view").on('click',function(){
-        x3d_initial_camera_placement();
-        x3d_mouseMove();
-        Scene.resize();
+        reset_to_initial_position();
     });
 
 }

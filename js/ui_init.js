@@ -193,6 +193,49 @@ function light_init(){
 
 }
 
+function reset_to_initial_position(){
+
+  $.ajax({
+    url: SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml",
+    success: function(response){
+
+      var longitude = parseFloat($(response).find("Camera").find("longitude").text());
+      var latitude  = parseFloat($(response).find("Camera").find("latitude").text());
+      var altitude  = parseFloat($(response).find("Camera").find("altitude").text());
+
+      var heading = parseFloat($(response).find("Camera").find("heading").text());
+      var tilt    = parseFloat($(response).find("Camera").find("tilt").text());
+      var roll    = parseFloat($(response).find("Camera").find("roll").text());
+
+      var fov    = parseFloat($(response).find("Camera").find("fov").text());
+
+      Data.camera = new X3L({
+          x: 0,
+          y: 0,
+          z: 0,
+          latitude: latitude || 0,
+          longitude: longitude || 0,
+          altitude: altitude || 0,
+          heading: heading || 0,
+          tilt: tilt || 0,
+          roll: roll || 0,
+          fov: fov || 0,
+      });
+
+      Scene.old_view_translation = null;
+
+      Map.marker.setHeading(heading);
+      Map.marker.setBasePoint(new L.LatLng(latitude,longitude));
+      Map.marker._syncMeasureMarkersToBasePoint();
+
+      x3d_initial_camera_placement();
+      //x3d_mouseMove();
+      Scene.resize();
+
+    }
+  });
+}
+
 function map_resize_init(){
 
     var html = $("<div>",{id:"map_resizer_handle"});
