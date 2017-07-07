@@ -57,6 +57,8 @@ var SETTINGS = {
     'basepath': "models",
     'path'   : "1487451413_967079",
     'version': "v1",
+    'experimental': false,
+    'edit': false
 //     'kml'    : "scene.kml"
 }
 
@@ -79,6 +81,9 @@ function parseURL(){
             case "markersize":   SETTINGS.markersize = parseFloat(parameters[i][1]); break;
             case "path":         SETTINGS.path = parameters[i][1]; break;
             case "ver":          SETTINGS.version = parameters[i][1]; break;
+
+            case "edit":         SETTINGS.edit = true; break;
+            case "experimental": SETTINGS.experimental = true; break;
 //             case "kml":          SETTINGS.kml = parameters[i][1]; break;
         }
     }
@@ -181,7 +186,7 @@ function light_init(){
 
                     map_resize_init();
                     deep_init();
-                    align_init();
+                    //align_init();
                     x3d_initial_camera_placement();
                     x3d_events();
                     leaf_events();
@@ -221,8 +226,6 @@ function reset_to_initial_position(){
           roll: roll || 0,
           fov: fov || 0,
       });
-
-      Scene.old_view_translation = null;
 
       Map.marker.setHeading(heading);
       Map.marker.setBasePoint(new L.LatLng(latitude,longitude));
@@ -312,6 +315,8 @@ function deep_init(){
 }
 
 function x3d_initial_camera_placement(){
+
+    Scene.old_view_translation = null;
 
     var heading = Data.camera.heading*Math.PI/180;
     var tilt = (Data.camera.tilt-90)*Math.PI/180;
@@ -535,6 +540,15 @@ function leaf_events(){
                 mark.z = p_w.z;
 
                 mark.d_map = distance;
+
+                mark.align = {
+                  latitude: mark.latitude,
+                  longitude: mark.longitude,
+                  x: 0,
+                  y: 0,
+                  z: 0
+                };
+
                 mark.d_x3d = "<font style='color:red;'>drag over 3D</font>";
 
                 Data.markers.push(mark);
@@ -584,15 +598,21 @@ function leaf_mousemove(e){
     leaf_drag_marker();
 
     var hecs = Map.marker.getHCState();
+    var lecs = Map.marker.getLCState();
 
     if (hecs){
-        leaf_mousemove_hc(e)
+        leaf_mousemove_hc(e);
+    }else if (lecs){
+        leaf_mousemove_lc(e);
     }else{
         leaf_mousemove_nohc(e);
     }
 
 }
 
+/**
+ * height/elevation control mode
+ */
 function leaf_mousemove_hc(){
 
     var Camera = Map.marker;
@@ -603,6 +623,21 @@ function leaf_mousemove_hc(){
     x3dom_altelev(altitude,elevation);
 
     X3DOMObject.displayViewInfo({});
+
+}
+
+/**
+ * set initial (approximate) location mode
+ */
+function leaf_mousemove_lc(){
+
+    var Camera = Map.marker;
+
+    Data.camera.heading   = Camera._heading*180/Math.PI;
+    Data.camera.latitude  = Camera._latlng.lat;
+    Data.camera.longitude = Camera._latlng.lng;
+    //update initial location and heading
+    x3d_initial_camera_placement();
 
 }
 
@@ -648,6 +683,9 @@ function leaf_drag_marker(){
 
         mark.latitude = p2_ll.lat;
         mark.longitude = p2_ll.lng;
+
+        mark.align.latitude = mark.latitude;
+        mark.align.longitude = mark.longitude;
 
         var distance = p1_ll.distanceTo(p2_ll);
 

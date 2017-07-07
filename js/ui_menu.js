@@ -51,6 +51,10 @@ function menu_init(){
         }
     }
 
+    if (!SETTINGS.experimental){
+      $(".experimental").hide();
+    }
+
     // init options menu
     var menu = $("#menu-content");
 
@@ -88,6 +92,8 @@ function menu_init(){
     marker_size_color_init();
 
     reset_view_init();
+
+    align_init();
 }
 
 function crosshair_init(){
@@ -137,3 +143,4 @@ function reset_view_init(){
     });
 
 }
+

@@ -21,6 +21,7 @@
     <script type='text/javascript' src='js/leaflet/leaflet-src.js'></script>
     <script type='text/javascript' src='js/leaflet/L.extra.js'></script>
     <script type='text/javascript' src='js/leaflet/leaflet.camera-view-marker-controls.js'></script>
+    <script type='text/javascript' src='js/leaflet/leaflet.camera-view-marker-controls-location.js'></script>
     <script type='text/javascript' src='js/leaflet/leaflet.camera-view-marker.js'></script>
     <script type='text/javascript' src='js/leaflet/leaflet.camera-view-marker.measure.js'></script>
 
@@ -61,7 +62,7 @@
     <div id='help_wrapper'>
         <div id='menu_button'></div>
         <div id='help_button'>?</div>
-        <!--<div id='align_button'></div>-->
+        <div id='align_button' class='experimental'></div>
     </div>
     <div id='info-wrapper'>
         <div id='window-info'></div>
@@ -113,6 +114,16 @@
                 </tr>
                 <tr>
                     <td><button id='reset_view' class='donothide'>Reset view</button></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>
+                      <button id='align_0' class='experimental donothide'>Align0</button>
+                      <button id='align_1' class='experimental donothide'>Align1</button>
+                      <button id='align_2' class='experimental donothide'>Align2</button>
+                    </td>
                 </tr>
                 <tr>
                     <td>&nbsp;</td>

@@ -66,6 +66,7 @@
             draw_xz: true,
             draw_fov: true,
             h_control: false,
+            l_control: false,
 
             basepoint:{
                 url: ""
@@ -199,8 +200,12 @@
                 this._layerPaint = L.layerGroup().addTo(this._map);
             }
 
+            // height/elevation control
             this._controls = {
                 hc:{
+                    getState: function(){return false;}
+                },
+                lc:{
                     getState: function(){return false;}
                 }
             };
@@ -222,6 +227,17 @@
 
             this.setHeading(this._heading);
             this._registerEvents();
+
+            this.l_control = false;
+
+            // location control
+            if (typeof L.control.cameraViewMarkerControlsLocation == 'function'){
+                this.l_control = this.options.l_control;
+            }
+
+            if (this.l_control){
+                this._initLControl();
+            }
 
         },
 
@@ -540,6 +556,27 @@
         getHCState: function(){
 
             return this._controls.hc.getState() || this.hcontrol;
+
+        },
+
+        // location controls
+        _initLControl: function(){
+
+            var self = this;
+
+            this._controls.lc = L.control.cameraViewMarkerControlsLocation({position:'topleft'}).addTo(this._map);
+
+            var btn = this._controls.lc._button;
+
+            L.DomEvent.on(btn, 'click', function(){
+                self._updateCameraViewMarker();
+            },btn);
+
+        },
+
+        getLCState: function(){
+
+            return this._controls.lc.getState() || this.lcontrol;
 
         }
 

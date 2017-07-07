@@ -900,6 +900,10 @@ X3DOMObject.Marker.slide = function(index,x,y,z){
     //d_x3d - map distance calculated from the model
     c.d_x3d = distance;
 
+    c.align.x = x;
+    c.align.y = y;
+    c.align.z = z;
+
     X3DOMObject.displayMarkInfo(index);
     X3DOMObject.displayInfo({});
 
@@ -993,6 +997,14 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
 
         mark.d_x3d = Math.sqrt(mark.x*mark.x+mark.z*mark.z);
         mark.d_map = "<font style='color:red;'>drag over map</font>";
+
+        mark.align = {
+          latitude: 0,
+          longitude: 0,
+          x: mark.x,
+          y: mark.y,
+          z: mark.z
+        };
 
         Data.markers.push(mark);
 

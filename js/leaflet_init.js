@@ -119,6 +119,7 @@ LeafletObject.prototype.drawCamera = function(){
         fov: this.fov,
         draw_xz: false,
         h_control: true,
+        l_control: SETTINGS.edit,
         id: "basecircle"
     }).addTo(this._map);
 
