@@ -1,0 +1,76 @@
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+#rotator {
+  position:absolute;
+  left:2px;
+  top:2px;
+  width:800px;
+  height:600px;
+  overflow: hidden;
+  background:rgba(100,100,100,0.5);
+  border:1px solid rgba(220,220,220,0.3);
+}
+
+#rotator_img{
+  position:absolute;
+  top:0px;
+  left:0px;
+}
+
+#panel{
+  position:absolute;
+  top:602px;
+  left:2px;
+  height:30px;
+  width:800px;
+  background: rgba(240,240,240,0.93);
+  border:1px solid rgba(220,220,220,0.3);
+}
+
+#panel table{
+  border-collapse:collapse;
+}
+
+#ppb{
+  width: 28px;
+  height:28px;
+  cursor:pointer;
+}
+
+.btn{
+  background:rgba(100,200,100,1);
+  border-radius:2px;
+  cursor:pointer;
+  color:white;
+  border: 1px solid rgba(100,100,100,0.5);
+  user-select:none;
+}
+
+.btn:hover{
+  background:rgba(50,200,50,1);
+}
+
+.btn:active{
+  background:rgba(50,50,50,1);
+}
+
+.ctrl{
+  width:28px;
+  height:28px;
+  cursor:pointer;
+}
+
+.dl{
+  width:22px;
+  height:22px;
+  cursor:pointer;
+}
+
+.radio{
+}
+
