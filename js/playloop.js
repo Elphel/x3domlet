@@ -61,6 +61,7 @@ function parseURL(){
 var index = 0;
 var interval;
 var imgs = [];
+var images = [];
 
 $(function(){
   init();
@@ -72,7 +73,11 @@ function init(){
 
   for (var i=0;i<SETTINGS.n;i++){
     imgs.push(SETTINGS.path+"-0"+(SETTINGS.order[i])+"-"+SETTINGS.sufx);
+    images[i] = new Image();
+    images[i].src = imgs[i];
   }
+
+  //load images
 
   index = SETTINGS.order[0];
 
@@ -127,7 +132,8 @@ function set_p(){
 }
 
 function seti(i,src){
-  rotator.src = imgs[i];
+  //rotator.src = imgs[i];
+  rotator.src = images[i].src;
   if (src!="radio"){
     $("#flist-"+i).click();
   }else{
