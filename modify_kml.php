@@ -37,10 +37,10 @@ require_once("call_filter.php");
 
 $target_filename = $_GET['kml'];
 
-if (!is_file($target_filename)){
+if (substr($target_filename,-4,4)!=".kml"){
   die("-1");
 }else{
-  if (substr($target_filename,-4,4)!=".kml"){
+  if (!is_file($target_filename)){
     die("-2");
   }
 }
