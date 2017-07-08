@@ -277,3 +277,34 @@ html, body, #x3d_wrapper {
     bottom:2px;
 }
 
+/*button with icon*/
+.ic{
+  width:27px;
+  height:27px;
+  padding:0px;
+  border:1px solid gray;
+  border-radius: 2px;
+  user-select:none;
+  cursor: pointer;
+}
+
+.ic:hover {
+  background-color: rgba(240,240,240,1);
+}
+
+.ic:active{
+  background-color: rgba(200,200,200,1);
+}
+
+.ic:focus {outline:0;}
+
+/*icon*/
+.icim{
+  margin:0px;
+  padding:0px;
+  width:25px;
+  height:25px;
+  user-select:none;
+}
+
+

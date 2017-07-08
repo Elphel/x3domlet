@@ -58,7 +58,12 @@ var SETTINGS = {
     'path'   : "1487451413_967079",
     'version': "v1",
     'experimental': false,
-    'edit': false
+    'edit': false,
+    'files': {
+      'x3d':"",
+      'x3d_background':"",
+      'kml':"",
+    }
 //     'kml'    : "scene.kml"
 }
 
@@ -93,6 +98,10 @@ $(function(){
 
     parseURL();
 
+    SETTINGS.files.x3d = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
+    SETTINGS.files.x3d_background = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+"-texture-bgnd-ext.jpeg"
+    SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml";
+
     title_init();
     help_init();
     menu_init();
@@ -124,8 +133,8 @@ function light_init(){
 
     var x3delement = $("#x3d_id").find("scene");
 
-    var model_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
-    var model_back_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+"-texture-bgnd-ext.jpeg";
+    var model_url = SETTINGS.files.x3d;
+    var model_back_url = SETTINGS.files.x3d_background;
 
     var model = $([
         '<group>',
@@ -148,7 +157,7 @@ function light_init(){
     x3delement.append(model);
 
     $.ajax({
-        url: SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml",
+        url: SETTINGS.files.kml,
         success: function(response){
 
             var longitude = parseFloat($(response).find("Camera").find("longitude").text());
@@ -173,6 +182,21 @@ function light_init(){
                 roll: roll || 0,
                 fov: fov || 0,
             });
+
+            // store kml
+            //    this data changes only in leaflet's edit location mode
+            Data.camera.kml = {
+                latitude: latitude || 0,
+                longitude: longitude || 0,
+                altitude: altitude || 0,
+                heading: heading || 0,
+                tilt: tilt || 0,
+                roll: roll || 0,
+                name        : $(response).find("name").text(),
+                description : $(response).find("Camera").find("description").text(),
+                visibility  : $(response).find("visibility").text(),
+                href        : $(response).find("Icon").find("href").text()
+            };
 
             var element = document.getElementById('x3d_id');
 
@@ -227,6 +251,20 @@ function reset_to_initial_position(){
           fov: fov || 0,
       });
 
+      // store kml
+      Data.camera.kml = {
+          latitude: latitude || 0,
+          longitude: longitude || 0,
+          altitude: altitude || 0,
+          heading: heading || 0,
+          tilt: tilt || 0,
+          roll: roll || 0,
+          name        : $(response).find("name").text(),
+          description : $(response).find("Camera").find("description").text(),
+          visibility  : $(response).find("visibility").text(),
+          href        : $(response).find("Icon").find("href").text()
+      };
+
       Map.marker.setHeading(heading);
       Map.marker.setBasePoint(new L.LatLng(latitude,longitude));
       Map.marker._syncMeasureMarkersToBasePoint();
@@ -237,6 +275,7 @@ function reset_to_initial_position(){
 
     }
   });
+
 }
 
 function map_resize_init(){
@@ -636,6 +675,10 @@ function leaf_mousemove_lc(){
     Data.camera.heading   = Camera._heading*180/Math.PI;
     Data.camera.latitude  = Camera._latlng.lat;
     Data.camera.longitude = Camera._latlng.lng;
+
+    Data.camera.kml.heading   = Camera._heading*180/Math.PI;
+    Data.camera.kml.latitude  = Camera._latlng.lat;
+    Data.camera.kml.longitude = Camera._latlng.lng;
     //update initial location and heading
     x3d_initial_camera_placement();
 

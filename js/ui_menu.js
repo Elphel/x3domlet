@@ -94,6 +94,8 @@ function menu_init(){
     reset_view_init();
 
     align_init();
+
+    work_with_kml_init();
 }
 
 function crosshair_init(){
@@ -144,3 +146,16 @@ function reset_view_init(){
 
 }
 
+function work_with_kml_init(){
+
+    $("#savekml").on('click',function(){
+        var output = generateKML([Data.camera.kml]);
+        postKmlData(SETTINGS.files.kml, output);
+
+    });
+
+    $("#restorekml").on('click',function(){
+        $("#reset_view").click();
+    });
+
+}

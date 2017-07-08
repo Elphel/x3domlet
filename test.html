@@ -39,6 +39,8 @@
     <script type='text/javascript' src='js/ui_align.js'></script>
 
     <script type='text/javascript' src='js/util_functions.js'></script>
+
+    <script type='text/javascript' src='js/kml.js'></script>
     <!-- endbuild -->
 
   </head>
@@ -118,11 +120,23 @@
                 <tr>
                     <td>&nbsp;</td>
                 </tr>
-                <tr>
+                <tr class='edit'>
                     <td>
-                      <button id='align_0' class='experimental donothide'>Align0</button>
-                      <button id='align_1' class='experimental donothide'>Align1</button>
-                      <button id='align_2' class='experimental donothide'>Align2</button>
+                      Initial location and heading:
+                    </td>
+                    <td>
+                      <button id='restorekml' class='ic donothide' title='restore'><img src='js/images/ic_file_download_black_48dp_1x.png' class='icim donothide'/></button>
+                      <button id='savekml' class='ic donothide' title='save'><img src='js/images/ic_file_upload_black_48dp_1x.png' class='icim donothide'/></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr class='experimental'>
+                    <td>
+                      <button id='align_0' class='donothide'>Align0</button>
+                      <button id='align_1' class='donothide'>Align1</button>
+                      <button id='align_2' class='donothide'>Align2</button>
                     </td>
                 </tr>
                 <tr>
