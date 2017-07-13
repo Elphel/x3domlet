@@ -81,7 +81,7 @@ function x3dom_align_0(){
 
   console.log("Begin");
   */
-  var ε = 0.0000000001;
+  var ε = 0.000000001;
 
   var iterate = true;
   var counter = 0;
@@ -123,7 +123,83 @@ function x3dom_align_0(){
 
   }
 
+  xyh[2] = (xyh[2]+360)%360;
+  //init apply dialog
+  apply_alignment_dialog([x0,y0,h0],xyh,counter,s1);
+
 }
+
+function apply_alignment_dialog(xyh0,xyh1,c,e){
+
+  var d = $("<div>",{id:"aa1_dialog"});
+
+  var dc = $([
+    '<div>Alignment algorithm results</div>',
+    '<br/>',
+    '<div>Error: <b>'+e+' &deg;</b></div>',
+    '<div>Iterations: <b>'+c+'</b></div>',
+    '<div>',
+    '<table>',
+    '  <tr>',
+    '    <th></th>',
+    '    <th>Latitude</th>',
+    '    <th>Longitude</th>',
+    '    <th>Heading</th>',
+    '  </tr>',
+    '  <tr>',
+    '    <th>old</th>',
+    '    <td>'+xyh0[0]+'</td>',
+    '    <td>'+xyh0[1]+'</td>',
+    '    <td>'+xyh0[2]+'</td>',
+    '  </tr>',
+    '  <tr>',
+    '    <th>new</th>',
+    '    <td>'+xyh1[0]+'</td>',
+    '    <td>'+xyh1[1]+'</td>',
+    '    <td>'+xyh1[2]+'</td>',
+    '  </tr>',
+    '</table>',
+    '</div>',
+    '<br/>'
+  ].join('\n'));
+
+  d.append(dc);
+
+  var b1 = $("<button>").html("apply");
+
+  b1.on('click',function(){
+    apply_alignment(xyh1);
+    b2.click();
+  });
+
+  var b2 = $("<button>").html("cancel");
+
+  b2.on('click',function(){
+    $("#aa1_dialog").remove();
+  });
+
+  d.append($("<div>").append(b1).append(b2));
+
+  $("body").append(d);
+
+}
+
+function apply_alignment(xyh){
+
+    var Camera = Map.marker;
+
+    Data.camera.heading   = xyh[2];
+    Data.camera.latitude  = xyh[0];
+    Data.camera.longitude = xyh[1];
+
+    Data.camera.kml.heading   = xyh[2];
+    Data.camera.kml.latitude  = xyh[0];
+    Data.camera.kml.longitude = xyh[1];
+    //update initial location and heading
+    x3d_initial_camera_placement();
+
+}
+
 
 function sigma(x,y,h){
 
