@@ -23,6 +23,7 @@ $(function(){
             List = response;
             parse_list(response);
             $(".arow")[0].click();
+            init_dragging();
 
         }
 
@@ -33,6 +34,25 @@ $(function(){
 var SETTINGS = {
   'showall':false
 };
+
+var Dragged = false;
+
+function init_dragging(){
+
+    var list = document.getElementById('model_table');
+
+    if (list.addEventListener) list.addEventListener('DOMMouseScroll', wheelEvent_list, false);
+    list.onmousewheel = wheelEvent_list;
+
+    $("#model_table").draggable({
+        axis: "y",
+        containment:[0,-($("#model_table").height()),0,2],
+        drag: function(){
+            Dragged = true;
+        }
+    });
+
+}
 
 // no comments
 function parseURL(){
@@ -56,12 +76,12 @@ function parse_list(res){
         var thumb = $(this).attr("thumb");
 
         if (thumb.length!=""){
-            row.append("<td class='acell' valign='top'><img alt='n/a' src='models/"+name+"/thumb.jpeg'></img></td>");
+            row.append("<td class='acell' title='"+name+"' ><div><img alt='n/a' src='models/"+name+"/thumb.jpeg'></img></div></td>");
         }else{
-            row.append("<td class='acell' valign='top' align='center'>&ndash;</td>");
+            row.append("<td class='acell' title='"+name+"' valign='top' align='center'>&ndash;</td>");
         }
 
-        row.append("<td class='acell' valign='top'>"+name+"</td>");
+        //row.append("<td class='acell' valign='top'>"+name+"</td>");
 
         var vlist = "";
         $(this).find("version").each(function(i,v){
@@ -77,7 +97,7 @@ function parse_list(res){
 
         vlist = vlist.slice(0,-7);
 
-        row.append("<td class='acell' valign='top'><div>"+vlist+"</div></td>");
+        //row.append("<td class='acell' valign='top'><div>"+vlist+"</div></td>");
 
         row.attr("index",index);
 
@@ -121,26 +141,31 @@ function register_row_events(elem){
 
     $(elem).on("click",function(){
 
-        $(".arow").css({
-            background: "white"
-        });
-        //center map;
-        $(this).css({
-            background: "rgba(100,200,255,0.7)"
-        });
+        if (!Dragged){
 
-        var index = $(this).attr("index");
-        var list = $(List).find("model");
-        var item = list[index];
+          $(".arow").css({
+              background: "black"
+          });
+          //center map;
+          $(this).css({
+              background: "rgba(100,200,255,1)"
+          });
 
-        var lat = $($(item).find("latitude")[0]).text();
-        var lng = $($(item).find("longitude")[0]).text();
+          var index = $(this).attr("index");
+          var list = $(List).find("model");
+          var item = list[index];
 
-        map.panTo(new L.LatLng(lat, lng));
+          var lat = $($(item).find("latitude")[0]).text();
+          var lng = $($(item).find("longitude")[0]).text();
 
-        if (markers[lat+lng]!=undefined){
-            markers[lat+lng].openPopup();
+          map.panTo(new L.LatLng(lat, lng));
+
+          if (markers[lat+lng]!=undefined){
+              markers[lat+lng].openPopup();
+          }
+
         }
+        Dragged = false;
 
     });
 
@@ -162,7 +187,7 @@ function init_maps(){
     'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
     {
       maxZoom: 21,
-      attribution: 'Many thanks to Google for our happy childhood',
+      attribution: 'Google Imagery',
       subdomains:['mt0','mt1','mt2','mt3'],
     }
   );
@@ -197,4 +222,32 @@ function init_maps(){
 
 }
 
+function wheelEvent_list(event){
+      shiftKey= (event.shiftKey==1);
+      var delta = 0;
+      if (!event) event = window.event; // IE
+      if (event.wheelDelta) { //IE+Opera
+	      delta = event.wheelDelta/120;
+	      if (window.opera) delta = -delta;
+      } else if (event.detail) { // Mozilla
+	      delta = -event.detail;
+      }
+      if (delta)
+	      handleWheel_list(event,delta,shiftKey);
+      if (event.preventDefault)
+	      event.preventDefault();
+      event.returnValue = false;
+}
+
+function handleWheel_list(event,delta,move) {
+      var tmp = $("#model_table").position().top;
+
+      var tmp2 = +tmp+20*delta;
+
+      if (tmp2 > 0) tmp2=0;
+      if (tmp2 < -$("#model_table").height() ) tmp2=-$("#model_table").height();
+
+      $("#model_table").css({top:tmp2+'px'});
+
+}
 

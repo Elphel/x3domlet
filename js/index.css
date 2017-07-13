@@ -1,6 +1,7 @@
 
 table{
     border-collapse:collapse;
+    border: 0px solid rgba(220,220,220,1);
 }
 
 tr, th, td{
@@ -8,8 +9,14 @@ tr, th, td{
     min-width: 80px;
 }
 
+#model_table{
+  position:relative;
+  top:0px;
+  left:0px;
+}
+
 #model_table td{
-    padding: 5px;
+    padding: 3px 3px 3px 3px;
 }
 
 ul {
@@ -33,13 +40,15 @@ body {
 
 #table_div{
     position:absolute;
-    top:2px;
-    left:2px;
+    top:0px;
+    left:0px;
     z-index:1000;
-    background:white;
+    background:black;
     border-radius: 3px;
     overflow:hidden;
-    padding:2px;
+    padding:0px;
+    overflow:hidden;
+    height:100%;
 }
 
 .odd{
@@ -47,5 +56,15 @@ body {
 }
 
 .arow:hover td{
-    background:rgba(220,220,220,0.4);
+    background:rgba(220,220,220,0.0);
+}
+
+.acell{
+  padding:0px;
+  margin:0px;
+}
+
+img{
+  border-spacing:0px;
+  display: block;
 }
