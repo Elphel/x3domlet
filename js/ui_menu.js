@@ -51,9 +51,7 @@ function menu_init(){
         }
     }
 
-    if (!SETTINGS.experimental){
-      $(".experimental").hide();
-    }
+    controls_showhide();
 
     // init options menu
     var menu = $("#menu-content");
@@ -85,17 +83,17 @@ function menu_init(){
 
     });
 
+    $("#window-error").on('click',function(){
+      $(this).hide();
+    });
+
     crosshair_init();
-
     shiftspeed_init();
-
     marker_size_color_init();
-
     reset_view_init();
-
     align_init();
-
     work_with_kml_init();
+    editmode_init();
 }
 
 function crosshair_init(){
@@ -157,5 +155,33 @@ function work_with_kml_init(){
     $("#restorekml").on('click',function(){
         $("#reset_view").click();
     });
+
+}
+
+function editmode_init(){
+
+  // the id is buried in the leaflet plugin
+  $("#location_control").addClass("edit");
+
+  $("#edit").on('change',function(){
+    SETTINGS.edit = $(this).prop("checked");
+    controls_showhide();
+  });
+
+}
+
+function controls_showhide(){
+
+    if (!SETTINGS.experimental){
+      $(".experimental").hide();
+    }else{
+      $(".experimental").show();
+    }
+
+    if (!SETTINGS.edit){
+      $(".edit").hide();
+    }else{
+      $(".edit").show();
+    }
 
 }

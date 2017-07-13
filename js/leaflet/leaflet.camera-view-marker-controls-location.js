@@ -9,10 +9,14 @@
             var name = "leaflet-control-heel";
 
             var div = L.DomUtil.create('div', name+' leaflet-bar');
+            div.id = "location_control";
 
             L.DomEvent.disableClickPropagation(div);
 
-            var title = "Camera approximate location control";
+            var title = [
+              'Camera approximate heading and location control.',
+              'Move the base marker around and rotate.'
+            ].join('\n');
 
             //var label = "&#9760";
             //var label = "&#128681";

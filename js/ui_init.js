@@ -58,7 +58,7 @@ var SETTINGS = {
     'path'   : "1487451413_967079",
     'version': "v1",
     'experimental': false,
-    'edit': true,
+    'edit': false,
     'files': {
       'x3d':"",
       'x3d_background':"",
@@ -99,8 +99,9 @@ $(function(){
     parseURL();
 
     SETTINGS.files.x3d = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
-    SETTINGS.files.x3d_background = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+"-texture-bgnd-ext.jpeg"
-    SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml";
+    SETTINGS.files.x3d_background = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+"-texture-bgnd-ext.jpeg";
+    // always reload kml
+    SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml?"+Date.now();
 
     title_init();
     help_init();

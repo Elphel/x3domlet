@@ -2,7 +2,7 @@
 
   Copyright (C) 2017 Elphel Inc.
 
-  License: GPLv3
+  License: GPL-3.0
 
   https://www.elphel.com
 

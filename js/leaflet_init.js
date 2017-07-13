@@ -119,9 +119,13 @@ LeafletObject.prototype.drawCamera = function(){
         fov: this.fov,
         draw_xz: false,
         h_control: true,
-        l_control: SETTINGS.edit,
+        l_control: true,
         id: "basecircle"
     }).addTo(this._map);
+
+    // the id is buried in the leaflet plugin
+    $("#location_control").addClass("edit");
+    controls_showhide();
 
 }
 

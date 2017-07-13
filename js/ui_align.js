@@ -1,3 +1,39 @@
+/*
+
+  Copyright (C) 2017 Elphel Inc.
+
+  License: GPL-3.0
+
+  https://www.elphel.com
+
+*/
+/**
+ * @file -
+ * @brief -
+ *
+ * @copyright Copyright (C) 2017 Elphel Inc.
+ * @author Oleg Dzhimiev <oleg@elphel.com>
+ *
+ * @licstart  The following is the entire license notice for the
+ * JavaScript code in this page.
+ *
+ *   The JavaScript code in this page is free software: you can
+ *   redistribute it and/or modify it under the terms of the GNU
+ *   General Public License (GNU GPL) as published by the Free Software
+ *   Foundation, either version 3 of the License, or (at your option)
+ *   any later version.  The code is distributed WITHOUT ANY WARRANTY;
+ *   without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+ *
+ *   As additional permission under GNU GPL version 3 section 7, you
+ *   may distribute non-source (e.g., minimized or compacted) forms of
+ *   that code without the copy of the GNU GPL normally required by
+ *   section 4, provided you include this license notice and a URL
+ *   through which recipients can access the Corresponding Source.
+ *
+ *  @licend  The above is the entire license notice
+ *  for the JavaScript code in this page.
+ */
 
 function align_init(){
 
@@ -23,6 +59,7 @@ function check_markers(){
 
   var c1,c2;
   var result = true;
+  var msg = [];
 
   for(var i=0;i<Data.markers.length;i++){
 
@@ -30,15 +67,20 @@ function check_markers(){
     c2 = Data.markers[i].d_x3d;
 
     if (c1.toString().indexOf("drag")!=-1){
-      console.log("error: marker "+i+": drag over map. Mouse over shows a marker info.");
+      msg.push("error: marker "+i+": drag over map. Mouse over shows a marker info.");
+      //console.log("error: marker "+i+": drag over map. Mouse over shows a marker info.");
       result = false;
     }
 
     if (c2.toString().indexOf("drag")!=-1){
-      console.log("error: marker "+i+": drag over 3D scene. Mouse over shows a marker info.");
+      msg.push("error: marker "+i+": drag over 3D scene. Mouse over shows a marker info.");
       result = false;
     }
 
+  }
+
+  if (msg.length!=0){
+    ui_showMessage("window-error",msg.join("<br/>"));
   }
 
   return result;
@@ -53,18 +95,23 @@ function x3dom_align_GN(){
   // need at least 3 points
   if (Data.markers != undefined){
     if (Data.markers.length<3){
-        console.log("Alignment error: place at least 3 points");
+        var msg = "Alignment error: place at least 3 markers";
+        ui_showMessage("window-error",msg);
         return -1;
     }
   }else{
-    console.log("Alignment error: place at least 3 points");
+    var msg = "Alignment error: place at least 3 markers";
+    ui_showMessage("window-error",msg);
     return -1;
   }
 
   if (!check_markers()){
-    console.log("Alignment error: marker has not been moved over 3D or Map");
+    //var msg = "Alignment error: marker has not been moved over 3D or Map";
+    //ui_showMessage("window-error",msg);
     return -2;
   }
+
+  ui_hideMessage("window-error");
 
   // initial approximation:
   var x0 = Data.camera.kml.latitude;
