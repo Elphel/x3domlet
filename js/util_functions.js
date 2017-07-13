@@ -41,7 +41,7 @@ function convert_color_l2x(color){
 /*
  * azimuth by geo coords
  */
-/*
+
 function getAzimuth2(p1,p2){
 
     //p1 - start point
@@ -58,7 +58,7 @@ function getAzimuth2(p1,p2){
     return azimuth;
 
 }
-*/
+
 /*
  * azimuth by canvas coords
  */

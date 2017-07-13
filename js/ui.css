@@ -188,7 +188,7 @@ html, body, #x3d_wrapper {
 }
 
 #align_button{
-    background-image:url('images/align.png');
+    background-image:url('images/ic_explore_black_48dp_1x.png');
     background-size: 32px 32px;
     background-repeat: no-repeat;
 
@@ -307,4 +307,18 @@ html, body, #x3d_wrapper {
   user-select:none;
 }
 
+#aa1_dialog{
+  position:absolute;
+  top:2px;
+  left:2px;
+  background: rgba(256,256,256,1);
+  padding:5px;
+}
 
+#aa1_dialog td{
+  padding: 0px 5px;
+}
+
+#aa1_dialog button{
+  margin: 0px 5px;
+}

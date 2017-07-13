@@ -58,7 +58,7 @@ var SETTINGS = {
     'path'   : "1487451413_967079",
     'version': "v1",
     'experimental': false,
-    'edit': false,
+    'edit': true,
     'files': {
       'x3d':"",
       'x3d_background':"",
@@ -722,28 +722,33 @@ function leaf_drag_marker(){
         var p1_ll = Camera._latlng;
         var p2_ll = Camera.draggedMarker._latlng;
 
-        var mark = Data.markers[index];
-
-        mark.latitude = p2_ll.lat;
-        mark.longitude = p2_ll.lng;
-
-        mark.align.latitude = mark.latitude;
-        mark.align.longitude = mark.longitude;
-
-        var distance = p1_ll.distanceTo(p2_ll);
-
-        var dp_w = x3dom_delta_map2scene(p1_ll,p2_ll);
-
-        mark.x = dp_w.x;
-        mark.z = dp_w.z;
-
-        mark.d_map = distance;
-
+        leaf_update_x3dom_marker(p1_ll,p2_ll,index);
         X3DOMObject.displayMarkInfo(index);
 
-        X3DOMObject.Marker.place(mark.x,mark.y,mark.z,"my-sph-"+index);
-
     }
+
+}
+
+function leaf_update_x3dom_marker(p1_ll,p2_ll,index){
+
+  var mark = Data.markers[index];
+
+  mark.latitude = p2_ll.lat;
+  mark.longitude = p2_ll.lng;
+
+  mark.align.latitude = mark.latitude;
+  mark.align.longitude = mark.longitude;
+
+  var distance = p1_ll.distanceTo(p2_ll);
+
+  var dp_w = x3dom_delta_map2scene(p1_ll,p2_ll);
+
+  mark.x = dp_w.x;
+  mark.z = dp_w.z;
+
+  mark.d_map = distance;
+
+  X3DOMObject.Marker.place(mark.x,mark.y,mark.z,"my-sph-"+index);
 
 }
 
