@@ -46,7 +46,7 @@ function init_dragging(){
 
     $("#model_table").draggable({
         axis: "y",
-        containment:[0,-($("#model_table").height()),0,2],
+        containment:[0,-2*($("#model_table").height()),0,2],
         drag: function(){
             Dragged = true;
         }
