@@ -98,7 +98,7 @@ function postKmlData(filename, xml) {
           if (res==0){
             console.log("test!");
             $("#kmlstatus").css({color:"rgba(70,200,70,1)"}).html("saved");
-            $("#kmlstatus").show(0).delay(500).fadeOut(250);
+            $("#kmlstatus").show(0).delay(1000).fadeOut(250);
           }else{
             var msg = "some error";
             if ((res==-1)||(res==-2)) msg = "file does not exist";
@@ -111,4 +111,11 @@ function postKmlData(filename, xml) {
         },
         contentType: "text/xml; charset=\"utf-8\""
     });
+}
+
+function reportKmlReloaded(){
+
+  $("#kmlstatus").css({color:"rgba(70,200,70,1)"}).html("kml restored from server");
+  $("#kmlstatus").show(0).delay(1000).fadeOut(250);
+
 }

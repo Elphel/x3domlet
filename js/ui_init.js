@@ -274,6 +274,8 @@ function reset_to_initial_position(){
       //x3d_mouseMove();
       Scene.resize();
 
+      reportKmlReloaded();
+
     }
   });
 
