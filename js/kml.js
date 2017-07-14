@@ -93,6 +93,20 @@ function postKmlData(filename, xml) {
         data: xml,
 	async:true,
         complete: function(response){
+          //console.log(response.responseText);
+          var res = parseInt(response.responseText);
+          if (res==0){
+            console.log("test!");
+            $("#kmlstatus").css({color:"rgba(70,200,70,1)"}).html("saved");
+            $("#kmlstatus").show(0).delay(500).fadeOut(250);
+          }else{
+            var msg = "some error";
+            if ((res==-1)||(res==-2)) msg = "file does not exist";
+            if (res==-3) msg = "read only file";
+            $("#kmlstatus").css({color:"rgba(200,70,70,1)"}).html("fail: "+msg);
+            $("#kmlstatus").show(0).delay(1000).fadeOut(250);
+          }
+
           //do nothing
         },
         contentType: "text/xml; charset=\"utf-8\""
