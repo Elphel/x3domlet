@@ -101,7 +101,7 @@ $(function(){
     SETTINGS.files.x3d = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
     SETTINGS.files.x3d_background = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+"-texture-bgnd-ext.jpeg";
     // always reload kml
-    SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml?"+Date.now();
+    SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml";
 
     title_init();
     help_init();
@@ -158,7 +158,7 @@ function light_init(){
     x3delement.append(model);
 
     $.ajax({
-        url: SETTINGS.files.kml,
+        url: SETTINGS.files.kml+"?"+Date.now(),
         success: function(response){
 
             var longitude = parseFloat($(response).find("Camera").find("longitude").text());
