@@ -39,6 +39,18 @@ var Dragged = false;
 
 function init_dragging(){
 
+    var bigcounter = 0;
+    $("#model_table img").on("load",function(){
+      bigcounter++;
+      if (bigcounter==markers.length){
+        actual_dragging_init()
+      }
+    });
+
+}
+
+function actual_dragging_init(){
+
     var list = document.getElementById('model_table');
 
     if (list.addEventListener) list.addEventListener('DOMMouseScroll', wheelEvent_list, false);
@@ -46,7 +58,7 @@ function init_dragging(){
 
     $("#model_table").draggable({
         axis: "y",
-        containment:[0,-2*($("#model_table").height()),0,2],
+        containment:[0,-$("#model_table").height(),0,$("#model_table").height()],
         drag: function(){
             Dragged = true;
         }
@@ -106,6 +118,8 @@ function parse_list(res){
 
         $("#model_table").append(row);
 
+
+
         //place markers
         var subindex = 0;
         $(this).find("Camera").each(function(){
@@ -114,13 +128,17 @@ function parse_list(res){
             var lng = $(this).find("longitude").text();
 
             var marker = L.marker([lat, lng]).addTo(map);
-            marker.bindPopup(name+": "+vlist,{
-              direction:"top",
-            });
+            marker.bindPopup(name+": "+vlist,{direction:"top"});
+
             marker.index = index;
+            marker.name = name;
+            marker.vlist = vlist;
+            marker.lat = lat;
+            marker.lng = lng;
 
             marker.on('click',function(){
               //console.log("clicked"+this.index);
+              // find all markers under this marker
               $(".arow[index="+this.index+"]").click();
             });
 
@@ -135,6 +153,21 @@ function parse_list(res){
         index++;
     });
 
+}
+
+function popup_message(marker){
+
+  var msg = "<div><img class='pimg' alt='n/a' src='models/"+marker[0].name+"/thumb.jpeg' index='"+marker[0].index+"' ></img></div>";
+
+  markers.forEach(function(c,i){
+    if (marker[0].lat==c[0].lat){
+      if (marker[0].lng==c[0].lng){
+        msg += "<div class='plist' index='"+c[0].index+"' >"+c[0].name+": "+c[0].vlist+"</div>\n";
+      }
+    }
+  });
+
+  return msg;
 }
 
 function register_row_events(elem){
@@ -163,8 +196,24 @@ function register_row_events(elem){
           map.panTo(new L.LatLng(lat, lng));
 
           if (markers[index]!=undefined){
-            markers[index][0]._popup.setContent(name+": "+vlist);
+            // find all markers under this marker
+            var tmp = popup_message(markers[index]);
+            markers[index][0]._popup.setContent(tmp);
             markers[index][0].openPopup();
+
+            $(".plist").on("mouseover",function(){
+              $(".plist").css({
+                background: "white"
+              });
+              $(this).css({
+                background: "rgba(240,240,240,1)"
+              });
+
+              var j = $(this).attr("index");
+              $(".pimg").attr("src","models/"+markers[j][0].name+"/thumb.jpeg");
+
+            });
+
           }
 
         }
@@ -247,8 +296,8 @@ function handleWheel_list(event,delta,move) {
 
       var tmp2 = +tmp+20*delta;
 
-      if (tmp2 > 0) tmp2=0;
-      if (tmp2 < -$("#model_table").height() ) tmp2=-$("#model_table").height();
+      //if (tmp2 > 0) tmp2=0;
+      //if (tmp2 < -$("#model_table").height() ) tmp2=-$("#model_table").height();
 
       $("#model_table").css({top:tmp2+'px'});
 
