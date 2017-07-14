@@ -226,7 +226,7 @@ function light_init(){
 function reset_to_initial_position(){
 
   $.ajax({
-    url: SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml",
+    url: SETTINGS.files.kml+"?"+Date.now(),
     success: function(response){
 
       var longitude = parseFloat($(response).find("Camera").find("longitude").text());

@@ -43,7 +43,12 @@ if (substr($target_filename,-4,4)!=".kml"){
   if (!is_file($target_filename)){
     die("-2");
   }
+  if(!is_writable($target_filename)){
+    die("-3");
+  }
 }
+
+
 
 $target_xml  = simplexml_load_file($target_filename);
 $changes_xml = simplexml_load_file('php://input');
@@ -92,6 +97,6 @@ foreach ($new_PhotoOverlay as $new_node) {
 
 file_put_contents($target_filename, $target_xml->asXML());
 
-echo "ok";
+die("0");
 
 ?>

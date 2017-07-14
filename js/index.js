@@ -100,35 +100,35 @@ function parse_list(res){
         //row.append("<td class='acell' valign='top'><div>"+vlist+"</div></td>");
 
         row.attr("index",index);
+        row.attr("vlist",vlist);
 
         register_row_events(row);
 
         $("#model_table").append(row);
 
         //place markers
+        var subindex = 0;
         $(this).find("Camera").each(function(){
 
             var lat = $(this).find("latitude").text();
             var lng = $(this).find("longitude").text();
 
-            if (markers[lat+lng]==undefined){
+            var marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup(name+": "+vlist,{
+              direction:"top",
+            });
+            marker.index = index;
 
-                var marker = L.marker([lat, lng]).addTo(map);
-                marker.bindPopup(name+": "+vlist,{
-                    direction:"top",
-                });
+            marker.on('click',function(){
+              //console.log("clicked"+this.index);
+              $(".arow[index="+this.index+"]").click();
+            });
 
-                markers[lat+lng] = marker;
-
-            }else{
-
-                console.log(markers[lat+lng]);
-
-                var content = markers[lat+lng]._popup.getContent();
-                markers[lat+lng]._popup.setContent(content+"<br/>"+name+": "+vlist);
-
+            if (markers[index]==undefined) {
+              markers[index] = [];
             }
-
+            markers[index][subindex] = marker;
+            subindex++;
         });
 
 
@@ -152,6 +152,8 @@ function register_row_events(elem){
           });
 
           var index = $(this).attr("index");
+          var vlist = $(this).attr("vlist");
+          var name = $(this).find("td").attr("title");
           var list = $(List).find("model");
           var item = list[index];
 
@@ -160,8 +162,9 @@ function register_row_events(elem){
 
           map.panTo(new L.LatLng(lat, lng));
 
-          if (markers[lat+lng]!=undefined){
-              markers[lat+lng].openPopup();
+          if (markers[index]!=undefined){
+            markers[index][0]._popup.setContent(name+": "+vlist);
+            markers[index][0].openPopup();
           }
 
         }
