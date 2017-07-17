@@ -35,10 +35,14 @@
  *  for the JavaScript code in this page.
  */
 
+var DEBUG_ALIGN = false;
+
 function align_init(){
 
     $("#align_button").on("click",function(){
         //align_heading();
+        //test_markers_set1();
+        if (DEBUG_ALIGN) test_markers_set2();
         x3dom_align_GN();
     });
 
@@ -133,12 +137,19 @@ function x3dom_align_GN(){
 
   while(iterate){
 
+    if (DEBUG_ALIGN){
+      // functions values
+      for(var i=0;i<Data.markers.length;i++){
+        console.log(f1_3d_i(i,xyh[0],xyh[1],xyh[2])+" - "+f2_map_i(i,xyh[0],xyh[1],xyh[2])+" = "+r_i(i,xyh[0],xyh[1],xyh[2]));
+      }
+    }
+
     counter++;
 
     //console.log("Interation: "+counter+" for "+xyh[0]+" "+xyh[1]+" "+xyh[2]);
     xyh_new = GaussNewtonAlgorithm(xyh[0],xyh[1],xyh[2]);
 
-    //console.log(xyh_new);
+    if (DEBUG_ALIGN) console.log(xyh_new);
 
     var s0 = sigma(xyh[0],xyh[1],xyh[2]);
     var s1 = sigma(xyh_new[0],xyh_new[1],xyh_new[2]);
@@ -214,6 +225,10 @@ function f1_3d_i(i,x,y,h){
   var mark = Data.markers[i];
   var v = new x3dom.fields.SFVec3f(mark.align.x-base.x,0,mark.align.z-base.z);
   var res = Math.atan2(v.x,-v.z)*180/Math.PI + h;
+
+  if (res> 180) res = res - 360;
+  if (res<-180) res = res + 360;
+
   return res;
 }
 
@@ -692,9 +707,24 @@ function test_markers_set1(){
   Data.camera.kml.heading   = 62;
 
   Data.markers = [
-    {align:{  latitude: 40.72362633635111, longitude: -111.93257600069047, x:-9.079290749776595, y:-14.27794573338788,  z: -32.46383785654424  }},
-    {align:{  latitude: 40.7234408473505,  longitude: -111.93217568099502, x:23.90413018819188,  y:-16.192438967265613, z: -53.91987886096472  }},
-    {align:{  latitude: 40.7239048229759,  longitude: -111.93186186254026, x:-8.800276069589225, y:-17.382935178801347, z:-100.34033327103612  }}
+    {d_map:0, d_x3d:0, align:{  latitude: 40.72362633635111, longitude: -111.93257600069047, x:-9.079290749776595, y:-14.27794573338788,  z: -32.46383785654424  }},
+    {d_map:0, d_x3d:0, align:{  latitude: 40.7234408473505,  longitude: -111.93217568099502, x:23.90413018819188,  y:-16.192438967265613, z: -53.91987886096472  }},
+    {d_map:0, d_x3d:0, align:{  latitude: 40.7239048229759,  longitude: -111.93186186254026, x:-8.800276069589225, y:-17.382935178801347, z:-100.34033327103612  }}
   ];
 
 }
+
+function test_markers_set2(){
+
+  Data.camera.kml.latitude  = 40.77589481693107;
+  Data.camera.kml.longitude = -111.89113654196264;
+  Data.camera.kml.heading   = 185.15855178060607;
+
+  Data.markers = [
+    {d_map:0, d_x3d:0, align:{  latitude: 40.775409876634654, longitude: -111.89125657081605, x:  4.714593840189788, y: -5.9648880758191085, z:  -51.71562469465225  }},
+    {d_map:0, d_x3d:0, align:{  latitude: 40.770452618976286, longitude: -111.89164549112321, x: -9.225969874358247, y:  1.0038959217814385, z: -322.9596304948839  }},
+    {d_map:0, d_x3d:0, align:{  latitude: 40.77414901529763,  longitude: -111.89088240265848, x:-60.99135351237815,  y: -9.828564556750072,  z: -276.1326527395041  }}
+  ];
+
+}
+

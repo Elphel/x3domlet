@@ -141,12 +141,17 @@ LeafletObject.prototype.highlightMarker = function(index){
 
 LeafletObject.prototype.dehighlightMarker = function(index){
 
-    color = Data.markers[index].color;
+    // check if marker exists, it can be removed a moment before.
+    if (Data.markers[index]!=undefined){
 
-    var style = {color:color,fillColor:color};
+      color = Data.markers[index].color;
 
-    this.marker._measureMarkers[index].setStyle(style);
-    this.marker._measureLines[index].setStyle(style);
+      var style = {color:color,fillColor:color};
+
+      this.marker._measureMarkers[index].setStyle(style);
+      this.marker._measureLines[index].setStyle(style);
+
+    }
 
 }
 

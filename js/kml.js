@@ -96,7 +96,7 @@ function postKmlData(filename, xml) {
           //console.log(response.responseText);
           var res = parseInt(response.responseText);
           if (res==0){
-            console.log("test!");
+            //console.log("test!");
             $("#kmlstatus").css({color:"rgba(70,200,70,1)"}).html("saved");
             $("#kmlstatus").show(0).delay(1000).fadeOut(250);
           }else{
