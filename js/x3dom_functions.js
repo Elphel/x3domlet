@@ -55,8 +55,11 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
     var az,el,sk;
     var id;
 
-    var dist_xyz = 1000;
-    var dist_xz = 1000;
+    var dist_xyz = 1112;
+    var dist_xz = 1113;
+
+    //console.log("That event:");
+    //console.log(Scene._stored_x3dom_event);
 
     var shootRay = elem.runtime.shootRay(cnvx,cnvy);
 

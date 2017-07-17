@@ -407,6 +407,10 @@ function x3d_events(){
 
     var elem = Scene.element;
 
+    elem.addEventListener('mousemove',function(e){
+      //test
+    },true);
+
     elem.addEventListener('keydown',function(e){
 
         //console.log("scene keydown");
@@ -425,7 +429,7 @@ function x3d_events(){
         if (e.key=="Control"){
 
             var x,y,z;
-            var dist = 1000;
+            var dist = 1111;
 
             var mouse = x3dom_getXYPosOr(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y,false);
 
@@ -483,7 +487,14 @@ function x3d_events(){
         // have to focus if want key events to work w/o extra click
         Scene.focusOnCanvas();
 
-        var camera = x3dom_getCameraPosOr(e.clientX,e.clientY,false);
+        //1: old
+        //var camera = x3dom_getCameraPosOr(e.clientX,e.clientY,false);
+
+        //2: new
+        if (!e.target) e.target = Scene.element;
+        var mouse_position = Scene.element.runtime.mousePosition(e);
+        var camera = x3dom_getCameraPosOr(mouse_position[0],mouse_position[1],false);
+
         Map.marker.setAltitude(camera.y);
         Map.marker.setElevation(camera.e*Math.PI/180);
 
@@ -500,8 +511,15 @@ function x3d_events(){
         if ((Scene._ctrlKey)||(SETTINGS.pointer)){
 
             // show shadow marker
-            var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,false);
-            var dist = parseFloat(mouse.d_xz) || 1000;
+            //1: old
+            //var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,false);
+
+            //2: new
+            //if (!e.target) e.target = Scene.element;
+            //var mouse_position = Scene.element.runtime.mousePosition(e);
+            var mouse = x3dom_getXYPosOr(mouse_position[0],mouse_position[1],false);
+
+            var dist = parseFloat(mouse.d_xz) || 1116;
 
             Map.marker.placeSlidingMarker(mouse.a,dist);
 
@@ -516,7 +534,6 @@ function x3d_events(){
             // upright view
             x3dom_setUpRight();
         }
-
 
         // what is this?
         //x3d_mouseMove();

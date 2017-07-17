@@ -65,6 +65,7 @@ var X3DOMObject = function(element,data,options){
     this._X3DOM_SCENE_INIT_DONE = false;
     this._ctrlKey = false;
     this._shiftKey = false;
+    this._stored_x3dom_event = null;
 
     this.markInfoIndex = null;
 
@@ -303,16 +304,24 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
         var y = e.originalEvent.worldY;
         var z = e.originalEvent.worldZ;
 
+        // store x3dom event to use in normal events
+        self._stored_x3dom_event = e.originalEvent;
+
         if (self._ctrlKey||SETTINGS.pointer){
 
+            // place pointer marker
             $("#sliding_sphere").find('material').attr("diffuseColor",convert_color_l2x(SETTINGS.markercolor));
             $("#sliding_sphere").find('Sphere').attr("radius",SETTINGS.markersize/2);
 
             X3DOMObject.Marker.place(x,y,z,"sliding_sphere");
             $("#sliding_sphere").find("switch").attr("whichChoice",0);
+
         }else{
+
+            // place at 0,0,0 and hide
             X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
             $("#sliding_sphere").find("switch").attr("whichChoice",-1);
+
         }
 
         /*
@@ -844,7 +853,13 @@ X3DOMObject.Marker.mouseMove = function(event){
             X3DOMObject.Marker.drag(event.offsetX - Scene.lastMouseX, event.offsetY - Scene.lastMouseY);
         }else{
             Scene.markerToDrag.isPickable=false;
-            var sr = Scene.element.runtime.shootRay(event.clientX,event.clientY);
+            //1: old
+            //var sr = Scene.element.runtime.shootRay(event.clientX,event.clientY);
+            //2: new
+            if (!event.target) event.target = Scene.element;
+            var mouse_position = Scene.element.runtime.mousePosition(event);
+            var sr = Scene.element.runtime.shootRay(mouse_position[0],mouse_position[1]);
+
             Scene.markerToDrag.isPickable=true;
             if (sr.pickObject != null){
                 if (!$(sr.pickObject).hasClass("shapemarker")){
@@ -1152,13 +1167,19 @@ X3DOMObject.displayInfo = function(e){
 
         var elem = Scene.element;
 
-        var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,true);
+        // 1:old
+        //var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,true);
+
+        // 2:new
+        if (!e.target) e.target = elem;
+        var mouse_position = elem.runtime.mousePosition(e);
+        var mouse = x3dom_getXYPosOr(mouse_position[0],mouse_position[1],true);
 
         if (Data.markers[mouse.index]!=undefined){
             X3DOMObject.displayMarkInfo(mouse.index);
         }
 
-        var dist = 1000;
+        var dist = 1115;
 
         $("#window-info").css({"font-size":"20px"});
 
@@ -1222,7 +1243,12 @@ X3DOMObject.displayViewInfo = function(e){
         e.clientY = $(window).height()/2;
     }
 
-    var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,true);
+    //1: old
+    //var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,true);
+    //2: new
+    if (!e.target) e.target = Scene.element;
+    var mouse_position = Scene.element.runtime.mousePosition(e);
+    var mouse = x3dom_getXYPosOr(mouse_position[0],mouse_position[1],true);
     mouse.s = "0";
 
     /*
