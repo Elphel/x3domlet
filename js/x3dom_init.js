@@ -98,6 +98,11 @@ X3DOMObject.prototype.resize = function(){
     $(self.element).attr("width",w);
     $(self.element).attr("height",h);
 
+    $(self.element).css({
+      width: w+"px",
+      height: h+"px"
+    });
+
     $("#crosshair_h").css({
         left: (w/2-$("#crosshair_h").width()/2)+"px",
         top: (h/2)+"px"
