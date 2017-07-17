@@ -304,13 +304,14 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
         var y = e.originalEvent.worldY;
         var z = e.originalEvent.worldZ;
 
-        // store x3dom event to use in normal events
+        // (not used atm) store x3dom event to use in normal events
         self._stored_x3dom_event = e.originalEvent;
 
         if (self._ctrlKey||SETTINGS.pointer){
 
             // place pointer marker
             $("#sliding_sphere").find('material').attr("diffuseColor",convert_color_l2x(SETTINGS.markercolor));
+            $("#sliding_sphere").find('material').attr("transparency","0.2");
             $("#sliding_sphere").find('Sphere').attr("radius",SETTINGS.markersize/2);
 
             X3DOMObject.Marker.place(x,y,z,"sliding_sphere");
@@ -664,6 +665,7 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
 
                 Map.deleteMarker(index);
 
+                Scene.highlighted_marker_index = null;
             }
 
         }else{

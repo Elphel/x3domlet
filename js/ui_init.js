@@ -428,6 +428,8 @@ function x3d_events(){
 
         if (e.key=="Control"){
 
+            Scene._ctrlKey = true;
+
             var x,y,z;
             var dist = 1111;
 
@@ -438,7 +440,7 @@ function x3d_events(){
                 dist = parseFloat(mouse.d_xz);
 
                 X3DOMObject.Marker.place(mouse.x,mouse.y,mouse.z,"sliding_sphere");
-                $("#sliding_sphere").find("switch").attr("whichChoice",0);
+                if (Scene.highlighted_marker_index==null) $("#sliding_sphere").find("switch").attr("whichChoice",0);
 
             }
 
@@ -457,6 +459,9 @@ function x3d_events(){
         }
 
         if (e.key=="Control"){
+
+            Scene._ctrlKey = false;
+            //remove on keydown?
 
             X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
             $("#sliding_sphere").find("switch").attr("whichChoice",-1);
