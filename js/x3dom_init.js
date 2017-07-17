@@ -116,7 +116,7 @@ X3DOMObject.prototype.resize = function(){
     var fov = w/h*self._FOV;
 
     //fov = Math.PI/2;
-    console.log(fov);
+    //console.log(fov);
 
     self.setFoV(fov);
 

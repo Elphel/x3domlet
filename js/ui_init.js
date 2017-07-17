@@ -213,6 +213,7 @@ function light_init(){
                     deep_init();
                     //align_init();
                     x3d_initial_camera_placement();
+                    Scene.resize();
                     x3d_events();
                     leaf_events();
 
