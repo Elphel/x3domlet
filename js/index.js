@@ -88,10 +88,12 @@ function parse_list(res){
         var thumb = $(this).attr("thumb");
 
         if (thumb.length!=""){
-            row.append("<td class='acell' title='"+name+"' ><div><img alt='n/a' src='models/"+name+"/thumb.jpeg'></img></div></td>");
+            srcpath ="models/"+name+"/thumb.jpeg";
         }else{
-            row.append("<td class='acell' title='"+name+"' valign='top' align='center'>&ndash;</td>");
+            srcpath ="js/images/thumb_na.jpeg";
         }
+
+        row.append("<td class='acell' title='"+name+"' ><div><img src='"+srcpath+"'></img></div></td>");
 
         //row.append("<td class='acell' valign='top'>"+name+"</td>");
 
