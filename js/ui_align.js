@@ -179,9 +179,12 @@ function x3dom_align_GN(){
 
   }
 
+  //calc distance error
+  de = distance_error(xyh[0],xyh[1],xyh[2]);
+  //convert to conventional range
   xyh[2] = (xyh[2]+360)%360;
   //init apply dialog
-  apply_alignment_dialog([x0,y0,h0],xyh,counter,s1);
+  apply_alignment_dialog([x0,y0,h0],xyh,counter,s1,de);
 
 }
 
@@ -517,7 +520,7 @@ function AxV(A,V){
 /*
  * ui dialog to apply or cancel results
  */
-function apply_alignment_dialog(xyh0,xyh1,c,e){
+function apply_alignment_dialog(xyh0,xyh1,c,e,de){
 
   var d = $("<div>",{id:"aa1_dialog"});
 
@@ -525,6 +528,7 @@ function apply_alignment_dialog(xyh0,xyh1,c,e){
     '<div>Alignment algorithm results</div>',
     '<br/>',
     '<div>Error: <b>'+e+' &deg;</b></div>',
+    '<div>d<sup>-1</sup> Error: <b>'+de+' m<sup>-1</sup></b></div>',
     '<div>Iterations: <b>'+c+'</b></div>',
     '<div>',
     '<table>',
@@ -601,6 +605,27 @@ function apply_alignment(xyh){
     }
 
     x3d_initial_camera_placement();
+
+}
+
+function distance_error(x,y,h){
+
+  var sum = 0;
+
+  for(var i=0;i<Data.markers.length;i++){
+      var angle0 = h;
+      var angle1 = f2_map_i(i,x,y,h);
+      var z_map = Math.cos(Math.PI/180*(angle0-angle1))*Data.markers[i].d_map;
+      var z_x3d = -Data.markers[i].align.z;
+      sum += 1/z_map-1/z_x3d;
+      console.log("Marker: "+i+", Camera heading: "+angle0+", Point azimuth: "+angle1+" , z_map: "+z_map+", z_x3d: "+z_x3d+", error^-1: "+(1/z_map-1/z_x3d));
+  }
+
+  sum = sum/Data.markers.length;
+
+  console.log("Final sum averaged: "+sum);
+
+  return sum;
 
 }
 
