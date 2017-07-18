@@ -353,6 +353,12 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
             X3DOMObject.Shape.toggle(this);
         }
 
+        if (self._ctrlKey){
+
+          X3DOMObject.createNewMarker(e.originalEvent.worldX,e.originalEvent.worldY,e.originalEvent.worldZ);
+
+        }
+
     });
 
     $(this._elem).on("mouseover",function(e){
@@ -1009,51 +1015,7 @@ X3DOMObject.PointerMarker.prototype._registerEvents = function(){
         var xyz = $(this).parent().attr("translation");
         xyz = xyz.split(" ");
 
-        // Create marker for Data
-        var mark = new X3L({
-            x: parseFloat(xyz[0]) || 0,
-            y: parseFloat(xyz[1]) || 0,
-            z: parseFloat(xyz[2]) || 0,
-            color: SETTINGS.markercolor,
-            size:  SETTINGS.markersize,
-        });
-
-        mark.d_x3d = Math.sqrt(mark.x*mark.x+mark.z*mark.z);
-        mark.d_map = "<font style='color:red;'>drag over map</font>";
-
-        mark.align = {
-          latitude: 0,
-          longitude: 0,
-          x: mark.x,
-          y: mark.y,
-          z: mark.z
-        };
-
-        Data.markers.push(mark);
-
-        X3DOMObject.displayMarkInfo(Data.markers.length-1);
-
-        // Create marker on the scene
-        new X3DOMObject.Marker(mark.x,mark.y,mark.z);
-
-        var da = x3dom_getDistAngle(mark.x,mark.y,mark.z);
-        var distance = da[0];
-        var angle = da[1];
-
-        // Create marker on the map
-        Camera.createMeasureMarker(angle,distance);
-
-        var map_mark = Camera._measureMarkers[Camera._measureMarkers.length-1];
-
-        // Update marker in Data
-        mark.latitude = map_mark._latlng.lat;
-        mark.longitude = map_mark._latlng.lng;
-
-        // register events for a new marker in Data
-        X3DOMObject.MapMarker.registerEvents(map_mark);
-
-        // need?
-        Camera._syncMeasureMarkersToBasePoint();
+        X3DOMObject.createNewMarker(xyz[0],xyz[1],xyz[2]);
 
     });
 
@@ -1363,5 +1325,56 @@ X3DOMObject.displayMarkInfo = function(index){
     }else{
         ui_showMessage("window-markinfo",msg);
     }
+
+}
+
+X3DOMObject.createNewMarker = function(x,y,z){
+
+  var Camera = Map.marker;
+  // Create marker for Data
+  var mark = new X3L({
+      x: parseFloat(x) || 0,
+      y: parseFloat(y) || 0,
+      z: parseFloat(z) || 0,
+      color: SETTINGS.markercolor,
+      size:  SETTINGS.markersize,
+  });
+
+  mark.d_x3d = Math.sqrt(mark.x*mark.x+mark.z*mark.z);
+  mark.d_map = "<font style='color:red;'>drag over map</font>";
+
+  mark.align = {
+    latitude: 0,
+    longitude: 0,
+    x: mark.x,
+    y: mark.y,
+    z: mark.z
+  };
+
+  Data.markers.push(mark);
+
+  X3DOMObject.displayMarkInfo(Data.markers.length-1);
+
+  // Create marker on the scene
+  new X3DOMObject.Marker(mark.x,mark.y,mark.z);
+
+  var da = x3dom_getDistAngle(mark.x,mark.y,mark.z);
+  var distance = da[0];
+  var angle = da[1];
+
+  // Create marker on the map
+  Camera.createMeasureMarker(angle,distance);
+
+  var map_mark = Camera._measureMarkers[Camera._measureMarkers.length-1];
+
+  // Update marker in Data
+  mark.latitude = map_mark._latlng.lat;
+  mark.longitude = map_mark._latlng.lng;
+
+  // register events for a new marker in Data
+  X3DOMObject.MapMarker.registerEvents(map_mark);
+
+  // need?
+  Camera._syncMeasureMarkersToBasePoint();
 
 }
