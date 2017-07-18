@@ -42,7 +42,9 @@ function align_init(){
     $("#align_button").on("click",function(){
         //align_heading();
         //test_markers_set1();
-        if (DEBUG_ALIGN) test_markers_set2();
+        //if (DEBUG_ALIGN) test_markers_set1();
+        //if (DEBUG_ALIGN) test_markers_set2();
+        if (DEBUG_ALIGN) test_markers_set3();
         x3dom_align_GN();
     });
 
@@ -122,6 +124,8 @@ function x3dom_align_GN(){
   var y0 = Data.camera.kml.longitude;
   var h0 = Data.camera.kml.heading;
 
+  //if (h0>180) h0 = h0 - 360;
+
   //tests
   //test_AxB();
   //test_At();
@@ -133,7 +137,7 @@ function x3dom_align_GN(){
   var iterate = true;
   var counter = 0;
   var result = 0;
-  var xyh = [x0,y0,h0];
+  var xyh = [x0,y0,(h0>180)?h0-360:h0];
 
   while(iterate){
 
@@ -148,8 +152,8 @@ function x3dom_align_GN(){
 
     //console.log("Interation: "+counter+" for "+xyh[0]+" "+xyh[1]+" "+xyh[2]);
     xyh_new = GaussNewtonAlgorithm(xyh[0],xyh[1],xyh[2]);
-
-    if (DEBUG_ALIGN) console.log(xyh_new);
+    //if (xyh_new[2]<-180) xyh_new[2] += 360;
+    //if (xyh_new[2]> 180) xyh_new[2] -= 360;
 
     var s0 = sigma(xyh[0],xyh[1],xyh[2]);
     var s1 = sigma(xyh_new[0],xyh_new[1],xyh_new[2]);
@@ -159,10 +163,11 @@ function x3dom_align_GN(){
       iterate = false;
     }
 
-    //console.log("Errors: "+(xyh_new[0]-xyh[0])+" "+(xyh_new[1]-xyh[1])+" "+(xyh_new[2]-xyh[2]));
-    //console.log("Iteration "+counter+" result: "+xyh_new[0]+" "+xyh_new[1]+" "+xyh_new[2]);
-
-    //console.log("Error function value: "+sigma(xyh_new[0],xyh_new[1],xyh_new[2]));
+    if(DEBUG_ALIGN){
+      console.log("Errors: "+(xyh_new[0]-xyh[0])+" "+(xyh_new[1]-xyh[1])+" "+(xyh_new[2]-xyh[2]));
+      console.log("Iteration "+counter+" result: "+xyh_new[0]+" "+xyh_new[1]+" "+xyh_new[2]);
+      console.log("Error function value: "+sigma(xyh_new[0],xyh_new[1],xyh_new[2]));
+    }
 
     if (counter==1000){
       iterate = false;
@@ -268,7 +273,10 @@ function f2_map_i(i,x,y,h){
  * residuals function
  */
 function r_i(i,x,y,h){
-  return (f1_3d_i(i,x,y,h)-f2_map_i(i,x,y,h));
+  var f1 = f1_3d_i(i,x,y,h);
+  var f2 = f2_map_i(i,x,y,h);
+  //return (f1-f2+360)%360;
+  return (f1-f2);
 }
 
 /*
@@ -728,3 +736,17 @@ function test_markers_set2(){
 
 }
 
+// bad set, needed more points
+function test_markers_set3(){
+
+  Data.camera.kml.latitude  = 40.79437830462248;
+  Data.camera.kml.longitude = -111.90397158265115;
+  Data.camera.kml.heading   = 249.4439547804165;
+
+  Data.markers = [
+    {d_map:0, d_x3d:0, align:{  latitude: 40.79412143437496, longitude: -111.90607845783235, x: 13.930790294993443, y: 17.628990742021394, z:  -154.9656658238599  }},
+    {d_map:0, d_x3d:0, align:{  latitude: 40.79364474960238, longitude: -111.90520875155927, x: -30.99517183539921, y:  8.62831993127737, z: -92.96031068292253  }},
+    {d_map:0, d_x3d:0, align:{  latitude: 40.79441790113347,  longitude: -111.90620452165605, x:34.451361546214116,  y: 30.539873602241727,  z: -133.39148171966684  }}
+  ];
+
+}
