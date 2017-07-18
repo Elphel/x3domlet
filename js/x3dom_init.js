@@ -1045,6 +1045,7 @@ X3DOMObject.MapMarker.registerEvents = function(map_mark){
 
             X3DOMObject.Marker.highlight(elem);
             Map.highlightMarker(index);
+            X3DOMObject.displayMarkInfo(index);
 
         });
 
@@ -1096,7 +1097,7 @@ X3DOMObject.MapMarker.registerEvents = function(map_mark){
             if (e.originalEvent.ctrlKey){
 
                 // from Data
-                Data.markers.splice(index);
+                Data.markers.splice(index,1);
 
                 // from Map (indices get updated)
                 Map.deleteMarker(index);
