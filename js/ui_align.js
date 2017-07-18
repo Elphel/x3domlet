@@ -180,7 +180,7 @@ function x3dom_align_GN(){
   }
 
   //calc distance error
-  de = distance_error(xyh[0],xyh[1],xyh[2]);
+  de = distance_error(x0,y0,(h0>180)?h0-360:h0);
   //convert to conventional range
   xyh[2] = (xyh[2]+360)%360;
   //init apply dialog
