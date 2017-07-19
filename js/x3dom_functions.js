@@ -504,7 +504,7 @@ function x3dom_delta_map2scene(p0,p1){
     var pi = new L.LatLng(p0.lat,p1.lng);
 
     var dx = p0.distanceTo(pi);
-    var dy = 0;
+    var dy = 10;
     var dz = p1.distanceTo(pi);
 
     var dp_rw = new x3dom.fields.SFVec3f(dx,dy,dz);
@@ -513,9 +513,32 @@ function x3dom_delta_map2scene(p0,p1){
     if (p1.lat>p0.lat) dp_rw.z = -dp_rw.z;
 
     var M0 = Data.camera.Matrices.R0.inverse();
-    var dp_w = M0.multMatrixVec(dp_rw);
+    var dp_w0 = M0.multMatrixVec(dp_rw);
 
-    return dp_w;
+    --dp_rw.y;
+    var dp_w1 = M0.multMatrixVec(dp_rw);
+
+    var dir=dp_w0.subtract(dp_w1).normalize();
+    var up=new x3dom.fields.SFVec3f(0,0,-1);
+
+    var viewMat = x3dom.fields.SFMatrix4f.lookAt(dp_w0, dp_w1, M0.multMatrixVec(up));
+    var view=Scene.element.runtime.canvas.doc._viewarea;
+    var viewPoint=view._scene.getViewpoint();
+    viewPoint.setView(viewMat.inverse());
+
+    var markers=$('.shapemarker');
+
+    markers.attr('isPickable',false);
+    view._scene._nameSpace.doc.ctx.pickValue(view, view._width/2, view._height/2);
+    markers.attr('isPickable',true);
+
+    if (view._pickingInfo.pickObj) {
+      var dist = view._pickingInfo.pickPos.subtract(dp_w0).length();
+      dp_rw.y=view._pickingInfo.pickPos.y
+      return M0.multMatrixVec(dp_rw);
+    }
+
+    return dp_w0;
 
 }
 
@@ -610,4 +633,3 @@ function x3dom_setViewpoint(m){
     Data.camera.Matrices.RC_w = m;
 
 }
-

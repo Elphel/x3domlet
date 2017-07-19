@@ -546,6 +546,9 @@ function leaf_events(){
     Camera._map.on('mousemove',function(e){
         //console.log("map mousemove");
         this._container.focus();
+        if (e.originalEvent.ctrlKey) {
+          x3dom_delta_map2scene(Camera._latlng,e.latlng);
+        }
     });
 
     /*
