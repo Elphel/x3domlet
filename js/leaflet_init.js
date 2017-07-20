@@ -155,6 +155,15 @@ LeafletObject.prototype.dehighlightMarker = function(index){
 
 }
 
+LeafletObject.prototype.dehighlightMarkers = function(){
+
+    // check if marker exists, it can be removed a moment before.
+    for(var i=0;i<Data.markers.length;i++){
+      if (!this.marker._measureMarkers[i]._selected) this.dehighlightMarker(i);
+    }
+
+}
+
 LeafletObject.prototype.toggleMarker = function(index){
 
     //console.log("Toggling "+index);

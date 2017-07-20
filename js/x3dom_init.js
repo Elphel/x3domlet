@@ -838,7 +838,11 @@ X3DOMObject.Marker.mouseMove = function(event){
 
     Scene.markerdragged = true;
 
-    X3DOMObject.Marker.highlight(Scene.draggedTransformNode.parent().parent());
+    var sphere = Scene.draggedTransformNode.parent().parent();
+    var index = parseInt(sphere.attr("id").substr(7));
+
+    X3DOMObject.Marker.highlight(sphere);
+    Map.highlightMarker(index);
 
     //offsetX / offsetY polyfill for FF
     var target = event.target || event.srcElement;
@@ -936,7 +940,7 @@ X3DOMObject.Marker.slide = function(index,x,y,z){
     X3DOMObject.displayMarkInfo(index);
     X3DOMObject.displayInfo({});
 
-    Map.marker.moveMeasureMarker(p2_ll,index);
+    Map.marker.setMarkerPoint(p2_ll,index);
 
 }
 
@@ -1108,14 +1112,27 @@ X3DOMObject.MapMarker.registerEvents = function(map_mark){
 
             }else{
 
+                /*
                 X3DOMObject.Marker.toggle(elem);
                 Map.toggleMarker(index);
-
+                */
+                /*
                 X3DOMObject.Marker.highlight(elem);
                 Map.highlightMarker(index);
+                */
 
             }
 
+        });
+
+        map_mark.on('click',function(e){
+            var index = this._index;
+            var elem = $("#my-sph-"+index);
+
+            if (!e.originalEvent.ctrlKey){
+                X3DOMObject.Marker.toggle(elem);
+                Map.toggleMarker(index);
+            }
         });
 
 }

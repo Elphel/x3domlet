@@ -137,6 +137,7 @@
                     var p1 = this._map.latLngToLayerPoint(p1_ll);
                     var p2 = this._map.latLngToLayerPoint(p2_ll);
 
+                    // vertical only movement
                     p2.x = p1.x;
 
                     this._altitude = (p1.y - p2.y)/10;
@@ -478,8 +479,8 @@
 
         _mouseMove: function(e){
 
-            // from some plugin - I didn't test if it's true
-            // necassary for _dragCircle. If switched on already within _dragCircle an unwanted click is fired at the end of the drag.
+            // from some plugin - didn't test if it's true
+            // original text: "necassary for _dragCircle. If switched on already within _dragCircle an unwanted click is fired at the end of the drag."
             this._map.on('click',this._mouseClick,this);
 
         },

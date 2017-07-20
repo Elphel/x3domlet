@@ -70,7 +70,7 @@
 
             var pll = L.polyline(l_d, {
                     color: '#1f1',
-                    weight:1,
+                    weight:2,
                     dashArray:"5,5"
                 }).addTo(this._layerPaint).bringToBack();
 
@@ -93,44 +93,191 @@
             }).openTooltip();
 
             tmp_point.on('click',this._measureMarkerClick,this);
+
+            //tmp_point.on('mouseover',this._updateMeasureMarker,this);
+            //tmp_point.on('mouseout',this._updateMeasureMarker,this);
+
             tmp_point.on('mousedown',this._dragMeasureMarker,this);
+
             tmp_point._index = this._measureMarkers.length;
+            // special double
+            tmp_point.__latlng = latlng;
+            tmp_point._altitude = parseFloat(this._altitude);
 
             this._measureMarkers.push(tmp_point);
             this._measureLines.push(pll);
+
+            this._updateMeasureMarker(tmp_point._index);
 
             return tmp_point._index;
 
         },
 
-        moveMeasureMarker: function(param,index){
+        /*
+        setMarkerPoint: function(param, index){
+
+            if (this._measureMarkers==undefined) return;
 
             var latlng = param;
+            var hecs = this.getHCState();
 
             if (param.target){
-                index = this.draggedMarker._index;
+                index = param.target._index;
                 latlng = param.latlng;
+
+                if (hecs){
+
+                  var p1_ll = this._latlng;
+                  var p2_ll = 0;
+
+                }
 
                 // prevent image getting grabbed by browser
                 param.originalEvent.preventDefault();
             }
 
+
+
+
+        },
+        */
+
+        _updateMeasureMarker: function(i,ignore_hecs){
+
+            // if hecs - switch to heights
+            // if not  - switch to distances
+
+            // redraw, params changed somewhere else
+
+            // in hc mode - mouseover will draw vertical dash line
+            // display altitude
+            // then dragging along that line
+            // then mouse out
+            // make mark._READY like in the base marker
+
+            if (ignore_hecs){
+              var hecs = false;
+            }else{
+              var hecs = this.getHCState();
+            }
+
+            // get mark and the corresponding line
+            var mark = this._measureMarkers[i];
+            var line = this._measureLines[i];
+
+            // base point
+            var p_base_ll = this._latlng;
+            var p_base = this._map.latLngToLayerPoint(p_base_ll);
+
+            // marker point base
+            //var p_mark_ll = mark._latlng;
+            var p_mark_ll = mark.__latlng;
+            var p_mark = this._map.latLngToLayerPoint(p_mark_ll);
+
+            // base - marker line
+            var l_d = Array(p_base_ll,p_mark_ll);
+
+            // marker point when hecs
+            var p_mark_cap = new L.Point(p_mark.x,p_mark.y-10*mark._altitude);
+            var p_mark_cap_ll = this._map.layerPointToLatLng(p_mark_cap);
+
+            var p_mark_cap_t = new L.Point(p_mark.x,p_mark.y-100);
+            var p_mark_cap_t_ll = this._map.layerPointToLatLng(p_mark_cap_t);
+
+            var p_mark_cap_b = new L.Point(p_mark.x,p_mark.y+100);
+            var p_mark_cap_b_ll = this._map.layerPointToLatLng(p_mark_cap_b);
+
+            var p_mark_cap_l = new L.Point(p_mark.x-50/2,p_mark.y);
+            var p_mark_cap_l_ll = this._map.layerPointToLatLng(p_mark_cap_l);
+
+            var p_mark_cap_r = new L.Point(p_mark.x+50/2,p_mark.y);
+            var p_mark_cap_r_ll = this._map.layerPointToLatLng(p_mark_cap_r);
+
+            var l_mark_cap_tb = Array(p_mark_cap_t_ll,p_mark_cap_b_ll);
+            var l_mark_cap_lr = Array(p_mark_cap_l_ll,p_mark_cap_r_ll);
+
+            if (hecs){
+
+              mark.setLatLng(p_mark_cap_ll);
+              l_d.push(p_mark_cap_ll);
+              line.setLatLngs(l_d);
+              mark.setTooltipContent('h<sub>'+mark._index+'</sub>= '+mark._altitude+' m');
+
+            }else{
+
+              mark.setLatLng(p_mark_ll);
+              line.setLatLngs(l_d);
+
+              var distance = p_base_ll.distanceTo(p_mark_ll).toFixed(1);
+              mark.setTooltipContent('d<sub>'+mark._index+'</sub>= '+distance+' m');
+
+            }
+
+        },
+
+        _updateMeasureMarkers: function(){
+
+            if (this._measureMarkers==undefined) return;
+
+            var self = this;
+
+            this._measureMarkers.forEach(function(c,i){
+
+              self._updateMeasureMarker(i,false);
+
+            });
+
+        },
+
+        setMarkerPoint: function(param,index){
+
+            var latlng = param;
+
+            var hecs = false;
+            var ignore_hecs = false;
+
+            if (param.target){
+
+                index = this.draggedMarker._index;
+                latlng = param.latlng;
+                ignore_hecs = false;
+                hecs = this.getHCState();
+
+                // prevent image getting grabbed by browser
+                param.originalEvent.preventDefault();
+            }
+
+            // base
             var p1_ll = this._latlng;
+            // mouse position
             var p2_ll = latlng;
-            var l_d = Array(p1_ll,p2_ll);
 
-            this._measureMarkers[index].setLatLng(latlng);
-            this._measureLines[index].setLatLngs(l_d);
+            if (hecs){
 
-            var distance = p2_ll.distanceTo(p1_ll).toFixed(1);
-            this._measureMarkers[index]._tooltip.setContent(distance+' m');
+              var p1 = this._map.latLngToLayerPoint(this._measureMarkers[index].__latlng);
+              var p2 = this._map.latLngToLayerPoint(p2_ll);
+              // vertical only movement
+              p2.x = p1.x;
 
+              this._measureMarkers[index]._altitude = (p1.y - p2.y)/10;
+              //console.log(this._measureMarkers[index]._altitude);
+              latlng = this._measureMarkers[index].__latlng;
+
+            }else{
+
+              this._measureMarkers[index].__latlng = latlng;
+
+            }
+
+            // why does this need an update?
             this.draggedMarker = {
                 _index: index,
                 _latlng: latlng
             };
 
-            this._syncMeasureMarkersToBasePoint();
+            this._updateMeasureMarker(index,ignore_hecs);
+            // don't have to sync all
+            //this._syncMeasureMarkersToBasePoint();
 
         },
 
@@ -186,7 +333,7 @@
 
                 this._slidingMarker.setLatLng(p2_ll);
                 this._slidingLine.setLatLngs(l_d);
-                this._slidingMarker._tooltip.setContent(distance.toFixed(1)+' m');
+                this._slidingMarker.setTooltipContent(distance.toFixed(1)+' m');
 
             }
 
@@ -209,6 +356,23 @@
 
             this._initCameraViewMarker();
             this._initCVM_M();
+
+        },
+
+        /*
+         * this function is used a lot in the parent class
+         */
+        _updateCameraViewMarker: function(){
+
+            // this.h_control & this._altitude
+
+            if (this.h_control){
+                this._updateCameraViewMarker_hc();
+            }else{
+                this._updateCameraViewMarker_nohc();
+            }
+
+            this._updateMeasureMarkers();
 
         },
 
@@ -285,20 +449,20 @@
         _syncMeasureMarkersToBasePoint: function(e){
 
             if (this._measureMarkers.length!=0){
-                if (this._measureBase!=this._latlng){
+                if (
+                  (this._measureBase.lat!=this._latlng.lat)&&
+                  (this._measureBase.lng!=this._latlng.lng)
+                ){
 
                     var self = this;
 
                     this._measureMarkers.forEach(function(c,i){
 
                         var p1_ll = self._latlng;
-                        var p2_ll = c.getLatLng();
-                        var l_d = Array(p1_ll,p2_ll);
+                        var p2_ll = c.__latlng;
 
-                        self._measureLines[i].setLatLngs(l_d);
+                        //self.setMarkerPoint(p2_ll,i);
 
-                        var distance = p2_ll.distanceTo(p1_ll).toFixed(1);
-                        c._tooltip.setContent(distance+' m');
                     });
 
                     this._measureBase=this._latlng;
@@ -313,7 +477,7 @@
 
                 this.draggedMarker = {
                     _index: e.target._index,
-                    _latlng: e.target._latlng
+                    _latlng: e.target.__latlng
                 };
 
                 this._map.dragging.disable();
@@ -321,8 +485,7 @@
                 this._map.off('mousemove',this._mouseMove,this);
                 this._map.off('click',this._mouseClick,this);
 
-                this._map.on('mousemove',this.moveMeasureMarker,this);
-
+                this._map.on('mousemove',this.setMarkerPoint,this);
                 this._map.on ('mouseup',this._mouseUp_M,this);
             }
 
@@ -330,7 +493,7 @@
 
         _mouseUp_M: function(){
 
-            this._map.off('mousemove',this.moveMeasureMarker,this);
+            this._map.off('mousemove',this.setMarkerPoint,this);
 
             this._map.dragging.enable();
 

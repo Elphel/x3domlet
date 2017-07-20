@@ -655,11 +655,25 @@ function leaf_mouseup(e){
     Camera._map.off('mousemove',leaf_mousemove,Camera);
     Camera._map.off('mousemove',leaf_mouseup,Camera);
 
+    //Map.dehighlightMarkers();
+    var index = Camera.draggedMarker._index;
+    var elem = $("#my-sph-"+index);
+    X3DOMObject.Marker.dehighlight(elem);
+    Map.dehighlightMarker(index);
+
     Camera.draggedMarker._index = null;
 
 }
 
 function leaf_mousemove(e){
+
+    var Camera = Map.marker;
+    if (Camera.draggedMarker._index!=null){
+      var index = Camera.draggedMarker._index;
+      var elem = $("#my-sph-"+index);
+      X3DOMObject.Marker.highlight(elem);
+      Map.highlightMarker(index);
+    }
 
     // update Scene dragged marker position
     leaf_drag_marker();
@@ -761,6 +775,8 @@ function leaf_update_x3dom_marker(p1_ll,p2_ll,index){
 
   var mark = Data.markers[index];
 
+  var hecs = Map.marker.getHCState();
+
   mark.latitude = p2_ll.lat;
   mark.longitude = p2_ll.lng;
 
@@ -774,9 +790,11 @@ function leaf_update_x3dom_marker(p1_ll,p2_ll,index){
   mark.x = dp_w.x;
   mark.z = dp_w.z;
 
-  mark.d_map = distance;
+  if(!hecs){
+    mark.d_map = distance;
+  }
 
-  X3DOMObject.Marker.place(mark.x,mark.y,mark.z,"my-sph-"+index);
+  //X3DOMObject.Marker.place(mark.x,mark.y,mark.z,"my-sph-"+index);
 
 }
 
