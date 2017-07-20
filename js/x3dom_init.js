@@ -1350,11 +1350,15 @@ X3DOMObject.createNewMarker = function(x,y,z){
 
   var Camera = Map.marker;
   // Create marker for Data
+
+  var color = SETTINGS.markercolor;
+  color = AUTOCOLORS[Data.markers.length%AUTOCOLORS.length];
+
   var mark = new X3L({
       x: parseFloat(x) || 0,
       y: parseFloat(y) || 0,
       z: parseFloat(z) || 0,
-      color: SETTINGS.markercolor,
+      color: color,
       size:  SETTINGS.markersize,
   });
 

@@ -67,6 +67,16 @@ var SETTINGS = {
 //     'kml'    : "scene.kml"
 }
 
+var AUTOCOLORS = [
+  "#f22",//red
+  "#f80",//orange
+  "#fe2",//yellow
+  "#0e0",//green
+  "#1ff",//lblue
+  "#49f",//blue
+  "#a4f" //purple
+];
+
 var MARKER_PREFIX = "my-sph-";
 
 // no comments
@@ -588,10 +598,13 @@ function leaf_events(){
 
             if (Lm!=undefined){
 
+                var color = SETTINGS.markercolor;
+                color = AUTOCOLORS[Data.markers.length%AUTOCOLORS.length];
+
                 var mark = new X3L({
                     latitude: Lm._latlng.lat,
                     longitude: Lm._latlng.lng,
-                    color: SETTINGS.markercolor,
+                    color: color,
                     size: SETTINGS.markersize,
                 });
 
