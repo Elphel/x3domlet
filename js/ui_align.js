@@ -48,6 +48,10 @@ function align_init(){
         x3dom_align_GN();
     });
 
+    $("#align_tr_button").on("click",function(){
+        x3dom_align_tr();
+    });
+
     /*
     $("#align_0").on("click",function(){
         x3dom_align_0();
@@ -378,6 +382,32 @@ function distance_error(x,y,h){
   console.log("Final sum averaged: "+sum);
 
   return sum;
+
+}
+
+function x3dom_align_tr(){
+
+  if (Data.markers.length<2){
+    console.log("Too few points");
+    return;
+  }
+
+  var mark0 = Data.markers[0];
+  var mark1 = Data.markers[1];
+
+  var v0 = { x: mark0.align.x, y: mark0.align.y, z: mark0.align.z};
+  var v1 = { x: mark1.align.x, y: mark1.align.y, z: mark1.align.z};
+
+  var dx = Math.abs(v1.x-v0.x);
+  var dy = Math.abs(v1.y-v0.y);
+  var dz = Math.abs(v1.z-v0.z);
+
+  console.log(dx+" "+dy+" "+dz);
+
+  var tilt = 180/Math.PI*Math.asin(dy/Math.sqrt(dy*dy+dz*dz));
+  var roll = 180/Math.PI*Math.asin(dy/Math.sqrt(dy*dy+dx*dx));
+
+  console.log("Tilt: "+tilt+" Roll: "+roll);
 
 }
 

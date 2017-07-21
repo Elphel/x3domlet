@@ -617,9 +617,12 @@ function leaf_events(){
 
                 p_w = x3dom_delta_map2scene(p1_ll,p2_ll);
 
-                mark.x = p_w.x;
-                mark.y = p_w.y;
-                mark.z = p_w.z;
+                //conversion to real world coordinates
+                var p_rw = xyz_to_real_world(p_w.x,p_w.y,p_w.z);
+
+                mark.x = p_rw.x;
+                mark.y = p_rw.y;
+                mark.z = p_rw.z;
 
                 mark.d_map = distance;
 
@@ -777,7 +780,7 @@ function leaf_drag_marker(){
         var index = Camera.draggedMarker._index;
 
         var p1_ll = Camera._latlng;
-        var p2_ll = Camera.draggedMarker._latlng;
+        var p2_ll = Camera.draggedMarker.__latlng;
 
         leaf_update_x3dom_marker(p1_ll,p2_ll,index);
         X3DOMObject.displayMarkInfo(index);

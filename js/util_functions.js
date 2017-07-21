@@ -78,3 +78,12 @@ function getAzimuth(p1_ll,p2_ll){
     return azimuth;
 
 }
+
+function xyz_to_real_world(x,y,z){
+
+  var R0 = Data.camera.Matrices.R0;
+  var p_w = new x3dom.fields.SFVec3f(x,y,z);
+  var p_rw = R0.multMatrixVec(p_w);
+
+  return [p_rw.x,p_rw.y,p_rw.z];
+}
