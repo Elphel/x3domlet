@@ -118,11 +118,6 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
     var p_w = new x3dom.fields.SFVec3f(x,y,z);
     var p_rw = R0.multMatrixVec(p_w);
 
-    //conversion to real world coordinates
-    x = p_rw.x;
-    y = p_rw.y;
-    z = p_rw.z;
-
     if (valid_distance){
         dist_xz = Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z);
         dist_xyz = Math.sqrt(p_rw.y*p_rw.y+dist_xz*dist_xz);
@@ -189,10 +184,6 @@ function x3dom_getCameraPosOr(round){
     ypr.roll *= 180/Math.PI;
 
     //x3dom_matrix_test();
-
-    //conversion to real world coordinates
-    var tmp = xyz_to_real_world(tr.x,tr.y,tr.z);
-    tr = new x3dom.fields.SFVec3f(tmp[0],tmp[1],tmp[2]);
 
     if (!round){
         return {
