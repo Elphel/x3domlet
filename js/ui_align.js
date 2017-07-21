@@ -43,8 +43,8 @@ function align_init(){
         //align_heading();
         //test_markers_set1();
         //if (DEBUG_ALIGN) test_markers_set1();
-        //if (DEBUG_ALIGN) test_markers_set2();
-        if (DEBUG_ALIGN) test_markers_set3();
+        if (DEBUG_ALIGN) test_markers_set2();
+        //if (DEBUG_ALIGN) test_markers_set3();
         x3dom_align_GN();
     });
 
@@ -123,61 +123,15 @@ function x3dom_align_GN(){
   var x0 = Data.camera.kml.latitude;
   var y0 = Data.camera.kml.longitude;
   var h0 = Data.camera.kml.heading;
+  var epsilon = 1e-8;
 
-  //if (h0>180) h0 = h0 - 360;
-
-  //tests
-  //test_AxB();
-  //test_At();
-  //test_AxV();
-  //test_Ainv();
-
-  var ε = 0.000000001;
-
-  var iterate = true;
-  var counter = 0;
-  var result = 0;
   var xyh = [x0,y0,(h0>180)?h0-360:h0];
 
-  while(iterate){
+  var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,r_i,[dr_dx_i,dr_dy_i,dr_dh_i],epsilon);
 
-    if (DEBUG_ALIGN){
-      // functions values
-      for(var i=0;i<Data.markers.length;i++){
-        console.log(f1_3d_i(i,xyh[0],xyh[1],xyh[2])+" - "+f2_map_i(i,xyh[0],xyh[1],xyh[2])+" = "+r_i(i,xyh[0],xyh[1],xyh[2]));
-      }
-    }
-
-    counter++;
-
-    //console.log("Interation: "+counter+" for "+xyh[0]+" "+xyh[1]+" "+xyh[2]);
-    xyh_new = GaussNewtonAlgorithm(xyh[0],xyh[1],xyh[2]);
-    //if (xyh_new[2]<-180) xyh_new[2] += 360;
-    //if (xyh_new[2]> 180) xyh_new[2] -= 360;
-
-    var s0 = sigma(xyh[0],xyh[1],xyh[2]);
-    var s1 = sigma(xyh_new[0],xyh_new[1],xyh_new[2]);
-
-    //if ((s1>s0)||((s0-s1)<ε)){
-    if (Math.abs(s0-s1)<ε){
-      iterate = false;
-    }
-
-    if(DEBUG_ALIGN){
-      console.log("Errors: "+(xyh_new[0]-xyh[0])+" "+(xyh_new[1]-xyh[1])+" "+(xyh_new[2]-xyh[2]));
-      console.log("Iteration "+counter+" result: "+xyh_new[0]+" "+xyh_new[1]+" "+xyh_new[2]);
-      console.log("Error function value: "+sigma(xyh_new[0],xyh_new[1],xyh_new[2]));
-    }
-
-    if (counter==1000){
-      iterate = false;
-    }
-
-    xyh[0] = xyh_new[0];
-    xyh[1] = xyh_new[1];
-    xyh[2] = xyh_new[2];
-
-  }
+  xyh = result.v;
+  var s1 = result.error;
+  var counter = result.count;
 
   //calc distance error
   de = distance_error(x0,y0,(h0>180)?h0-360:h0);
@@ -189,50 +143,13 @@ function x3dom_align_GN(){
 }
 
 /*
- * calc the next iteration values
- */
-function GaussNewtonAlgorithm(x,y,h){
-
-  var J = Jacobian(x,y,h);
-  var Jt = At(J);
-  var JtJ = AxB(Jt,J);
-  var JtJi = Ainv(JtJ);
-  var JtJixJt = AxB(JtJi,Jt);
-
-  var Vr = [];
-  for(var i=0;i<Data.markers.length;i++){
-    Vr[i] = r_i(i,x,y,h);
-  }
-
-  var d = AxV(JtJixJt,Vr);
-  var k = 1;
-
-  return [x-k*d[0], y-k*d[1], h-k*d[2]];
-
-}
-
-/*
- * sum of squared residuals - criterion for stopping
- */
-function sigma(x,y,h){
-
-  var sum = 0
-  for(var i=0;i<Data.markers.length;i++){
-    sum += r_i(i,x,y,h)*r_i(i,x,y,h);
-  }
-  sum = Math.sqrt(sum/Data.markers.length);
-  return sum;
-
-}
-
-/*
  * heading in degrees from 3D model
  */
-function f1_3d_i(i,x,y,h){
+function f1_3d_i(i,v){
   var base = Data.camera;
   var mark = Data.markers[i];
-  var v = new x3dom.fields.SFVec3f(mark.align.x-base.x,0,mark.align.z-base.z);
-  var res = Math.atan2(v.x,-v.z)*180/Math.PI + h;
+  var vec = new x3dom.fields.SFVec3f(mark.align.x-base.x,0,mark.align.z-base.z);
+  var res = Math.atan2(vec.x,-vec.z)*180/Math.PI + v[2];
 
   if (res> 180) res = res - 360;
   if (res<-180) res = res + 360;
@@ -243,10 +160,10 @@ function f1_3d_i(i,x,y,h){
 /*
  * heading in degrees from map
  */
-function f2_map_i(i,x,y,h){
+function f2_map_i(i,v){
 
   var mark = Data.markers[i];
-  var p1_ll = new L.LatLng(x,y);
+  var p1_ll = new L.LatLng(v[0],v[1]);
   var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
 
   //console.log(p1_ll);
@@ -275,9 +192,9 @@ function f2_map_i(i,x,y,h){
 /*
  * residuals function
  */
-function r_i(i,x,y,h){
-  var f1 = f1_3d_i(i,x,y,h);
-  var f2 = f2_map_i(i,x,y,h);
+function r_i(i,v){
+  var f1 = f1_3d_i(i,v);
+  var f2 = f2_map_i(i,v);
   //return (f1-f2+360)%360;
   return (f1-f2);
 }
@@ -285,10 +202,10 @@ function r_i(i,x,y,h){
 /*
  * dr/dx(i)
  */
-function dr_dx_i(i,x,y,h){
+function dr_dx_i(i,v){
 
   var mark = Data.markers[i];
-  var p1_ll = new L.LatLng(x,y);
+  var p1_ll = new L.LatLng(v[0],v[1]);
   var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
 
   p1_ll.lat = p1_ll.lat*Math.PI/180;
@@ -316,10 +233,10 @@ function dr_dx_i(i,x,y,h){
 /*
  * dr/dy(i)
  */
-function dr_dy_i(i,x,y,h){
+function dr_dy_i(i,v){
 
   var mark = Data.markers[i];
-  var p1_ll = new L.LatLng(x,y);
+  var p1_ll = new L.LatLng(v[0],v[1]);
   var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
 
   p1_ll.lat = p1_ll.lat*Math.PI/180;
@@ -347,175 +264,10 @@ function dr_dy_i(i,x,y,h){
 /*
  * dr/dh(i)
  */
-function dr_dh_i(i,x,y,h){
+function dr_dh_i(i,v){
   return 1;
 }
 
-/*
- * Jacobi matrix
- */
-function Jacobian(x,y,h){
-
-  var J = [];
-
-  var base = Data.camera;
-
-  for(var i=0;i<Data.markers.length;i++){
-
-    var mark = Data.markers[i];
-    J[i]=[ dr_dx_i(i,x,y,h), dr_dy_i(i,x,y,h), dr_dh_i(i,x,y,h)];
-
-    /*
-    e0 = 0.000000001;
-    e1 = 0.000000001;
-    e2 = 0.00001;
-
-    dri_dx_cal = dr_dx_i(i,x,y,h);
-    dri_dy_cal = dr_dy_i(i,x,y,h);
-    dri_dh_cal = dr_dh_i(i,x,y,h);
-
-    dri_dx_num = (r_i(i,x+e0,y   ,h   )-r_i(i,x-e0,y   ,h   ))/e0/2;
-    dri_dy_num = (r_i(i,x   ,y+e1,h   )-r_i(i,x   ,y-e1,h   ))/e1/2;
-    dri_dh_num = (r_i(i,x   ,y   ,h+e2)-r_i(i,x   ,y   ,h-e2))/e2/2;
-
-    console.log("CALC: "+dri_dx_cal.toFixed(10)+"  "+dri_dy_cal.toFixed(10)+" "+dri_dh_cal.toFixed(4));
-    console.log("NUME: "+dri_dx_num.toFixed(10)+"  "+dri_dy_num.toFixed(10)+" "+dri_dh_num.toFixed(4));
-    */
-
-  }
-
-  return J;
-}
-
-/*
- * Utility functions
- */
-
-/*
- * AxB, any dimensions
- */
-function AxB(A,B){
-
-  var m1 = A.length;
-  var n1 = A[0].length;
-
-  var m2 = B.length;
-  var n2 = B[0].length;
-
-  if(n1!=m2){
-    console.log("M=AxB: cannot multiply matrices A_"+m1+"_"+n1+" x B_"+m2+"_"+n2);
-    return [];
-  }
-
-  var R = [];
-
-  for(var i=0;i<m1;i++){
-    R[i] = [];
-    for(var j=0;j<n2;j++){
-      R[i][j] = 0;
-      for(var k=0;k<n1;k++){
-          R[i][j] += A[i][k]*B[k][j];
-      }
-    }
-  }
-
-  return R;
-
-}
-
-/*
- * Determinant for 3x3 only
- */
-function Adet(A){
-
-  var m = A.length;
-  var n = A[0].length;
-
-  if ((m!=3)||(n!=3)){
-    console.log("Matrix inverting works only for 3x3 dimension");
-  }
-
-  var M = new x3dom.fields.SFMatrix4f(
-        A[0][0],A[0][1],A[0][2],0,
-        A[1][0],A[1][1],A[1][2],0,
-        A[2][0],A[2][1],A[2][2],0,
-        0,0,0,1
-    );
-
-  return M.det();
-
-}
-
-/*
- * Inverted matrix for 3x3 only
- */
-function Ainv(A){
-
-  var m = A.length;
-  var n = A[0].length;
-
-  if ((m!=3)||(n!=3)){
-    console.log("Matrix inverting works only for 3x3 dimension");
-  }
-
-  var M = new x3dom.fields.SFMatrix4f(
-        A[0][0],A[0][1],A[0][2],0,
-        A[1][0],A[1][1],A[1][2],0,
-        A[2][0],A[2][1],A[2][2],0,
-        0,0,0,1
-    );
-  var R = M.inverse();
-
-  return [
-    [R._00,R._01,R._02],
-    [R._10,R._11,R._12],
-    [R._20,R._21,R._22]
-  ];
-}
-
-/*
- * Transposed matrix, any dimensions
- */
-function At(A){
-  var R = [];
-
-  for(var i=0;i<A[0].length;i++){
-    R[i] = [];
-    for(var j=0;j<A.length;j++){
-      R[i][j] = A[j][i];
-    }
-  }
-
-  return R;
-}
-
-/*
- * Matrix x Vector - any dimensions
- */
-function AxV(A,V){
-
-  var Vr = [];
-
-  var m1 = A.length;
-  var n1 = A[0].length;
-
-  var m2 = V.length;
-  var n2 = 1;
-
-  if (n1!=m2){
-    console.log("Matrix or vector dimension errors, too bad");
-    return [];
-  }
-
-  for(var i=0;i<m1;i++){
-    Vr[i] = 0;
-    for(var j=0;j<m2;j++){
-        Vr[i] += A[i][j]*V[j];
-    }
-  }
-
-  return Vr;
-}
 
 /*
  * ui dialog to apply or cancel results
@@ -614,7 +366,7 @@ function distance_error(x,y,h){
 
   for(var i=0;i<Data.markers.length;i++){
       var angle0 = h;
-      var angle1 = f2_map_i(i,x,y,h);
+      var angle1 = f2_map_i(i,[x,y,h]);
       var z_map = Math.cos(Math.PI/180*(angle0-angle1))*Data.markers[i].d_map;
       var z_x3d = -Data.markers[i].align.z;
       sum += 1/z_map-1/z_x3d;
@@ -645,92 +397,6 @@ function align_tilt(){
 
     console.log("tilt");
 
-}
-
-function test_Ainv(){
-
-  var A = [
-    [0,0,1],
-    [1,0,0],
-    [0,1,0]
-  ];
-
-  console.log(A);
-
-  console.log(Ainv(A));
-
-}
-
-function test_AxV(){
-
-  var A = [
-    [1,2,3,4],
-    [5,6,7,8],
-    [9,10,11,12]
-  ];
-
-  var V1 = [
-    13,
-    14,
-    15,
-    16
-  ];
-
-  var V2 = [
-    13,
-    14,
-    15
-  ];
-
-  console.log(AxV(A,V1));
-  console.log(AxV(A,V2));
-
-}
-
-function test_At(){
-
-  console.log("testing At: begin");
-
-  var A = [
-    [1,2,3,4],
-    [5,6,7,8],
-    [9,10,11,12]
-  ];
-
-  console.log(A);
-  console.log(At(A));
-
-  console.log("testing At: end");
-}
-
-function test_AxB(){
-
-  console.log("testing AxB: begin");
-
-  var A = [
-    [1,2,3,4],
-    [5,6,7,8],
-    [9,10,11,12]
-  ];
-
-  var B = [
-    [13,14,15],
-    [16,17,18],
-    [19,20,21],
-    [22,23,24],
-  ];
-
-  var C = [
-    [2,2],
-    [1,1]
-  ];
-
-  //test1: 3x4 x 4x3 = 3x3
-  console.log(AxB(A,B));
-  //test2: fail test case
-  console.log(AxB(A,C));
-
-  console.log("testing AxB: end");
 }
 
 function test_markers_set1(){
