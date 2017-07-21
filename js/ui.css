@@ -200,10 +200,25 @@ html, body, #x3d_wrapper {
     margin-bottom: 2px;
 }
 
-#align_button:hover {
+#align_tr_button{
+    background-image:url('images/ic_horizon_black_48dp_1x.png');
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+
+    background-color:white;
+    width: 32px;
+    height: 32px;
+    border: 0px solid white;
+    border-radius: 2px;
+    margin-bottom: 2px;
+}
+
+#align_button:hover, #align_tr_button:hover{
 /*     background-image:url('images/align.png'); */
     background-color: rgba(240,240,240,1);
 }
+
+
 
 .crosshair{
     background: rgba(50,200,50,0.5);
