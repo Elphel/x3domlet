@@ -22,7 +22,6 @@ $(function(){
 
             List = response;
             parse_list(response);
-            $(".arow")[0].click();
             init_dragging();
 
         }
@@ -44,6 +43,7 @@ function init_dragging(){
       bigcounter++;
       if (bigcounter==markers.length){
         actual_dragging_init()
+        $(".arow")[0].click();
       }
     });
 
@@ -102,7 +102,7 @@ function parse_list(res){
 
             var comments = $(this).find("comments").text();
 
-            var link_url = "test.html?path="+name+"&ver="+$(this).attr("name");
+            var link_url = "viewer.html?path="+name+"&ver="+$(this).attr("name");
             var link = "<a title='"+comments+"' href='"+link_url+"'>"+$(this).attr("name")+"</a>,&nbsp;";
 
             vlist += link;

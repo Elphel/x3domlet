@@ -123,6 +123,7 @@ $(function(){
 
 function title_init(){
 
+    /*
     var html = $("<div>").html("Demo");
 
     html.css({
@@ -137,6 +138,7 @@ function title_init(){
     });
 
     $("body").append(html);
+    */
 
     $("#lpl").attr("href","playloop.html?interval=100&sufx=D0.0.jpeg&path="+SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path).css({color:"white"});
 
