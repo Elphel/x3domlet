@@ -409,6 +409,11 @@ function x3dom_align_tr(){
 
   console.log("Tilt: "+tilt+" Roll: "+roll);
 
+  var epsilon = 1e-8;
+  var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,_r_i,[_dr_dx_i,_dr_dy_i,_dr_da_i],epsilon);
+
+  console.log(result);
+
 }
 
 /*
@@ -417,6 +422,80 @@ function x3dom_align_tr(){
 function align_roll(){
 
     console.log("roll");
+
+}
+
+function _f1_3d_i(i,v){
+
+  var mark = Data.markers[i];
+  var xi = mark.align.x;
+  var yi = mark.align.y;
+  var zi = mark.align.z;
+
+  var res  = -Math.cos(v[0])*Math.sin(v[1])*xi;
+      res +=  Math.cos(v[0])*Math.cos(v[1])*yi;
+      res += -Math.sin(v[0])*zi;
+
+  return res;
+
+}
+
+function _f2_map_i(i,v){
+
+  var mark = Data.markers[i];
+  return (v[2]+mark.align.altitude);
+
+}
+
+function _r_i(i,v){
+
+  var f1 = _f1_3d_i(i,v);
+  var f2 = _f2_map_i(i,v);
+  //return (f1-f2+360)%360;
+  return (f1-f2)/_l_i(i);
+}
+
+function _dr_dx_i(i,v){
+
+  var mark = Data.markers[i];
+  var xi = mark.align.x;
+  var yi = mark.align.y;
+  var zi = mark.align.z;
+
+  var res  =  Math.sin(v[0])*Math.sin(v[1])*xi;
+      res += -Math.sin(v[0])*Math.cos(v[1])*yi;
+      res += -Math.cos(v[0])*zi;
+
+  return res/_l_i(i);
+
+}
+
+function _dr_dy_i(i,v){
+
+  var mark = Data.markers[i];
+  var xi = mark.align.x;
+  var yi = mark.align.y;
+  var zi = mark.align.z;
+
+  var res  = -Math.cos(v[0])*Math.cos(v[1])*xi;
+      res += -Math.cos(v[0])*Math.sin(v[1])*yi;
+
+  return res/_l_i(i);
+
+}
+
+function _dr_da_i(i,v){
+  return 1;
+}
+
+function _l_i(i){
+
+  var mark = Data.markers[i];
+  var xi = mark.align.x;
+  var yi = mark.align.y;
+  var zi = mark.align.z;
+
+  return Math.sqrt(xi*xi+yi*yi+zi*zi);
 
 }
 

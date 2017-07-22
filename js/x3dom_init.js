@@ -1381,6 +1381,7 @@ X3DOMObject.createNewMarker = function(x,y,z){
   mark.align = {
     latitude: 0,
     longitude: 0,
+    altitude: 0,
     x: mark.x,
     y: mark.y,
     z: mark.z

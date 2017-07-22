@@ -626,6 +626,7 @@ function leaf_events(){
                 mark.align = {
                   latitude: mark.latitude,
                   longitude: mark.longitude,
+                  altitude: 0,
                   x: 0,
                   y: 0,
                   z: 0
@@ -788,6 +789,8 @@ function leaf_drag_marker(){
 
 function leaf_update_x3dom_marker(p1_ll,p2_ll,index){
 
+  var Camera = Map.marker;
+
   var mark = Data.markers[index];
 
   var hecs = Map.marker.getHCState();
@@ -797,6 +800,7 @@ function leaf_update_x3dom_marker(p1_ll,p2_ll,index){
 
   mark.align.latitude = mark.latitude;
   mark.align.longitude = mark.longitude;
+  mark.align.altitude = Camera._measureMarkers[index]._altitude;
 
   var distance = p1_ll.distanceTo(p2_ll);
 
