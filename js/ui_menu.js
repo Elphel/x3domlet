@@ -60,6 +60,13 @@ function menu_init(){
         menu.show();
     });
 
+    $("#exit_button").on("click",function(){
+      var origin = window.location.origin;
+      var path = window.location.pathname;
+      path = path.substr(0,path.lastIndexOf("/"));
+      window.location.href = origin+path;
+    });
+
     // changing a checkbox will not close menu
     menu.on('click',function(e){
         var test = $(e.target).hasClass("donothide");
