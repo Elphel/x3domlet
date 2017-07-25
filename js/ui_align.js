@@ -45,11 +45,11 @@ function align_init(){
         //if (DEBUG_ALIGN) test_markers_set1();
         if (DEBUG_ALIGN) test_markers_set2();
         //if (DEBUG_ALIGN) test_markers_set3();
-        x3dom_align_GN();
+        x3dom_align_hll();
     });
 
     $("#align_tr_button").on("click",function(){
-        x3dom_align_tr();
+        x3dom_align_art();
     });
 
     /*
@@ -100,7 +100,7 @@ function check_markers(){
 /*
  * run the Gauss-Newton algorithm iterations
  */
-function x3dom_align_GN(){
+function x3dom_align_hll(){
 
   // need at least 3 points
   if (Data.markers != undefined){
@@ -131,7 +131,7 @@ function x3dom_align_GN(){
 
   var xyh = [x0,y0,(h0>180)?h0-360:h0];
 
-  var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,r_i,[dr_dx_i,dr_dy_i,dr_dh_i],epsilon);
+  var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll_r_i,[hll_dr_dx_i,hll_dr_dy_i,hll_dr_dh_i],epsilon);
 
   xyh = result.v;
   var s1 = result.error;
@@ -145,133 +145,6 @@ function x3dom_align_GN(){
   apply_alignment_dialog([x0,y0,h0],xyh,counter,s1,de);
 
 }
-
-/*
- * heading in degrees from 3D model
- */
-function f1_3d_i(i,v){
-  var base = Data.camera;
-  var mark = Data.markers[i];
-  var vec = new x3dom.fields.SFVec3f(mark.align.x-base.x,0,mark.align.z-base.z);
-  var res = Math.atan2(vec.x,-vec.z)*180/Math.PI + v[2];
-
-  if (res> 180) res = res - 360;
-  if (res<-180) res = res + 360;
-
-  return res;
-}
-
-/*
- * heading in degrees from map
- */
-function f2_map_i(i,v){
-
-  var mark = Data.markers[i];
-  var p1_ll = new L.LatLng(v[0],v[1]);
-  var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
-
-  //console.log(p1_ll);
-  //console.log(p2_ll);
-
-  p1_ll.lat = p1_ll.lat*Math.PI/180;
-  p1_ll.lng = p1_ll.lng*Math.PI/180;
-
-  p2_ll.lat = p2_ll.lat*Math.PI/180;
-  p2_ll.lng = p2_ll.lng*Math.PI/180;
-
-  var dlat = p2_ll.lat-p1_ll.lat;
-  var dlon = p2_ll.lng-p1_ll.lng;
-
-  var dy = Math.sin(dlon)*Math.cos(p2_ll.lat);
-  var dx = Math.cos(p1_ll.lat)*Math.sin(p2_ll.lat)-Math.sin(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.cos(dlon);
-
-  //console.log("dy = "+dy+" dx = "+dx);
-
-  var res = 180/Math.PI*Math.atan2(dy,dx);
-
-  return res;
-
-}
-
-/*
- * residuals function
- */
-function r_i(i,v){
-  var f1 = f1_3d_i(i,v);
-  var f2 = f2_map_i(i,v);
-  //return (f1-f2+360)%360;
-  return (f1-f2);
-}
-
-/*
- * dr/dx(i)
- */
-function dr_dx_i(i,v){
-
-  var mark = Data.markers[i];
-  var p1_ll = new L.LatLng(v[0],v[1]);
-  var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
-
-  p1_ll.lat = p1_ll.lat*Math.PI/180;
-  p1_ll.lng = p1_ll.lng*Math.PI/180;
-
-  p2_ll.lat = p2_ll.lat*Math.PI/180;
-  p2_ll.lng = p2_ll.lng*Math.PI/180;
-
-  var dlat = p2_ll.lat-p1_ll.lat;
-  var dlon = p2_ll.lng-p1_ll.lng;
-
-  var dy = Math.sin(dlon)*Math.cos(p2_ll.lat);
-  var dx = Math.cos(p1_ll.lat)*Math.sin(p2_ll.lat)-Math.sin(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.cos(dlon);
-
-  var dydx = 0;
-  var dxdx = (-Math.sin(p1_ll.lat)*Math.sin(p2_ll.lat)-Math.cos(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.cos(dlon))*Math.PI/180;
-
-  var Arg = dy/dx;
-
-  var res = -180/Math.PI*1/(1+Math.pow(Arg,2))*(-dy*dxdx)/Math.pow(dx,2);
-
-  return res;
-
-}
-/*
- * dr/dy(i)
- */
-function dr_dy_i(i,v){
-
-  var mark = Data.markers[i];
-  var p1_ll = new L.LatLng(v[0],v[1]);
-  var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
-
-  p1_ll.lat = p1_ll.lat*Math.PI/180;
-  p1_ll.lng = p1_ll.lng*Math.PI/180;
-
-  p2_ll.lat = p2_ll.lat*Math.PI/180;
-  p2_ll.lng = p2_ll.lng*Math.PI/180;
-
-  var dlat = p2_ll.lat-p1_ll.lat;
-  var dlon = p2_ll.lng-p1_ll.lng;
-
-  var dy = Math.sin(dlon)*Math.cos(p2_ll.lat);
-  var dx = Math.cos(p1_ll.lat)*Math.sin(p2_ll.lat)-Math.sin(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.cos(dlon);
-
-  var dydy = Math.cos(p2_ll.lat)*Math.cos(dlon)*(-1)*Math.PI/180;
-  var dxdy = -Math.sin(p1_ll.lat)*Math.cos(p2_ll.lat)*(-1)*Math.sin(dlon)*(-1)*Math.PI/180;
-
-  var Arg = dy/dx;
-
-  var res = -180/Math.PI*1/(1+Math.pow(Arg,2))*(dydy*dx-dy*dxdy)/Math.pow(dx,2);
-
-  return res;
-
-}
-/*
- * dr/dh(i)
- */
-function dr_dh_i(i,v){
-  return 1;
-}
-
 
 /*
  * ui dialog to apply or cancel results
@@ -370,7 +243,7 @@ function distance_error(x,y,h){
 
   for(var i=0;i<Data.markers.length;i++){
       var angle0 = h;
-      var angle1 = f2_map_i(i,[x,y,h]);
+      var angle1 = hll_f_map_i(i,[x,y,h]);
       var z_map = Math.cos(Math.PI/180*(angle0-angle1))*Data.markers[i].d_map;
       var z_x3d = -Data.markers[i].align.z;
       sum += 1/z_map-1/z_x3d;
@@ -385,32 +258,20 @@ function distance_error(x,y,h){
 
 }
 
-function x3dom_align_tr(){
+/**
+ * Tilt, roll and relative height
+ */
+function x3dom_align_art(){
+
+  //test_height_alignment_set1();
 
   if (Data.markers.length<2){
     console.log("Too few points");
     return;
   }
 
-  var mark0 = Data.markers[0];
-  var mark1 = Data.markers[1];
-
-  var v0 = { x: mark0.align.x, y: mark0.align.y, z: mark0.align.z};
-  var v1 = { x: mark1.align.x, y: mark1.align.y, z: mark1.align.z};
-
-  var dx = Math.abs(v1.x-v0.x);
-  var dy = Math.abs(v1.y-v0.y);
-  var dz = Math.abs(v1.z-v0.z);
-
-  console.log(dx+" "+dy+" "+dz);
-
-  var tilt = 180/Math.PI*Math.asin(dy/Math.sqrt(dy*dy+dz*dz));
-  var roll = 180/Math.PI*Math.asin(dy/Math.sqrt(dy*dy+dx*dx));
-
-  console.log("Tilt: "+tilt+" Roll: "+roll);
-
   var epsilon = 1e-8;
-  var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,_r_i,[_dr_dx_i,_dr_dy_i,_dr_da_i],epsilon);
+  var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,art_r_i,[art_dr_dx_i,art_dr_dy_i,art_dr_da_i],epsilon);
 
   console.log(result);
 
@@ -425,79 +286,7 @@ function align_roll(){
 
 }
 
-function _f1_3d_i(i,v){
 
-  var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
-
-  var res  = -Math.cos(v[0])*Math.sin(v[1])*xi;
-      res +=  Math.cos(v[0])*Math.cos(v[1])*yi;
-      res += -Math.sin(v[0])*zi;
-
-  return res;
-
-}
-
-function _f2_map_i(i,v){
-
-  var mark = Data.markers[i];
-  return (v[2]+mark.align.altitude);
-
-}
-
-function _r_i(i,v){
-
-  var f1 = _f1_3d_i(i,v);
-  var f2 = _f2_map_i(i,v);
-  //return (f1-f2+360)%360;
-  return (f1-f2)/_l_i(i);
-}
-
-function _dr_dx_i(i,v){
-
-  var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
-
-  var res  =  Math.sin(v[0])*Math.sin(v[1])*xi;
-      res += -Math.sin(v[0])*Math.cos(v[1])*yi;
-      res += -Math.cos(v[0])*zi;
-
-  return res/_l_i(i);
-
-}
-
-function _dr_dy_i(i,v){
-
-  var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
-
-  var res  = -Math.cos(v[0])*Math.cos(v[1])*xi;
-      res += -Math.cos(v[0])*Math.sin(v[1])*yi;
-
-  return res/_l_i(i);
-
-}
-
-function _dr_da_i(i,v){
-  return 1;
-}
-
-function _l_i(i){
-
-  var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
-
-  return Math.sqrt(xi*xi+yi*yi+zi*zi);
-
-}
 
 /*
  * not used
@@ -550,3 +339,91 @@ function test_markers_set3(){
   ];
 
 }
+
+function test_height_alignment_set1(){
+
+  Data.markers = [
+    // mark 1
+    {
+      d_map:59.51564928339807,
+      d_x3d:58.313592803937226,
+      align:{
+        altitude: -13.5,
+        latitude: 40.723442371919724,
+        longitude: -111.93217635154726,
+        x: 23.459612763633526,
+        y: -16.16174219091789,
+        z: -53.38653083581816
+      }
+    },
+    // mark 2
+    {
+      d_map:33.27803820582991,
+      d_x3d:33.751031067385306,
+      align:{
+        altitude: -13.5,
+        latitude: 40.72351402663441,
+        longitude: -111.9325089454651,
+        x: 3.874545773959316,
+        y: -14.990277738492225,
+        z: -33.52789872862751
+      }
+    },
+    // mark 3
+    {
+      d_map:190.2700432380853,
+      d_x3d:182.86147956244875,
+      align:{
+        altitude: -13.5,
+        latitude: 40.72385908620143,
+        longitude: -111.93070113658906,
+        x: 37.888760344786206,
+        y: -21.838175845671834,
+        z: -178.89315958779198
+      }
+    },
+    // mark 4
+    {
+      d_map:123.91365898007855,
+      d_x3d:121.69257093022782,
+      align:{
+        altitude: -11.5,
+        latitude: 40.724090818868255,
+        longitude: -111.93171232938768,
+        x: -22.176096746469145,
+        y: -16.83997830234069,
+        z: -119.65493116750253
+      }
+    }
+
+  ];
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
