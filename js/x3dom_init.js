@@ -1242,6 +1242,7 @@ X3DOMObject.displayViewInfo = function(e){
 
     var camera = x3dom_getCameraPosOr(true);
 
+    /* do not convert
     //convert to real world coordinates
     var tmp = xyz_to_real_world(mouse.x,mouse.y,mouse.z);
 
@@ -1254,6 +1255,7 @@ X3DOMObject.displayViewInfo = function(e){
     camera.x = tmp.x.toFixed(2);
     camera.y = tmp.y.toFixed(2);
     camera.z = tmp.z.toFixed(2);
+    */
 
     // ?!!!
     //Map.marker.setAltitude(camera.y);

@@ -65,6 +65,13 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
 
     var valid_distance = true;
 
+    // check infinity shape
+    if (shootRay.pickPosition != null){
+      if ($(shootRay.pickObject).hasClass('INFINITY')){
+        shootRay.pickPosition = null;
+      }
+    }
+
     if (shootRay.pickPosition != null){
 
         var index = Scene.highlighted_marker_index;
@@ -97,8 +104,8 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
         }
 
         dist_xyz = Math.sqrt(y*y+dist_xz*dist_xz);
-
         id = $(shootRay.pickObject).attr("id");
+
 
     }else{
 

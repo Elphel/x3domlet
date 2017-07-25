@@ -199,7 +199,7 @@ function light_init(){
 
     var model = $([
         '<group>',
-        '    <inline name="mymodel" namespacename="mymodel" url="'+model_url+'"></inline>',
+        '    <inline name="x3d" namespacename="x3d" url="'+model_url+'"></inline>',
         '</group>'
       ].join('\n'));
 
