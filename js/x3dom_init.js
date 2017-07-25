@@ -62,6 +62,7 @@ var X3DOMObject = function(element,data,options){
     this.old_view_translation = null;
 
     // status vars
+    this._X3DOM_SCENE_INIT_BACK_DONE = false;
     this._X3DOM_SCENE_INIT_DONE = false;
     this._ctrlKey = false;
     this._shiftKey = false;

@@ -61,8 +61,7 @@ var SETTINGS = {
     'edit': false,
     'files': {
       'x3d':"",
-      'x3d_background':"",
-      'kml':"",
+      'kml':""
     }
 //     'kml'    : "scene.kml"
 }
@@ -109,7 +108,6 @@ $(function(){
     parseURL();
 
     SETTINGS.files.x3d = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
-    SETTINGS.files.x3d_background = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+"-texture-bgnd-ext.jpeg";
     // always reload kml
     SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml";
 
@@ -144,6 +142,54 @@ function title_init(){
 
 }
 
+function background_check(){
+
+  var mback = $("#x3d_id").find("scene").find("Background");
+  return (mback.length>0);
+
+}
+
+function background_init(){
+
+    var x3delement = $("#x3d_id").find("scene");
+    //var model_back_url = SETTINGS.files.x3d_background;
+    var model_back_url = "";
+
+    var mback = $("#x3d_id").find("scene").find("Background");
+
+    if (mback.length>0){
+      frontUrl = mback.attr('frontUrl');
+      if (frontUrl.length!=0){
+        model_back_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+frontUrl;
+      }
+    }
+
+    if (model_back_url!=""){
+      mback.remove();
+      var model = $([
+          '<group>',
+          '    <Background ',
+          '        id="Background"',
+          '        class="Background"',
+          '        backUrl=  "js/images/background_side.jpeg"',
+          '        bottomUrl="js/images/background_floor.jpeg"',
+          '        frontUrl= "'+model_back_url+'"',
+          '        leftUrl=  "js/images/background_side.jpeg"',
+          '        rightUrl= "js/images/background_side.jpeg"',
+          '        topUrl=   "js/images/background_sky.jpeg">',
+          '    </Background>',
+          '</group>'
+        ].join('\n'));
+
+      x3delement.append(model);
+      //set sensitivity
+    }else{
+      $("#shiftspeed").val(0.0005);
+      $("#shiftspeed").change();
+    }
+
+}
+
 function light_init(){
 
     var x3delement = $("#x3d_id").find("scene");
@@ -154,22 +200,11 @@ function light_init(){
     var model = $([
         '<group>',
         '    <inline name="mymodel" namespacename="mymodel" url="'+model_url+'"></inline>',
-        '</group>',
-        '<group>',
-        '    <Background ',
-        '        id="Background"',
-        '        class="Background"',
-        '        backUrl=  "js/images/background_side.jpeg"',
-        '        bottomUrl="js/images/background_floor.jpeg"',
-        '        frontUrl= "'+model_back_url+'"',
-        '        leftUrl=  "js/images/background_side.jpeg"',
-        '        rightUrl= "js/images/background_side.jpeg"',
-        '        topUrl=   "js/images/background_sky.jpeg">',
-        '    </Background>',
         '</group>'
       ].join('\n'));
 
     x3delement.append(model);
+
 
     $.ajax({
         url: SETTINGS.files.kml+"?"+Date.now(),
@@ -225,6 +260,7 @@ function light_init(){
 
                     map_resize_init();
                     deep_init();
+
                     //align_init();
                     x3d_initial_camera_placement();
                     Scene.resize();
@@ -357,6 +393,17 @@ function deep_init(){
         progress_counter = progress_counter.split(" ");
         cnt = parseInt(progress_counter[1]);
 
+        if (!Scene._X3DOM_SCENE_INIT_BACK_DONE){
+          //console.log(cnt+" "+background_check());
+
+          var bc = background_check();
+          if (bc){
+            background_init();
+            Scene._X3DOM_SCENE_INIT_BACK_DONE = true;
+          }
+
+        }
+
         if (!Scene._X3DOM_SCENE_INIT_DONE&&(cnt==0)){
 
             //Scene.initResize();
@@ -365,7 +412,7 @@ function deep_init(){
             Scene.ShapeEvents();
 
             Scene._X3DOM_SCENE_INIT_DONE = true;
-
+            Scene._X3DOM_SCENE_INIT_BACK_DONE = true;
         }
     };
 
