@@ -60,6 +60,10 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
 
     //console.log("That event:");
     //console.log(Scene._stored_x3dom_event);
+    var campos = x3dom_getCameraPosOr();
+    var xc = campos.x;
+    var yc = campos.y;
+    var zc = campos.z;
 
     var shootRay = elem.runtime.shootRay(cnvx,cnvy);
 
@@ -89,7 +93,13 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
             y = shootRay.pickPosition.y;
             z = shootRay.pickPosition.z;
 
-            dist_xz  = Math.sqrt(x*x+z*z);
+            var xyz = zNear_bug_correction([x,y,z]);
+
+            x = xyz[0];
+            y = xyz[1];
+            z = xyz[2];
+
+            dist_xz  = Math.sqrt(Math.pow(x-xc,2)+Math.pow(z-zc,2));
 
         }else{
 
@@ -99,11 +109,11 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
 
             dist_xz  = Data.markers[index].d_x3d;
             if (isNaN(dist_xz)){
-                dist_xz  = Math.sqrt(x*x+z*z);
+                dist_xz  = Math.sqrt(Math.pow(x-xc,2)+Math.pow(z-zc,2));;
             }
         }
 
-        dist_xyz = Math.sqrt(y*y+dist_xz*dist_xz);
+        dist_xyz = Math.sqrt(Math.pow(y-yc,2)+Math.pow(dist_xz,2));
         id = $(shootRay.pickObject).attr("id");
 
 
@@ -211,6 +221,28 @@ function x3dom_getCameraPosOr(round){
             s: ypr.roll.toFixed(1)
         };
     }
+
+}
+
+/**
+ * Fix a bug with zNear in x3dom 1.7.2
+ */
+function zNear_bug_correction(xyz){
+
+  var zNear = Scene.element.runtime.viewpoint().getNear();
+
+  var x = xyz[0];
+  var y = xyz[1];
+  var z = xyz[2];
+
+  var z1 = z + zNear;
+  var zratio = z1/z;
+
+  x = zratio*x;
+  y = zratio*y;
+  z = z1;
+
+  return [x,y,z];
 
 }
 

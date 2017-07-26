@@ -55,7 +55,9 @@
       <x3d id="x3d_id" width='1600px' height='800px' showProgress="true" showStat="false" showLog="false" disableDoubleClick="true" keysEnabled="true">
         <scene>
           <navigationInfo id="navInfo" type='"examine"' speed='0.01'></navigationInfo>
-          <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0'></Viewpoint>
+          <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0' ></Viewpoint>
+          <!-- in x3dom 1.7.2 - big zNear does not work properly -->
+          <!--<Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0' zNear='2'></Viewpoint>-->
 <!--          <group>
             <inline name="back" namespacename="back" url="models/m1/v1/background.x3d"/>
           </group>-->

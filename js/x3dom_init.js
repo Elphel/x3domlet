@@ -305,6 +305,12 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
         var y = e.originalEvent.worldY;
         var z = e.originalEvent.worldZ;
 
+        var xyz = zNear_bug_correction([x,y,z]);
+
+        x = xyz[0];
+        y = xyz[1];
+        z = xyz[2];
+
         // (not used atm) store x3dom event to use in normal events
         self._stored_x3dom_event = e.originalEvent;
 
@@ -547,6 +553,13 @@ X3DOMObject.Marker.prototype.init = function(){
                 x = sr.pickPosition.x;
                 y = sr.pickPosition.y;
                 z = sr.pickPosition.z;
+
+                var xyz = zNear_bug_correction([x,y,z]);
+
+                x = xyz[0];
+                y = xyz[1];
+                z = xyz[2];
+
                 d1 = Math.sqrt(x*x+z*z);
 
                 if ((d1-d0)<0.1){
@@ -879,10 +892,13 @@ X3DOMObject.Marker.mouseMove = function(event){
                     var sphere = Scene.draggedTransformNode.parent().parent();
                     var index = parseInt(sphere.attr("id").substr(7));
 
-                    X3DOMObject.Marker.place(sr.pickPosition.x,sr.pickPosition.y,sr.pickPosition.z,"my-sph-"+index);
+                    var xyz = [sr.pickPosition.x,sr.pickPosition.y,sr.pickPosition.z];
+                    xyz = zNear_bug_correction(xyz);
+
+                    X3DOMObject.Marker.place(xyz[0],xyz[1],xyz[2],"my-sph-"+index);
                     //console.log("got shape");
                     //Scene.draggedTransformNode
-                    X3DOMObject.Marker.slide(index,sr.pickPosition.x,sr.pickPosition.y,sr.pickPosition.z);
+                    X3DOMObject.Marker.slide(index,xyz[0],xyz[1],xyz[2]);
 
                     X3DOMObject.displayInfo(event);
                     X3DOMObject.displayViewInfo(event);
