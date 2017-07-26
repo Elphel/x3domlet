@@ -317,9 +317,7 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
         if (self._ctrlKey||SETTINGS.pointer){
 
             // place pointer marker
-            $("#sliding_sphere").find('material').attr("diffuseColor",convert_color_l2x(SETTINGS.markercolor));
-            $("#sliding_sphere").find('material').attr("transparency","0.2");
-            $("#sliding_sphere").find('Sphere').attr("radius",SETTINGS.markersize/2);
+            X3DOMObject.PointerMarker.updatePars();
 
             X3DOMObject.Marker.place(x,y,z,"sliding_sphere");
             $("#sliding_sphere").find("switch").attr("whichChoice",0);
@@ -362,7 +360,17 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
 
         if (self._ctrlKey){
 
-          X3DOMObject.createNewMarker(e.originalEvent.worldX,e.originalEvent.worldY,e.originalEvent.worldZ);
+          var x = e.originalEvent.worldX;
+          var y = e.originalEvent.worldY;
+          var z = e.originalEvent.worldZ;
+
+          var xyz = zNear_bug_correction([x,y,z]);
+
+          x = xyz[0];
+          y = xyz[1];
+          z = xyz[2];
+
+          X3DOMObject.createNewMarker(x,y,z);
 
         }
 
@@ -451,6 +459,9 @@ X3DOMObject.Shape.deselect = function(elem){
 
 }
 
+/**
+ * Create marker at x,y,z (need global)
+ */
 X3DOMObject.prototype.createMarker = function(x,y,z,id){
 
     var self = this;
@@ -530,6 +541,7 @@ X3DOMObject.Marker = function(x,y,z,ylevel){
 
 X3DOMObject.Marker.prototype.init = function(){
 
+    // this branch is experimental and inactive
     if (this._ylevel){
 
         //console.log(this._x+" "+this._y+" "+this._z);
@@ -572,81 +584,6 @@ X3DOMObject.Marker.prototype.init = function(){
 
         }
 
-        /*
-        //var from = new x3dom.fields.SFVec3f(this._x, 100, this._z);
-        var from = new x3dom.fields.SFVec3f(0, 0, 0);
-        //var at   = new x3dom.fields.SFVec3f(this._x, -100, this._z);
-        var dir =  new x3dom.fields.SFVec3f(0, -0, -1);//at.subtract(from);
-        // dir gets auto normalized
-        var vray = new x3dom.fields.Ray(from, dir);
-
-        //var vray = Scene.element.runtime.getViewingRay(0,0);
-
-        console.log(vray);
-
-
-        var scene = Scene.element.runtime.canvas.doc._scene;
-        var info  = Scene.element.runtime.canvas.doc._viewarea._pickingInfo;
-
-        console.log(Scene.element.runtime.pickMode());
-        //console.log(Scene.element.runtime.changePickMode('idbuf'));
-        //console.log(Scene.element.runtime.changePickMode('color'));
-        console.log(Scene.element.runtime.changePickMode('texcoord'));
-        //console.log(Scene.element.runtime.changePickMode('box'));
-        console.log(Scene.element.runtime.pickMode());
-
-
-        var isect = scene.doIntersect(vray);
-
-        console.log(info);
-
-        console.log("vr");
-        console.log(vray);
-
-        if (vray.hitObject!=null){
-            console.log($(vray.hitObject._xmlNode).parent().find("ImageTexture").attr("url"));
-            var el = $(vray.hitObject._xmlNode).parent();
-            var bbox = Scene.element.runtime.getSceneBBox();
-            console.log(bbox);
-
-            this._x = vray.hitPoint.x;
-            this._y = vray.hitPoint.y;
-            this._z = vray.hitPoint.z;
-        }
-        */
-        /*
-        // sane output
-        console.log("scene bbox");
-        var bbox = Scene.element.runtime.getSceneBBox();
-        console.log(bbox);
-        */
-
-        /*
-        var sr = Scene.element.runtime.shootRay(1000,450);
-
-        console.log("sr");
-        console.log(sr);
-        */
-
-        /*
-        //while(vray.hitPoint.y>-100){
-        var n=0;
-        while(n<1000){
-
-            var from = new x3dom.fields.SFVec3f(vray.hitPoint.x,vray.hitPoint.y-0.1,vray.hitPoint.z);
-            var at   = new x3dom.fields.SFVec3f(vray.hitPoint.x, -100, vray.hitPoint.z);
-            var dir =  at.subtract(from).normalize();
-            var vray = new x3dom.fields.Ray(from, dir);
-            var isect = scene.doIntersect(vray);
-            console.log(vray);
-            n++;
-
-        }
-        */
-
-        //do intersect
-        //hitobject
-        //get y
     }
 
     this._elem = Scene.createMarker(this._x,this._y,this._z);
@@ -892,6 +829,7 @@ X3DOMObject.Marker.mouseMove = function(event){
                     var sphere = Scene.draggedTransformNode.parent().parent();
                     var index = parseInt(sphere.attr("id").substr(7));
 
+                    // zNear bug correction
                     var xyz = [sr.pickPosition.x,sr.pickPosition.y,sr.pickPosition.z];
                     xyz = zNear_bug_correction(xyz);
 
@@ -932,7 +870,13 @@ X3DOMObject.Marker.drag = function(dx,dy){
 
 X3DOMObject.Marker.slide = function(index,x,y,z){
 
-    var da = x3dom_getDistAngle(x,y,z);
+    // camera coordinates, not correcting with zNear
+    var campos = x3dom_getCameraPosOr();
+    xc = campos.x;
+    yc = campos.y;
+    zc = campos.z;
+
+    var da = x3dom_getDistAngle(x-xc,y-yc,z-zc);
     var distance = da[0];
     var angle = da[1];
 
@@ -1010,6 +954,15 @@ X3DOMObject.PointerMarker.prototype._init = function(){
     this._registerEvents();
 
     this._elem.find("switch").attr("whichChoice",-1);
+
+}
+
+X3DOMObject.PointerMarker.updatePars = function(){
+
+  // place pointer marker
+  $("#sliding_sphere").find('material').attr("diffuseColor",convert_color_l2x(SETTINGS.markercolor));
+  $("#sliding_sphere").find('material').attr("transparency","0.2");
+  $("#sliding_sphere").find('Sphere').attr("radius",SETTINGS.markersize/2);
 
 }
 
@@ -1413,7 +1366,14 @@ X3DOMObject.createNewMarker = function(x,y,z){
   // Create marker on the scene
   new X3DOMObject.Marker(mark.x,mark.y,mark.z);
 
-  var da = x3dom_getDistAngle(mark.x,mark.y,mark.z);
+  // camera coordinates, not correcting with zNear
+  var campos = x3dom_getCameraPosOr();
+  xc = campos.x;
+  yc = campos.y;
+  zc = campos.z;
+
+  // calculate relative to the camera base
+  var da = x3dom_getDistAngle(mark.x-xc,mark.y-yc,mark.z-zc);
   var distance = da[0];
   var angle = da[1];
 

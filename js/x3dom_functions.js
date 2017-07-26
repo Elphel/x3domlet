@@ -52,22 +52,25 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
     var elem = Scene.element;
 
     var x,y,z;
+    var xc,yc,zc;
+
     var az,el,sk;
     var id;
 
     var dist_xyz = 1112;
     var dist_xz = 1113;
 
-    //console.log("That event:");
-    //console.log(Scene._stored_x3dom_event);
+    var valid_distance;
+
+    // camera coordinates, not correcting with zNear
     var campos = x3dom_getCameraPosOr();
-    var xc = campos.x;
-    var yc = campos.y;
-    var zc = campos.z;
+    xc = campos.x;
+    yc = campos.y;
+    zc = campos.z;
 
+    // shoot ray based on canvas coordinates
+    // if hits a shape  > .pickPosition and .pickObject
     var shootRay = elem.runtime.shootRay(cnvx,cnvy);
-
-    var valid_distance = true;
 
     // check infinity shape
     if (shootRay.pickPosition != null){
@@ -80,75 +83,70 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
 
         var index = Scene.highlighted_marker_index;
 
+        // didn't hit a marker?
         if (index==null){
+            // some marker being dragged but the mouse is not over it. If yes - update index
             if ((Scene.draggedTransformNode!=undefined)&&(Scene.draggedTransformNode!=null)){
                 var sphere = Scene.draggedTransformNode.parent().parent();
                 index = parseInt(sphere.attr("id").substr(7));
             }
         }
 
+        // didn't hit marker
         if ((index==null)||(Data.markers[index]==undefined)){
 
-            x = shootRay.pickPosition.x;
-            y = shootRay.pickPosition.y;
-            z = shootRay.pickPosition.z;
-
-            var xyz = zNear_bug_correction([x,y,z]);
-
+            // needs zNear bug correction
+            var xyz = zNear_bug_correction([shootRay.pickPosition.x,shootRay.pickPosition.y,shootRay.pickPosition.z]);
             x = xyz[0];
             y = xyz[1];
             z = xyz[2];
 
-            //dist_xz  = Math.sqrt(Math.pow(x-xc,2)+Math.pow(z-zc,2));
-
         }else{
 
+            // zNear bug is already corrected
             x = Data.markers[index].x;
             y = Data.markers[index].y;
             z = Data.markers[index].z;
 
-            /*
-            dist_xz  = Data.markers[index].d_x3d;
-            if (isNaN(dist_xz)){
-                dist_xz  = Math.sqrt(Math.pow(x-xc,2)+Math.pow(z-zc,2));;
-            }
-            */
         }
 
-        //dist_xyz = Math.sqrt(Math.pow(y-yc,2)+Math.pow(dist_xz,2));
         id = $(shootRay.pickObject).attr("id");
+
+        valid_distance = true;
 
     }else{
 
+        // returns a |1| viewing direction based on canvas coordinates
         var viewingRay = elem.runtime.getViewingRay(cnvx,cnvy);
 
         x = viewingRay.dir.x;
         y = viewingRay.dir.y;
         z = viewingRay.dir.z;
 
-        //dist_xz = null;
-        //dist_xyz = null;
-
         valid_distance = false;
+
     }
 
+    // to get XZ(horizontal) distance - convert to real world coordinates
     var R0 = Data.camera.Matrices.R0;
     var p_w = new x3dom.fields.SFVec3f(x-xc,y-yc,z-zc);
     var p_rw = R0.multMatrixVec(p_w);
 
     if (valid_distance){
-        dist_xz = Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z);
-        dist_xyz = Math.sqrt(p_rw.y*p_rw.y+dist_xz*dist_xz);
+        dist_xz  = Math.sqrt(Math.pow(p_rw.x,2)+Math.pow(p_rw.z,2));
+        dist_xyz = Math.sqrt(Math.pow(p_rw.y,2)+Math.pow(dist_xz,2));
     }else{
         dist_xz = null;
         dist_xyz = null;
     }
 
+    // azimuth, elevation and skew are relative to the camera location
     az = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
     az = (az+360)%360;
     el = Math.atan2(p_rw.y,Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z))*180/Math.PI;
     sk = 0;
 
+    // fill out the output
     var result = {
         x: !round? x : x.toFixed(2),
         y: !round? y : y.toFixed(2),
@@ -180,8 +178,6 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
  */
 function x3dom_getCameraPosOr(round){
 
-    //console.log("Getting PosOr");
-
     var elem = Scene.element;
 
     var m = elem.runtime.viewMatrix().inverse();
@@ -203,20 +199,24 @@ function x3dom_getCameraPosOr(round){
 
     //x3dom_matrix_test();
 
+    var x = tr.x;
+    var y = tr.y;
+    var z = tr.z;
+
     if (!round){
         return {
-            x: tr.x,
-            y: tr.y,
-            z: tr.z,
+            x: x,
+            y: y,
+            z: z,
             a: ypr.yaw,
             e: ypr.pitch,
             s: ypr.roll
         };
     }else{
         return {
-            x: tr.x.toFixed(2),
-            y: tr.y.toFixed(2),
-            z: tr.z.toFixed(2),
+            x: x.toFixed(2),
+            y: y.toFixed(2),
+            z: z.toFixed(2),
             a: ypr.yaw.toFixed(1),
             e: ypr.pitch.toFixed(1),
             s: ypr.roll.toFixed(1)
@@ -244,6 +244,7 @@ function zNear_bug_correction(xyz){
   z = z1;
 
   return [x,y,z];
+  //return xyz;
 
 }
 

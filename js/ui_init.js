@@ -51,7 +51,7 @@ var SETTINGS = {
     'moreinfo':  true,
     'crosshair': false,
     'shiftspeed' : 0.01,
-    'markersize' : 2,
+    'markersize' : 1,
     'markercolor': "#1f1",
     'slidingdrag': true,
     'basepath': "models",
@@ -474,8 +474,7 @@ function x3d_events(){
 
     elem.addEventListener('keydown',function(e){
 
-        //console.log("scene keydown");
-
+        // 'shift' is for shapes toggling
         if ((e.key=="Shift")||(SETTINGS.highlight&&!SETTINGS.pointer)){
             // select shape
             var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
@@ -487,7 +486,10 @@ function x3d_events(){
 
         }
 
+        // sliding marker
         if (e.key=="Control"){
+
+            X3DOMObject.PointerMarker.updatePars();
 
             Scene._ctrlKey = true;
 
@@ -501,7 +503,10 @@ function x3d_events(){
                 dist = parseFloat(mouse.d_xz);
 
                 X3DOMObject.Marker.place(mouse.x,mouse.y,mouse.z,"sliding_sphere");
-                if (Scene.highlighted_marker_index==null) $("#sliding_sphere").find("switch").attr("whichChoice",0);
+
+                if (Scene.highlighted_marker_index==null) {
+                  $("#sliding_sphere").find("switch").attr("whichChoice",0);
+                }
 
             }
 
@@ -513,8 +518,8 @@ function x3d_events(){
 
     elem.addEventListener('keyup',function(e){
 
+        // 'shift' is for shapes toggling
         if (e.key=="Shift"){
-            // select shape
             var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
             X3DOMObject.Shape.dehighlight(sr.pickObject);
         }
@@ -558,9 +563,11 @@ function x3d_events(){
 
         //2: new
         if (!e.target) e.target = Scene.element;
+
         var mouse_position = Scene.element.runtime.mousePosition(e);
         var camera = x3dom_getCameraPosOr(mouse_position[0],mouse_position[1],false);
 
+        // these functions belong to 'leaflet.camera-view-marker.js'
         Map.marker.setAltitude(camera.y);
         Map.marker.setElevation(camera.e*Math.PI/180);
 
@@ -569,29 +576,22 @@ function x3d_events(){
 
         if (SETTINGS.highlight&&!SETTINGS.pointer){
 
-            var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
-            X3DOMObject.Shape.highlight(sr.pickObject);
+          // this is for highlighting, no need to correct zNear bug
+          var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
+          X3DOMObject.Shape.highlight(sr.pickObject);
 
         }
 
         if ((Scene._ctrlKey)||(SETTINGS.pointer)){
 
-            // show shadow marker
-            //1: old
-            //var mouse = x3dom_getXYPosOr(e.clientX,e.clientY,false);
-
-            //2: new
-            //if (!e.target) e.target = Scene.element;
-            //var mouse_position = Scene.element.runtime.mousePosition(e);
-            var mouse = x3dom_getXYPosOr(mouse_position[0],mouse_position[1],false);
-
-            var dist = parseFloat(mouse.d_xz) || 1116;
-
-            Map.marker.placeSlidingMarker(mouse.a,dist);
+          // sliding marker
+          var mouse = x3dom_getXYPosOr(mouse_position[0],mouse_position[1],false);
+          var dist = parseFloat(mouse.d_xz) || 1116;
+          Map.marker.placeSlidingMarker(mouse.a,dist);
 
         }else{
 
-            // hide shadow marker
+            // hide sliding marker
             Map.marker.removeSlidingMarker();
 
         }
@@ -685,6 +685,7 @@ function leaf_events(){
 
                 X3DOMObject.displayMarkInfo(Data.markers.length-1);
 
+                // note: the 2nd place where marker is created is in x3dom_init.js (createNewMarker)
                 //new X3DOMObject.Marker(mark.x,mark.y,mark.z,true);
                 new X3DOMObject.Marker(mark.x,mark.y,mark.z,false);
 
@@ -731,6 +732,7 @@ function leaf_mouseup(e){
 function leaf_mousemove(e){
 
     var Camera = Map.marker;
+
     if (Camera.draggedMarker._index!=null){
       var index = Camera.draggedMarker._index;
       var elem = $("#my-sph-"+index);
