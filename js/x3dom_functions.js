@@ -99,7 +99,7 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
             y = xyz[1];
             z = xyz[2];
 
-            dist_xz  = Math.sqrt(Math.pow(x-xc,2)+Math.pow(z-zc,2));
+            //dist_xz  = Math.sqrt(Math.pow(x-xc,2)+Math.pow(z-zc,2));
 
         }else{
 
@@ -107,15 +107,16 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
             y = Data.markers[index].y;
             z = Data.markers[index].z;
 
+            /*
             dist_xz  = Data.markers[index].d_x3d;
             if (isNaN(dist_xz)){
                 dist_xz  = Math.sqrt(Math.pow(x-xc,2)+Math.pow(z-zc,2));;
             }
+            */
         }
 
-        dist_xyz = Math.sqrt(Math.pow(y-yc,2)+Math.pow(dist_xz,2));
+        //dist_xyz = Math.sqrt(Math.pow(y-yc,2)+Math.pow(dist_xz,2));
         id = $(shootRay.pickObject).attr("id");
-
 
     }else{
 
@@ -125,14 +126,14 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
         y = viewingRay.dir.y;
         z = viewingRay.dir.z;
 
-        dist_xz = null;
-        dist_xyz = null;
+        //dist_xz = null;
+        //dist_xyz = null;
 
         valid_distance = false;
     }
 
     var R0 = Data.camera.Matrices.R0;
-    var p_w = new x3dom.fields.SFVec3f(x,y,z);
+    var p_w = new x3dom.fields.SFVec3f(x-xc,y-yc,z-zc);
     var p_rw = R0.multMatrixVec(p_w);
 
     if (valid_distance){

@@ -38,7 +38,7 @@
  * @eps {Number} precision
  *
  */
-numbers.calculus.GaussNewton = function(v,n,r,dr,eps){
+numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
   var epsilon = eps || 1e-8
   var limit = 1000
@@ -46,6 +46,12 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps){
   var stop = false
   var counter = 0
   var v0 = v
+
+  if (w===undefined){
+    w = function(){
+      return 1;
+    };
+  }
 
   while(!stop){
 
@@ -102,13 +108,15 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps){
 
   function sigma(v,n,r){
 
-    var sum = 0;
+    var sum = 0
+    var wsum = 0
 
     for(var i=0;i<n;i++){
       sum += r(i,v)*r(i,v)
+      wsum += w(i,v)
     }
 
-    sum = Math.sqrt(sum/n)
+    sum = Math.sqrt(sum/wsum)
 
     return sum
 
@@ -122,7 +130,7 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps){
 
       var row = []
       for(var j=0;j<dr.length;j++){
-        row.push(dr[j](i,v))
+        row.push(w(i,v)*dr[j](i,v))
       }
       J[i] = row
 

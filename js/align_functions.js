@@ -170,6 +170,13 @@ function hll_dr_dh_i(i,v){
   return 1;
 }
 
+/**
+ * weight function
+ */
+
+function hll_w_i(i,v){
+  return 1;
+}
 
 /**
  * Functions for relative altitude, tilt and roll
@@ -203,7 +210,7 @@ function art_r_i(i,v){
   var f1 = art_f_3d_i(i,v);
   var f2 = art_f_map_i(i,v);
   //return (f1-f2+360)%360;
-  return (f1-f2)/art_l_i(i);
+  return (f1-f2);
 }
 
 function art_dr_dx_i(i,v){
@@ -217,7 +224,7 @@ function art_dr_dx_i(i,v){
       res += -Math.sin(v[0])*Math.cos(v[1])*yi;
       res += -Math.cos(v[0])*zi;
 
-  return res/art_l_i(i);
+  return res;
 
 }
 
@@ -231,7 +238,7 @@ function art_dr_dy_i(i,v){
   var res  = -Math.cos(v[0])*Math.cos(v[1])*xi;
       res += -Math.cos(v[0])*Math.sin(v[1])*yi;
 
-  return res/art_l_i(i);
+  return res;
 
 }
 
@@ -246,7 +253,10 @@ function art_l_i(i){
   var yi = mark.align.y;
   var zi = mark.align.z;
 
-  return Math.sqrt(xi*xi+yi*yi+zi*zi);
+  return Math.sqrt(Math.pow(xi,2)+Math.pow(yi,2)+Math.pow(zi,2));
 
 }
 
+function art_w_i(i,v){
+  return 1/art_l_i(i);
+}

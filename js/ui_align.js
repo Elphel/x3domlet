@@ -131,7 +131,7 @@ function x3dom_align_hll(){
 
   var xyh = [x0,y0,(h0>180)?h0-360:h0];
 
-  var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll_r_i,[hll_dr_dx_i,hll_dr_dy_i,hll_dr_dh_i],epsilon);
+  var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll_r_i,[hll_dr_dx_i,hll_dr_dy_i,hll_dr_dh_i],epsilon,hll_w_i);
 
   xyh = result.v;
   var s1 = result.error;
@@ -271,7 +271,7 @@ function x3dom_align_art(){
   }
 
   var epsilon = 1e-8;
-  var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,art_r_i,[art_dr_dx_i,art_dr_dy_i,art_dr_da_i],epsilon);
+  var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,art_r_i,[art_dr_dx_i,art_dr_dy_i,art_dr_da_i],epsilon,art_w_i);
 
   console.log(result);
 
