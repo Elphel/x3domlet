@@ -299,6 +299,7 @@ function x3dom_rotation(dangle){
 
 /*
  * translate camera in x3dom space
+ * not in use
  */
 function x3dom_translation(dx,dy,dz){
 
@@ -311,6 +312,28 @@ function x3dom_translation(dx,dy,dz){
     var up = mat.e1();
 
     var newfrom = from.add(delta);
+    var newat = newfrom.subtract(mat.e2());
+
+    var newmat = x3dom.fields.SFMatrix4f.lookAt(newfrom, newat, up);
+
+    x3dom_setViewpoint(newmat);
+
+}
+
+/*
+ * set camera translation in x3dom space to x,y,z
+ */
+function x3dom_translation_v2(x,y,z){
+
+    var delta = new x3dom.fields.SFVec3f(x,y,z);
+
+    var mat = Scene.element.runtime.viewMatrix().inverse();
+
+    var from = mat.e3();
+    var at = from.subtract(mat.e2());
+    var up = mat.e1();
+
+    var newfrom = delta;
     var newat = newfrom.subtract(mat.e2());
 
     var newmat = x3dom.fields.SFMatrix4f.lookAt(newfrom, newat, up);

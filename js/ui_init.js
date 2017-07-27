@@ -798,6 +798,8 @@ function leaf_mousemove_nohc(e){
     var p0 = new L.LatLng(Data.camera.latitude,Data.camera.longitude);
     var p1 = new L.LatLng(Camera._latlng.lat,Camera._latlng.lng);
 
+    var p_origin = new L.LatLng(Data.camera.kml.latitude,Data.camera.kml.longitude);
+
     var dh = Camera._heading - Math.PI/180*Data.camera.heading;
 
     Data.camera.heading   = Camera._heading*180/Math.PI;
@@ -805,7 +807,9 @@ function leaf_mousemove_nohc(e){
     Data.camera.longitude = Camera._latlng.lng;
 
     if ((p0.lat!=p1.lat)||(p0.lng!=p1.lng)){
-        leaf_translation_v1(p0,p1);
+        // hypothesis: dragging by small distances introduces cumulative errors
+        //leaf_translation_v1(p0,p1);
+        leaf_translation_v1(p_origin,p1);
     }else{
         x3dom_rotation(dh);
     }
@@ -856,6 +860,7 @@ function leaf_update_x3dom_marker(p1_ll,p2_ll,index){
   var dp_w = x3dom_delta_map2scene(p1_ll,p2_ll);
 
   mark.x = dp_w.x;
+  mark.y = dp_w.y;
   mark.z = dp_w.z;
 
   if(!hecs){
@@ -870,12 +875,14 @@ function leaf_translation_v1(p0,p1){
 
     var dp_w = x3dom_delta_map2scene(p0,p1);
 
-    x3dom_translation(dp_w.x,dp_w.y,dp_w.z);
+    x3dom_translation_v2(dp_w.x,dp_w.y,dp_w.z);
 
     // if not updated then moving in 3D scene will make it jump
     Scene.old_view_translation = x3dom_getViewTranslation(Scene.element);
 
 }
+
+
 
 function x3d_mouseMove(){
 
