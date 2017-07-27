@@ -334,6 +334,10 @@ function x3dom_translation_v2(x,y,z){
     var up = mat.e1();
 
     var newfrom = delta;
+
+    // keeping height
+    newfrom.y = from.y;
+
     var newat = newfrom.subtract(mat.e2());
 
     var newmat = x3dom.fields.SFMatrix4f.lookAt(newfrom, newat, up);
