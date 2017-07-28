@@ -230,7 +230,24 @@ function x3dom_getCameraPosOr(round){
  */
 function zNear_bug_correction(xyz){
 
+  //var mat = Scene.element.runtime.viewMatrix().inverse();
+  var mat = Scene.element.runtime.viewMatrix();
+
+  var mat1 = Scene.element.runtime.getWorldToCameraCoordinatesMatrix();
+  var mat2 = Scene.element.runtime.getCameraToWorldCoordinatesMatrix();
+
+  /*
+  console.log("wctocc");
+  console.log(mat1.toString());
+  console.log("cctowc");
+  console.log(mat2.toString());
+  */
+
   var zNear = Scene.element.runtime.viewpoint().getNear();
+
+  //console.log("zNear: "+zNear);
+
+  var vec = new x3dom.fields.SFVec3f(xyz[0],xyz[1],xyz[2]);
 
   var x = xyz[0];
   var y = xyz[1];
@@ -243,7 +260,28 @@ function zNear_bug_correction(xyz){
   y = zratio*y;
   z = z1;
 
-  return [x,y,z];
+//   console.log("v1: "+x+" "+y+" "+z);
+
+  var vec_cam = mat.multFullMatrixPnt(vec);
+
+  var z1 = vec_cam.z + zNear;
+  var zratio = z1 / vec_cam.z;
+
+//   console.log("initial coordinates: "+vec.toString());
+//   console.log("camera  coordinates: "+vec_cam.toString());
+
+  //console.log("z1: "+z1+" zratio: "+zratio);
+
+  vec_cam.x = zratio*vec_cam.x;
+  vec_cam.y = zratio*vec_cam.y;
+  vec_cam.z = z1;
+
+  vec_w = mat.inverse().multFullMatrixPnt(vec_cam);
+
+  //console.log("world coordinates: "+vec_w.toString());
+
+  return [vec_w.x,vec_w.y,vec_w.z];
+  //return [x,y,z];
   //return xyz;
 
 }

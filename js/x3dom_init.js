@@ -374,6 +374,10 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
 
         }
 
+        console.log("Shape event: ");
+        console.log("  canvas: x= "+e.originalEvent.layerX+" y= "+e.originalEvent.layerY);
+        console.log("  scene: x= "+e.originalEvent.worldX+" y= "+e.originalEvent.worldY+" z="+e.originalEvent.worldZ);
+
     });
 
     $(this._elem).on("mouseover",function(e){

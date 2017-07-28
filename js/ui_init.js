@@ -489,6 +489,8 @@ function x3d_events(){
         // sliding marker
         if (e.key=="Control"){
 
+            //console.log("Control!");
+
             X3DOMObject.PointerMarker.updatePars();
 
             Scene._ctrlKey = true;
@@ -511,6 +513,36 @@ function x3d_events(){
             }
 
             Map.marker.placeSlidingMarker(mouse.a,dist);
+
+            /*
+            // Debugging
+            console.log("Canvas event:");
+            console.log(e);
+
+            console.log("Page coordinates: x:"+e.path[0].mouse_drag_x+" y:"+e.path[0].mouse_drag_y);
+
+            //shoot a ray
+            var cnvx = e.path[0].mouse_drag_x;
+            var cnvy = e.path[0].mouse_drag_y;
+            var shootRay = elem.runtime.shootRay(cnvx,cnvy);
+
+            var pickPos = shootRay.pickPosition;
+
+            console.log("Shoot ray: "+pickPos.toString());
+
+            var tmp0 = elem.runtime.calcCanvasPos(pickPos.x,pickPos.y,pickPos.z);
+
+            console.log("calcCanvasPos from x,y,z = "+tmp0.toString());
+
+
+            var mat1 = elem.runtime.getWorldToCameraCoordinatesMatrix();
+            var mat2 = elem.runtime.getCameraToWorldCoordinatesMatrix();
+
+            //var w =;
+
+            var vr = elem.runtime.getViewingRay(cnvx,cnvy);
+            console.log("Viewing ray: "+vr.toString());
+            */
 
         }
 
