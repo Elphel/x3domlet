@@ -55,9 +55,9 @@
       <x3d id="x3d_id" width='1600px' height='800px' showProgress="true" showStat="false" showLog="false" disableDoubleClick="true" keysEnabled="true">
         <scene>
           <navigationInfo id="navInfo" type='"examine"' speed='0.01'></navigationInfo>
-          <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0' ></Viewpoint>
+          <!--<Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0' ></Viewpoint>-->
           <!-- in x3dom 1.7.2 - big zNear does not work properly -->
-          <!--<Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0' zNear='2'></Viewpoint>-->
+          <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0' zNear='3'></Viewpoint>
 <!--          <group>
             <inline name="back" namespacename="back" url="models/m1/v1/background.x3d"/>
           </group>-->
@@ -70,9 +70,10 @@
     <div id='crosshair_h' class='crosshair'></div>
     <div id='crosshair_v' class='crosshair'></div>
     <div id='help_wrapper'>
-        <div id='menu_button'></div>
-        <div id='help_button'>?</div>
         <div id='exit_button' title='Exit to models index'></div>
+        <div id='help_button'>?</div>
+        <div id='download_button' title='Download 3d model'></div>
+        <div id='menu_button'></div>
         <div id='align_button' title='Run alignment algorithm for camera heading and location using markers.
 Instructions:
   1. Use approximate location control on the map to change initial approximation for the algorithm.
@@ -83,6 +84,7 @@ Instructions:
       <!--<div id='align_tr_button' title='Align tilt and roll' class='edit'></div>-->
       <div id='align_tr_button' title='Align tilt and roll' class='experimental'></div>
     </div>
+
     <div id='info-wrapper'>
         <div id='window-info'></div>
         <div id='window-markinfo'></div>

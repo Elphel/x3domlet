@@ -2,7 +2,7 @@
 
   Copyright (C) 2017 Elphel Inc.
 
-  License: GPLv3
+  SPDX-License-Identifier: GPL-3.0+
 
   https://www.elphel.com
 
@@ -65,6 +65,10 @@ function menu_init(){
       var path = window.location.pathname;
       path = path.substr(0,path.lastIndexOf("/"));
       window.location.href = origin+path;
+    });
+
+    $("#download_button").on("click",function(){
+        window.location.href = "download.php?file="+SETTINGS.files.x3d;
     });
 
     // changing a checkbox will not close menu
