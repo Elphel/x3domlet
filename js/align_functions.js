@@ -194,6 +194,8 @@ function art_f_3d_i(i,v){
       res +=  Math.cos(v[0])*Math.cos(v[1])*yi;
       res += -Math.sin(v[0])*zi;
 
+      res += v[2];
+
   return res;
 
 }
@@ -201,7 +203,7 @@ function art_f_3d_i(i,v){
 function art_f_map_i(i,v){
 
   var mark = Data.markers[i];
-  return (v[2]+mark.align.altitude);
+  return mark.align.altitude;
 
 }
 
@@ -243,7 +245,7 @@ function art_dr_dy_i(i,v){
 }
 
 function art_dr_da_i(i,v){
-  return -1;
+  return 1;
 }
 
 function art_l_i(i){
@@ -258,5 +260,6 @@ function art_l_i(i){
 }
 
 function art_w_i(i,v){
-  return 1/art_l_i(i);
+  return 1;
+  //return 1/art_l_i(i);
 }

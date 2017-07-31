@@ -264,6 +264,7 @@ function distance_error(x,y,h){
 function x3dom_align_art(){
 
   //test_height_alignment_set1();
+  //test_height_alignment_set2();
 
   if (Data.markers.length<2){
     console.log("Too few points");
@@ -400,7 +401,17 @@ function test_height_alignment_set1(){
 
 }
 
+function test_height_alignment_set2(){
 
+  //call set 1 but change heights
+  test_height_alignment_set1();
+
+  Data.markers[0].align.altitude = 0;
+  Data.markers[1].align.altitude = 0;
+  Data.markers[2].align.altitude = 0;
+  Data.markers[3].align.altitude = 2;
+
+}
 
 
 
