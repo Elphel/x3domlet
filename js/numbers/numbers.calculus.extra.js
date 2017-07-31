@@ -59,6 +59,8 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
     var v1 = iterate(v0,n,r,dr)
 
+    //console.log(v1);
+
     var s0 = sigma(v0,n,r)
     var s1 = sigma(v1,n,r)
 
@@ -96,6 +98,9 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
     var delta = numbers.matrix.multiply(J,V)
 
+    //console.log("delta: ");
+    //console.log(delta);
+
     var res = []
 
     for(var i=0;i<v.length;i++){
@@ -112,9 +117,11 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
     var wsum = 0
 
     for(var i=0;i<n;i++){
-      sum += r(i,v)*r(i,v)
+      sum += w(i,v)*r(i,v)*r(i,v)
       wsum += w(i,v)
     }
+
+    //console.log("sum = "+sum+" wsum = "+wsum);
 
     sum = Math.sqrt(sum/wsum)
 
