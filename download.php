@@ -46,6 +46,16 @@ foreach($matches[1] as $v){
   $file .= " $path/$v";
 }
 
+// add obj
+$objfile = $path."/".$tmp[1].".obj";
+if (is_file($objfile)) $file .= " $objfile";
+
+// add mtl
+$mtlfile = $path."/".$tmp[1].".mtl";
+if (is_file($mtlfile)) $file .= " $mtlfile";
+
+
+
 $zipped_data = `zip -qj - $file `;
 header('Content-type: application/zip');
 header('Content-Disposition: attachment; filename="'.$zipfile.'"');
