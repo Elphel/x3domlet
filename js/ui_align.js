@@ -263,17 +263,29 @@ function distance_error(x,y,h){
  */
 function x3dom_align_art(){
 
+  var epsilon = 1e-8;
+
   //test_height_alignment_set1();
   //test_height_alignment_set2();
+  //test_height_alignment_set3_2points();
 
   if (Data.markers.length<2){
     console.log("Too few points");
     return;
   }
 
-  var epsilon = 1e-8;
-  var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,art_r_i,[art_dr_dx_i,art_dr_dy_i,art_dr_da_i],epsilon,art_w_i);
+  if (Data.markers.length==2){
 
+    console.log("2 Markers provided: align Height'n'Tilt only (while Roll = 0)");
+
+    var result = numbers.calculus.GaussNewton([0,0],Data.markers.length,art2_r_i,[art2_dr_dx_i,art2_dr_da_i],epsilon,art2_w_i);
+    console.log(result);
+
+    return;
+
+  }
+
+  var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,art_r_i,[art_dr_dx_i,art_dr_dy_i,art_dr_da_i],epsilon,art_w_i);
   console.log(result);
 
 }
@@ -413,7 +425,39 @@ function test_height_alignment_set2(){
 
 }
 
+function test_height_alignment_set3_2points(){
 
+  Data.markers = [
+    // mark 1
+    {
+      d_map:59.51564928339807,
+      d_x3d:58.313592803937226,
+      align:{
+        altitude: -10.5,
+        latitude: 40.723442371919724,
+        longitude: -111.93217635154726,
+        x: 23.459612763633526,
+        y: -16.16174219091789,
+        z: -53.38653083581816
+      }
+    },
+    // mark 2
+    {
+      d_map:190.2700432380853,
+      d_x3d:182.86147956244875,
+      align:{
+        altitude: -10.5,
+        latitude: 40.72385908620143,
+        longitude: -111.93070113658906,
+        x: 37.888760344786206,
+        y: -21.838175845671834,
+        z: -178.89315958779198
+      }
+    }
+
+  ];
+
+}
 
 
 

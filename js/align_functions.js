@@ -263,3 +263,48 @@ function art_w_i(i,v){
   return 1;
   //return 1/art_l_i(i);
 }
+
+/**
+ * Functions for relative altitude, tilt and roll
+ * art2_...
+ */
+
+function art2_f_3d_i(i,v){
+  return art_f_3d_i(i,[v[0],0,v[1]]);
+}
+
+function art2_f_map_i(i,v){
+  return art_f_map_i(i,[v[0],0,v[1]]);
+}
+
+function art2_r_i(i,v){
+
+  var f1 = art2_f_3d_i(i,v);
+  var f2 = art2_f_map_i(i,v);
+  //return (f1-f2+360)%360;
+  return (f1-f2);
+}
+
+function art2_dr_dx_i(i,v){
+  return art_dr_dx_i(i,[v[0],0,v[1]]);
+}
+
+function art2_dr_da_i(i,v){
+  return 1;
+}
+
+function art2_l_i(i){
+
+  var mark = Data.markers[i];
+  var xi = mark.align.x;
+  var yi = mark.align.y;
+  var zi = mark.align.z;
+
+  return Math.sqrt(Math.pow(xi,2)+Math.pow(yi,2)+Math.pow(zi,2));
+
+}
+
+function art2_w_i(i,v){
+  return 1;
+  //return 1/art_l_i(i);
+}
