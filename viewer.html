@@ -74,23 +74,23 @@
         <div id='help_button'>?</div>
         <div id='download_button' title='Download 3d model (.obj & .x3d formats)'></div>
         <div id='menu_button'></div>
-        <div id='align_button' title='Run least squares fit algorithm (Gauss-Newton) for camera heading and location using markers.
+        <div id='align_button' title='Run least squares fitting algorithm (Gauss-Newton) for camera heading and location using markers.
 Instructions:
   1. Use approximate location control on the map to change initial approximation for the algorithm.
   2. Place at least 3 markers in the 3D scene (ctrl+click) - drag to position more precisely.
   3. Move all markers on the map to update their location - drag to position more precisely.
-  4. Click this button - the results will appear in a dialog window with "apply"/"cancel"
-  5. To save the result click upload button (Initial location and heading) in the menu.' class='edit'></div>
+  4. Click this button - the results will appear in a dialog window with "apply"/"cancel".
+  5. To save the result click upload button (map data) in the menu.' class='edit'></div>
       <!--<div id='align_tr_button' title='Align tilt and roll' class='edit'></div>-->
-      <div id='align_tr_button' title='Run least squares fit algorithm (Gauss-Newton) for camera tilt, roll and altitude (relative).
+      <div id='align_tr_button' title='Run least squares fitting algorithm (Gauss-Newton) for camera tilt, roll and altitude (relative).
 Instructions:
   1. Place markers in the 3D scene (ctrl+click) - drag to position more precisely.
       * 2 markers - adjust tilt and altitude, while roll = 0&deg;
       * 3+ markers - adjust tilt, roll and altitude
   2. Move all markers on the map to update their location - drag to position more precisely.
   3. Turn on "Switch and Elevation control mode" for the map, drag markers over map to set approximate altitude relative to the camera.
-  4. Click this button - the results will appear in the browser console. Look for "v"-vector data.
-      ' class='experimental'></div>
+  4. Click this button - the results will appear in a dialog window with "apply"/"cancel".
+  5. To save the result click upload button (map data) in the menu.' class='edit'></div>
     </div>
 
     <div id='info-wrapper'>
@@ -155,12 +155,15 @@ Instructions:
                     <td>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td title='Adjust initial location and heading'>Edit mode</td>
+                    <td title='Adjust initial location and orientation'>Edit mode</td>
                     <td><input id='edit' type='checkbox' class='my-check-box donothide' /></td>
                 </tr>
                 <tr class='edit'>
-                    <td>
-                      Initial location and heading:
+                    <td title='.kml:
+* latitude and longitude,
+* heading, tilt and roll angles
+* altitude (relative to the ground)'>
+                      Camera initial position and orientation data:
                     </td>
                     <td>
                       <button id='restorekml' class='ic donothide' title='restore'><img src='js/images/ic_file_download_black_48dp_1x.png' class='icim donothide'/></button>

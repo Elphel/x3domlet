@@ -142,19 +142,19 @@ function x3dom_align_hll(){
   //convert to conventional range
   xyh[2] = (xyh[2]+360)%360;
   //init apply dialog
-  apply_alignment_dialog([x0,y0,h0],xyh,counter,s1,de);
+  apply_alignment_dialog_hll([x0,y0,h0],xyh,counter,s1,de);
 
 }
 
 /*
  * ui dialog to apply or cancel results
  */
-function apply_alignment_dialog(xyh0,xyh1,c,e,de){
+function apply_alignment_dialog_hll(xyh0,xyh1,c,e,de){
 
   var d = $("<div>",{id:"aa1_dialog"});
 
   var dc = $([
-    '<div>Alignment algorithm results</div>',
+    '<div>Least squares fitting results for heading, latitude & longitude</div>',
     '<br/>',
     '<div>Error: <b>'+e+' &deg;</b></div>',
     '<div>d<sup>-1</sup> Error: <b>'+de+' m<sup>-1</sup></b></div>',
@@ -163,9 +163,9 @@ function apply_alignment_dialog(xyh0,xyh1,c,e,de){
     '<table>',
     '  <tr>',
     '    <th></th>',
-    '    <th>Latitude</th>',
-    '    <th>Longitude</th>',
-    '    <th>Heading</th>',
+    '    <th>Latitude, &deg;</th>',
+    '    <th>Longitude, &deg;</th>',
+    '    <th>Heading, &deg;</th>',
     '  </tr>',
     '  <tr>',
     '    <th>old</th>',
@@ -189,7 +189,7 @@ function apply_alignment_dialog(xyh0,xyh1,c,e,de){
   var b1 = $("<button>").html("apply");
 
   b1.on('click',function(){
-    apply_alignment(xyh1);
+    apply_alignment_hll(xyh1);
     b2.click();
   });
 
@@ -208,7 +208,7 @@ function apply_alignment_dialog(xyh0,xyh1,c,e,de){
 /*
  * actual apply function
  */
-function apply_alignment(xyh){
+function apply_alignment_hll(xyh){
 
     var Camera = Map.marker;
 
@@ -280,6 +280,8 @@ function x3dom_align_art(){
 
     var result = numbers.calculus.GaussNewton([0,0],Data.markers.length,art2_r_i,[art2_dr_dx_i,art2_dr_da_i],epsilon,art2_w_i);
     console.log(result);
+    result.v[0] = result.v[0]*180/Math.PI;
+    apply_alignment_dialog_art([0,0,0],[result.v[0],0,result.v[1]],result.count,result.error,false);
 
     return;
 
@@ -288,25 +290,86 @@ function x3dom_align_art(){
   var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,art_r_i,[art_dr_dx_i,art_dr_dy_i,art_dr_da_i],epsilon,art_w_i);
   console.log(result);
 
-}
+  //convert to degs
+  result.v[0] = result.v[0]*180/Math.PI;
+  result.v[1] = result.v[1]*180/Math.PI;
 
-/*
- * not used
- */
-function align_roll(){
-
-    console.log("roll");
+  apply_alignment_dialog_art([0,0,0],result.v,result.count,result.error,true);
 
 }
 
+function apply_alignment_dialog_art(a0,a1,c,e,full){
 
+  var d = $("<div>",{id:"aa1_dialog"});
 
-/*
- * not used
- */
-function align_tilt(){
+  var dc = $([
+    (full)? '<div>Least squares fitting results for <b>tilt</b>, <b>roll</b> and <b>relative altitude</b></div>':'<div>Least squares fitting results for <b>tilt</b> and <b>relative altitude</b> (roll=0)</div>',
+    '<br/>',
+    '<div>Error: <b>'+e+' m</b></div>',
+    '<div>Iterations: <b>'+c+'</b></div>',
+    '<div>',
+    '<table>',
+    '  <tr>',
+    '    <th></th>',
+    '    <th>Tilt, &deg;</th>',
+    (full)? '    <th>Roll, &deg;</th>':'',
+    '    <th>Altitude, m</th>',
+    '  </tr>',
+    '  <tr>',
+    '    <th>old</th>',
+    '    <td>'+a0[0]+'</td>',
+    (full)? '    <td>'+a0[1]+'</td>':'',
+    '    <td>'+a0[2]+'</td>',
+    '  </tr>',
+    '  <tr>',
+    '    <th>new</th>',
+    '    <td>'+a1[0]+'</td>',
+    (full)? '    <td>'+a1[1]+'</td>':'',
+    '    <td>'+a1[2]+'</td>',
+    '  </tr>',
+    '</table>',
+    '</div>',
+    '<br/>'
+  ].join('\n'));
 
-    console.log("tilt");
+  d.append(dc);
+
+  var b1 = $("<button>").html("apply");
+
+  b1.on('click',function(){
+    apply_alignment_art(a1);
+    b2.click();
+  });
+
+  var b2 = $("<button>").html("cancel");
+
+  b2.on('click',function(){
+    $("#aa1_dialog").remove();
+  });
+
+  d.append($("<div>").append(b1).append(b2));
+
+  $("body").append(d);
+
+}
+
+function apply_alignment_art(tra){
+
+    var Camera = Map.marker;
+
+    Data.camera.tilt     = tra[0]+90;
+    Data.camera.roll     = tra[1];
+    Data.camera.altitude = tra[2];
+
+    Data.camera.kml.tilt     = tra[0]+90;
+    Data.camera.kml.roll     = tra[1];
+    Data.camera.kml.altitude = tra[2];
+
+    Map.marker.setAltitude(tra[2]);
+    // no need
+    Map.marker._syncMeasureMarkersToBasePoint();
+
+    x3d_initial_camera_placement();
 
 }
 
