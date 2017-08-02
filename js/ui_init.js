@@ -406,6 +406,13 @@ function deep_init(){
 
         if (!Scene._X3DOM_SCENE_INIT_DONE&&(cnt==0)){
 
+            var ss = 10/Scene.element.runtime.viewpoint().getFar();
+
+            ss = ss.toFixed(4);
+
+            $("#shiftspeed").val(ss);
+            $("#shiftspeed").change();
+
             //Scene.initResize();
 
             // now then all shapes are parsed and accessible
