@@ -175,7 +175,21 @@ function hll_dr_dh_i(i,v){
  */
 
 function hll_w_i(i,v){
-  return 1;
+
+  var mark = Data.markers[i];
+  var xi = mark.align.x;
+  var yi = mark.align.y;
+  var zi = mark.align.z;
+
+  //var arad = 0.0004404;
+  var D = 100;
+
+  var d = Math.sqrt(Math.pow(xi,2)+Math.pow(yi,2)+Math.pow(zi,2));
+
+  var res = d/D;
+  res = (res>1)?1:res;
+
+  return res;
 }
 
 /**
@@ -260,8 +274,8 @@ function art_l_i(i){
 }
 
 function art_w_i(i,v){
-  return 1;
-  //return 1/art_l_i(i);
+  //return 1;
+  return 1/art_l_i(i);
 }
 
 /**

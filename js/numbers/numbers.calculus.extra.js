@@ -4,7 +4,7 @@
  * @copyright Copyright (C) 2017 Elphel Inc.
  * @authors Oleg Dzhimiev <oleg@elphel.com>
  *
- * @license: GPL-3.0
+ * @license: GPL-3.0+
  *
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this page.
@@ -53,6 +53,13 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
     };
   }
 
+  // for normalization
+  var WSUM = 0;
+
+  for(var i=0;i<n;i++){
+    WSUM += w(i,v)
+  }
+
   while(!stop){
 
     counter++
@@ -84,8 +91,13 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
     var J = jacobian(v,n,dr)
     var Jt = numbers.matrix.transpose(J)
 
+    for(var i=0;i<n;i++){
+      J = numbers.matrix.rowScale(J,i,wn(i,v))
+    }
+
     // JtJ
     J = numbers.matrix.multiply(Jt,J)
+
     // (Jt x J)^-1
     J = numbers.matrix.inverse(J)
     // (Jt x J)^-1 x Jt
@@ -93,7 +105,7 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
     var V = []
     for(var i=0;i<n;i++){
-      V.push([r(i,v)])
+      V.push([wn(i,v)*r(i,v)])
     }
 
     var delta = numbers.matrix.multiply(J,V)
@@ -114,16 +126,17 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
   function sigma(v,n,r){
 
     var sum = 0
-    var wsum = 0
+    //var wsum = 0
 
     for(var i=0;i<n;i++){
-      sum += w(i,v)*r(i,v)*r(i,v)
-      wsum += w(i,v)
+      sum += wn(i,v)*r(i,v)*r(i,v)
+      //wsum += w(i,v)
     }
 
     //console.log("sum = "+sum+" wsum = "+wsum);
 
-    sum = Math.sqrt(sum/wsum)
+    //sum = Math.sqrt(sum/wsum)
+    sum = Math.sqrt(sum)
 
     return sum
 
@@ -137,7 +150,7 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
       var row = []
       for(var j=0;j<dr.length;j++){
-        row.push(w(i,v)*dr[j](i,v))
+        row.push(dr[j](i,v))
       }
       J[i] = row
 
@@ -145,6 +158,11 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
     return J
 
+  }
+
+  // normalized weight
+  function wn(i,v){
+    return w(i,v)/WSUM;
   }
 
 }
