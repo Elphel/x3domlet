@@ -1264,7 +1264,7 @@ X3DOMObject.displayViewInfo = function(e){
       '  world : x='+mouse.real.x+'    y='+mouse.real.y+'    z='+mouse.real.z+'    d_xz='+m_real_dxz+'    d_xyz='+m_real_dxyz
     ].join('\n');
 
-    console.log(log);
+    //console.log(log);
 
     var msg = [
       '<table>',

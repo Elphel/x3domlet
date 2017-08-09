@@ -158,11 +158,56 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
     //distance to previous marker
     if (
       (index!=null)&&
-      (index>0)&&
-      (Data.markers[index]!=undefined)&&
-      (Data.markers[index-1]!=undefined)
+      (index>=0)&&
+      (Data.markers.length>1)&&
+      (Data.markers[index]!=undefined)
     ){
-      console.log("Getting distance to previous point");
+
+      var index1 = index;
+      var index2 = index-1;
+
+      if(index1==0){
+        index2 = Data.markers.length-1;
+      }
+
+      // vars
+      var x1r = Data.markers[index1].align.real.x;
+      var y1r = Data.markers[index1].align.real.y;
+      var z1r = Data.markers[index1].align.real.z;
+
+      var x1 = Data.markers[index1].align.x;
+      var y1 = Data.markers[index1].align.y;
+      var z1 = Data.markers[index1].align.z;
+
+      var x2r = Data.markers[index2].align.real.x;
+      var y2r = Data.markers[index2].align.real.y;
+      var z2r = Data.markers[index2].align.real.z;
+
+      var x2 = Data.markers[index2].align.x;
+      var y2 = Data.markers[index2].align.y;
+      var z2 = Data.markers[index2].align.z;
+
+      var p1_ll = new L.LatLng(Data.markers[index1].latitude,Data.markers[index1].longitude);
+      var p2_ll = new L.LatLng(Data.markers[index2].latitude,Data.markers[index2].longitude);
+
+      //calcs
+      var d_3d_r_3 = x3dom_3d_distance(x2r-x1r,y2r-y1r,z2r-z1r,true);
+      var d_3d_r_2 = x3dom_2d_distance(x2r-x1r,z2r-z1r,true);
+
+      var d_3d_3 = x3dom_3d_distance(x2-x1,y2-y1,z2-z1,true);
+      var d_3d_2 = x3dom_2d_distance(x2-x1,z2-z1,true);
+
+      var d_map = p1_ll.distanceTo(p2_ll).toFixed(2);
+
+      var log = [
+        'Distances from marker '+index1+ ' to (previous) marker '+(index2),
+        'scene: d_xyz = '+d_3d_r_3+'    d_xz = '+d_3d_r_2,
+        'world: d_xyz = '+d_3d_3+'    d_xz = '+d_3d_2,
+        'map  :                  d_xz = '+d_map
+      ].join('\n');
+
+      console.log(log);
+
     }
 
     // fill out the output
