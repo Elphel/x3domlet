@@ -877,6 +877,7 @@ function leaf_drag_marker(){
         var p2_ll = Camera.draggedMarker._latlng;
 
         leaf_update_x3dom_marker(p1_ll,p2_ll,index);
+
         X3DOMObject.displayMarkInfo(index);
 
     }
@@ -902,9 +903,13 @@ function leaf_update_x3dom_marker(p1_ll,p2_ll,index){
 
   var dp_w = x3dom_delta_map2scene(p1_ll,p2_ll);
 
+  //update distance only
+
+  /*
   mark.x = dp_w.x;
   mark.y = dp_w.y;
   mark.z = dp_w.z;
+  */
 
   if(!hecs){
     mark.d_map = distance;
