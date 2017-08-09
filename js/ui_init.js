@@ -445,6 +445,7 @@ function x3d_initial_camera_placement(){
 
     // proper Euler rotation
     var R = Mh.mult(Mt).mult(Mr);
+    //var R = Mr.mult(Mt).mult(Mh);
     // convert to proper Euler
     var T = x3dom_toYawPitchRoll();
 
@@ -459,6 +460,7 @@ function x3d_initial_camera_placement(){
     // exclude tilt and roll
     var RC0_rw = T.inverse().mult(Mh).mult(T);
 
+    // what's this?!
     var RC_w = R0.inverse().mult(RC0_rw);
     // store matrices
     Data.camera.Matrices = {
@@ -468,6 +470,8 @@ function x3d_initial_camera_placement(){
     };
 
     x3dom_setViewpoint(RC_w);
+    //x3dom_setViewpoint(RC0_rw);
+    //x3dom_setViewpoint(R0);
 
 }
 

@@ -1236,42 +1236,56 @@ X3DOMObject.displayViewInfo = function(e){
     //Map.marker.setAltitude(camera.y);
     //Map.marker.setElevation(camera.e*Math.PI/180);
 
-    var msg = `
-<table>
-<tr>
-    <td></td>
-    <td colspan='3' align='center'>position, m</td>
-    <td colspan='3' align='center'>orientation, &deg;</td>
-</tr>
-<tr>
-    <th></th>
-    <th style='width:60px;'>x</th>
-    <th style='width:60px;'>y</th>
-    <th style='width:60px;'>z</th>
-    <th>azimuth</th>
-    <th>elevation</th>
-    <th>skew</th>
-</tr>
-<tr>
-    <td>mouse</td>
-    <td>`+mouse.x+`</td>
-    <td>`+mouse.y+`</td>
-    <td>`+mouse.z+`</td>
-    <td>`+mouse.a+`</td>
-    <td>`+mouse.e+`</td>
-    <td>`+mouse.s+`</td>
-</tr>
-<tr>
-    <td>camera</td>
-    <td>`+camera.x+`</td>
-    <td>`+camera.y+`</td>
-    <td>`+camera.z+`</td>
-    <td>`+camera.a+`</td>
-    <td>`+camera.e+`</td>
-    <td>`+camera.s+`</td>
-</tr>
-</table>
-`;
+    var m_dxz  = x3dom_2d_distance(mouse.x,mouse.z,true);
+    var m_dxyz = x3dom_3d_distance(mouse.x,mouse.y,mouse.z,true);
+
+    var m_real_dxz  = x3dom_2d_distance(mouse.real.x,mouse.real.z,true);
+    var m_real_dxyz = x3dom_3d_distance(mouse.real.x,mouse.real.y,mouse.real.z,true);
+
+    var log = [
+      'data:',
+      '  scene : x='+mouse.x+'    y='+mouse.y+'    z='+mouse.z+'    d_xz='+m_dxz+'    d_xyz='+m_dxyz,
+      '  world : x='+mouse.real.x+'    y='+mouse.real.y+'    z='+mouse.real.z+'    d_xz='+m_real_dxz+'    d_xyz='+m_real_dxyz
+    ].join('\n');
+
+    console.log(log);
+
+    var msg = [
+      '<table>',
+      '<tr>',
+      '    <td></td>',
+      '    <td colspan=\'3\' align=\'center\'>position, m</td>',
+      '    <td colspan=\'3\' align=\'center\'>orientation, &deg;</td>',
+      '</tr>',
+      '<tr>',
+      '    <th></th>',
+      '    <th style=\'width:60px;\'>x</th>',
+      '    <th style=\'width:60px;\'>y</th>',
+      '    <th style=\'width:60px;\'>z</th>',
+      '    <th>azimuth</th>',
+      '    <th>elevation</th>',
+      '    <th>skew</th>',
+      '</tr>',
+      '<tr>',
+      '    <td>mouse</td>',
+      '    <td>'+mouse.real.x+'</td>',
+      '    <td>'+mouse.real.y+'</td>',
+      '    <td>'+mouse.real.z+'</td>',
+      '    <td>'+mouse.a+'</td>',
+      '    <td>'+mouse.e+'</td>',
+      '    <td>'+mouse.s+'</td>',
+      '</tr>',
+      '<tr>',
+      '    <td>camera</td>',
+      '    <td>'+camera.x+'</td>',
+      '    <td>'+camera.y+'</td>',
+      '    <td>'+camera.z+'</td>',
+      '    <td>'+camera.a+'</td>',
+      '    <td>'+camera.e+'</td>',
+      '    <td>'+camera.s+'</td>',
+      '</tr>',
+      '</table>'
+    ].join('\n');
 
     if (SETTINGS.viewinfo){
         ui_showMessage("window-viewinfo",msg);

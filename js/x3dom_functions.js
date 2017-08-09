@@ -129,12 +129,21 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
 
     // to get XZ(horizontal) distance - convert to real world coordinates
     var R0 = Data.camera.Matrices.R0;
-    var p_w = new x3dom.fields.SFVec3f(x-xc,y-yc,z-zc);
+
+    var p_w = new x3dom.fields.SFVec3f(x,y,z);
     var p_rw = R0.multMatrixVec(p_w);
 
+    var c_w = new x3dom.fields.SFVec3f(xc,yc,zc);
+    var c_rw = R0.multMatrixVec(c_w);
+
     if (valid_distance){
-        dist_xz  = Math.sqrt(Math.pow(p_rw.x,2)+Math.pow(p_rw.z,2));
-        dist_xyz = Math.sqrt(Math.pow(p_rw.y,2)+Math.pow(dist_xz,2));
+
+        //console.log("D_xz_Local: "+Math.sqrt(Math.pow(p_w.x,2)+Math.pow(p_w.z,2)));
+        //console.log("D_xz_World: "+Math.sqrt(Math.pow(p_rw.x,2)+Math.pow(p_rw.z,2)));
+
+        dist_xz  = Math.sqrt(Math.pow(p_rw.x-c_rw.x,2)+Math.pow(p_rw.z-c_rw.z,2));
+        dist_xyz = Math.sqrt(Math.pow(p_rw.y-c_rw.y,2)+Math.pow(dist_xz,2));
+
     }else{
         dist_xz = null;
         dist_xyz = null;
@@ -146,6 +155,16 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
     el = Math.atan2(p_rw.y,Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z))*180/Math.PI;
     sk = 0;
 
+    //distance to previous marker
+    if (
+      (index!=null)&&
+      (index>0)&&
+      (Data.markers[index]!=undefined)&&
+      (Data.markers[index-1]!=undefined)
+    ){
+      console.log("Getting distance to previous point");
+    }
+
     // fill out the output
     var result = {
         x: !round? x : x.toFixed(2),
@@ -154,7 +173,13 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
 
         a: !round? az : az.toFixed(1),
         e: !round? el : el.toFixed(1),
-        s: !round? sk : sk.toFixed(1)
+        s: !round? sk : sk.toFixed(1),
+
+        real: {
+          x: !round? p_rw.x:p_rw.x.toFixed(2),
+          y: !round? p_rw.y:p_rw.y.toFixed(2),
+          z: !round? p_rw.z:p_rw.z.toFixed(2)
+        }
     };
 
     if (dist_xz!=null){
@@ -508,6 +533,7 @@ function x3dom_matrix_test(){
  * unrelated: what's x3dom's native getWCtoCCMatrix()? canvas-to-world?
  */
 
+
 function x3dom_toYawPitchRoll(){
     return new x3dom.fields.SFMatrix4f(
         0, 0,-1, 0,
@@ -639,6 +665,23 @@ function x3dom_getDistAngle(x,y,z){
     var a = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
 
     return Array(d,a);
+
+}
+
+function x3dom_3d_distance(x,y,z,round){
+
+  var d = x3dom_2d_distance(x,z,false);
+  var res = Math.sqrt(Math.pow(y,2)+Math.pow(d,2));
+  res = !round? res:res.toFixed(2);
+  return res;
+
+}
+
+function x3dom_2d_distance(x,z,round){
+
+  var res = Math.sqrt(Math.pow(x,2)+Math.pow(z,2));
+  res = !round? res:res.toFixed(2);
+  return res;
 
 }
 
