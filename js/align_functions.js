@@ -48,9 +48,13 @@
  * heading in degrees from 3D model
  */
 function hll_f_3d_i(i,v){
+
   var base = Data.camera;
   var mark = Data.markers[i];
-  var vec = new x3dom.fields.SFVec3f(mark.align.x-base.x,0,mark.align.z-base.z);
+
+  var xyz_real = x3dom_scene_to_real(mark.align.x-base.x,mark.align.y-base.y,mark.align.z-base.z);
+
+  var vec = new x3dom.fields.SFVec3f(xyz_real.x,xyz_real.y,xyz_real.z);
   var res = Math.atan2(vec.x,-vec.z)*180/Math.PI + v[2];
 
   if (res> 180) res = res - 360;
@@ -177,9 +181,9 @@ function hll_dr_dh_i(i,v){
 function hll_w_i(i,v){
 
   var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
+  var xi = mark.align.real.x;
+  var yi = mark.align.real.y;
+  var zi = mark.align.real.z;
 
   //var arad = 0.0004404;
   var D = 100;
@@ -200,9 +204,9 @@ function hll_w_i(i,v){
 function art_f_3d_i(i,v){
 
   var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
+  var xi = mark.align.real.x;
+  var yi = mark.align.real.y;
+  var zi = mark.align.real.z;
 
   var res  = -Math.cos(v[0])*Math.sin(v[1])*xi;
       res +=  Math.cos(v[0])*Math.cos(v[1])*yi;
@@ -232,9 +236,9 @@ function art_r_i(i,v){
 function art_dr_dx_i(i,v){
 
   var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
+  var xi = mark.align.real.x;
+  var yi = mark.align.real.y;
+  var zi = mark.align.real.z;
 
   var res  =  Math.sin(v[0])*Math.sin(v[1])*xi;
       res += -Math.sin(v[0])*Math.cos(v[1])*yi;
@@ -247,9 +251,9 @@ function art_dr_dx_i(i,v){
 function art_dr_dy_i(i,v){
 
   var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
+  var xi = mark.align.real.x;
+  var yi = mark.align.real.y;
+  var zi = mark.align.real.z;
 
   var res  = -Math.cos(v[0])*Math.cos(v[1])*xi;
       res += -Math.cos(v[0])*Math.sin(v[1])*yi;
@@ -265,9 +269,9 @@ function art_dr_da_i(i,v){
 function art_l_i(i){
 
   var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
+  var xi = mark.align.real.x;
+  var yi = mark.align.real.y;
+  var zi = mark.align.real.z;
 
   return Math.sqrt(Math.pow(xi,2)+Math.pow(yi,2)+Math.pow(zi,2));
 
@@ -310,9 +314,9 @@ function art2_dr_da_i(i,v){
 function art2_l_i(i){
 
   var mark = Data.markers[i];
-  var xi = mark.align.x;
-  var yi = mark.align.y;
-  var zi = mark.align.z;
+  var xi = mark.align.real.x;
+  var yi = mark.align.real.y;
+  var zi = mark.align.real.z;
 
   return Math.sqrt(Math.pow(xi,2)+Math.pow(yi,2)+Math.pow(zi,2));
 

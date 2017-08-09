@@ -1351,21 +1351,21 @@ X3DOMObject.displayMarkInfo = function(index){
         }
 
         msg = [
-        '<div>Marker '+index+' (Satellite vs 3D model)</div>',
-        '<table>',
-        '<tr title=\'drag marker over map to update distance\'>',
-        '  <th align=\'left\'>d<sub>map</sub></th>',
-        '  <td align=\'left\' style=\'text-align:left;\'>'+d_map_msg+'</td>',
-        '</tr>',
-        '<tr title=\'drag marker over 3d scene to update distance\'>',
-        '  <th align=\'left\'>d<sub>3d</sub></th>',
-        '  <td align=\'left\' style=\'text-align:left;\'>'+d_x3d_msg+'</td>',
-        '</tr>',
-        '<tr>',
-        '  <th align=\'center\'>&Delta;</th>',
-        '  <td align=\'left\' style=\'text-align:left;\'>'+delta+' m</td>',
-        '</tr>',
-        '</table>'
+          '<div>Marker '+index+' (Satellite vs 3D model)</div>',
+          '<table>',
+          '<tr title=\'drag marker over map to update distance\'>',
+          '  <th align=\'left\'>d<sub>map</sub></th>',
+          '  <td align=\'left\' style=\'text-align:left;\'>'+d_map_msg+'</td>',
+          '</tr>',
+          '<tr title=\'drag marker over 3d scene to update distance\'>',
+          '  <th align=\'left\'>d<sub>3d</sub></th>',
+          '  <td align=\'left\' style=\'text-align:left;\'>'+d_x3d_msg+'</td>',
+          '</tr>',
+          '<tr>',
+          '  <th align=\'center\'>&Delta;</th>',
+          '  <td align=\'left\' style=\'text-align:left;\'>'+delta+' m</td>',
+          '</tr>',
+          '</table>'
         ].join('\n');
 
     }
@@ -1379,8 +1379,6 @@ X3DOMObject.displayMarkInfo = function(index){
 }
 
 X3DOMObject.createNewMarker = function(x,y,z){
-
-  console.log("Create marker");
 
   x = parseFloat(x);
   y = parseFloat(y);

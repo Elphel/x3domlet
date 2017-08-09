@@ -245,7 +245,11 @@ function distance_error(x,y,h){
       var angle0 = h;
       var angle1 = hll_f_map_i(i,[x,y,h]);
       var z_map = Math.cos(Math.PI/180*(angle0-angle1))*Data.markers[i].d_map;
-      var z_x3d = -Data.markers[i].align.z;
+
+      //var z_x3d = -Data.markers[i].align.z;
+
+      var z_x3d = x3dom_2d_distance(Data.markers[i].real.align.x,Data.markers[i].real.align.z,round);
+
       sum += 1/z_map-1/z_x3d;
       console.log("Marker: "+i+", Camera heading: "+angle0+", Point azimuth: "+angle1+" , z_map: "+z_map+", z_x3d: "+z_x3d+", error^-1: "+(1/z_map-1/z_x3d));
   }
