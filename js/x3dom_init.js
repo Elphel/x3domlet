@@ -2,7 +2,7 @@
 
   Copyright (C) 2017 Elphel Inc.
 
-  License: GPL-3.0
+  License: GPL-3.0+
 
   https://www.elphel.com
 
@@ -882,12 +882,15 @@ X3DOMObject.Marker.slide = function(index,x,y,z){
     yc = campos.y;
     zc = campos.z;
 
+    // coords are converted to real world inside function
     var da = x3dom_getDistAngle(x-xc,y-yc,z-zc);
     var distance = da[0];
     var angle = da[1];
 
     var p1_ll = Map.marker._latlng;
     var p2_ll = p1_ll.CoordinatesOf(angle,distance);
+
+    var xyz_real = x3dom_scene_to_real(x,y,z);
 
     var c = Data.markers[index];
 
@@ -903,6 +906,10 @@ X3DOMObject.Marker.slide = function(index,x,y,z){
     c.align.x = x;
     c.align.y = y;
     c.align.z = z;
+
+    c.align.real.x = xyz_real.x;
+    c.align.real.y = xyz_real.y;
+    c.align.real.z = xyz_real.z;
 
     X3DOMObject.displayMarkInfo(index);
     X3DOMObject.displayInfo({});
@@ -1156,14 +1163,23 @@ X3DOMObject.displayInfo = function(e){
 
                 id_msg = (st===undefined)?"n/a":st;
 
-                dist_msg += "<table>";
-                dist_msg += "<tr><th align='center'>shape id</td><td>"+id_msg+"</td></tr>";
-                dist_msg += "</table>";
-                dist_msg += "<table>";
-                dist_msg += "<tr><th align='left'>d<sub>xz</sub></td><td>"+mouse.d_xz+" m</td>";
-                dist_msg += "<td>&nbsp;</td>";
-                dist_msg += "<th align='left'>d<sub>xyz</sub></td><td>"+mouse.d_xyz+" m</td></tr>";
-                dist_msg += "</table>";
+                dist_msg += [
+                  '<table>',
+                  '  <tr>',
+                  '    <th align=\'center\'>shape id</td>',
+                  '    <td>'+id_msg+'</td>',
+                  '  </tr>',
+                  '</table>',
+                  '<table>',
+                  '  <tr>',
+                  '    <th align=\'left\'>d<sub>xz</sub></td>',
+                  '    <td>'+mouse.d_xz+' m</td>',
+                  '    <td>&nbsp;</td>',
+                  '    <th align=\'left\'>d<sub>xyz</sub></td>',
+                  '    <td>'+mouse.d_xyz+' m</td>',
+                  '  </tr>',
+                  '</table>'
+                ].join('\n');
 
             }else{
 
@@ -1306,7 +1322,6 @@ X3DOMObject.displayMarkInfo = function(index){
     if (Data.markers.length==0){
         hide = true;
     }else{
-        msg = "<div>Marker "+index+" (Satellite vs 3D model)</div>";
 
         var d_map = Data.markers[index].d_map;
         var d_x3d = Data.markers[index].d_x3d;
@@ -1335,12 +1350,24 @@ X3DOMObject.displayMarkInfo = function(index){
             delta = "-";
         }
 
+        msg = [
+        '<div>Marker '+index+' (Satellite vs 3D model)</div>',
+        '<table>',
+        '<tr title=\'drag marker over map to update distance\'>',
+        '  <th align=\'left\'>d<sub>map</sub></th>',
+        '  <td align=\'left\' style=\'text-align:left;\'>'+d_map_msg+'</td>',
+        '</tr>',
+        '<tr title=\'drag marker over 3d scene to update distance\'>',
+        '  <th align=\'left\'>d<sub>3d</sub></th>',
+        '  <td align=\'left\' style=\'text-align:left;\'>'+d_x3d_msg+'</td>',
+        '</tr>',
+        '<tr>',
+        '  <th align=\'center\'>&Delta;</th>',
+        '  <td align=\'left\' style=\'text-align:left;\'>'+delta+' m</td>',
+        '</tr>',
+        '</table>'
+        ].join('\n');
 
-        msg += "<table>";
-        msg += "<tr title='drag marker over map to update distance'><th align='left'>d<sub>map</sub></th><td align='left' style='text-align:left;'>"+d_map_msg+"</td></tr>";
-        msg += "<tr title='drag marker over 3d scene to update distance'><th align='left'>d<sub>3d</sub></th><td align='left' style='text-align:left;'>"+d_x3d_msg+"</td></tr>";
-        msg += "<tr><th align='center'>&Delta;</th><td align='left' style='text-align:left;'>"+delta+" m</td></tr>";
-        msg += "</table>";
     }
 
     if (hide||!SETTINGS.markinfo){
@@ -1353,21 +1380,30 @@ X3DOMObject.displayMarkInfo = function(index){
 
 X3DOMObject.createNewMarker = function(x,y,z){
 
+  console.log("Create marker");
+
+  x = parseFloat(x);
+  y = parseFloat(y);
+  z = parseFloat(z);
+
   var Camera = Map.marker;
   // Create marker for Data
 
   var color = SETTINGS.markercolor;
   color = AUTOCOLORS[Data.markers.length%AUTOCOLORS.length];
 
+  var xyz_real = x3dom_scene_to_real(x,y,z);
+
   var mark = new X3L({
-      x: parseFloat(x) || 0,
-      y: parseFloat(y) || 0,
-      z: parseFloat(z) || 0,
+      x: x || 0,
+      y: y || 0,
+      z: z || 0,
       color: color,
       size:  SETTINGS.markersize,
   });
 
-  mark.d_x3d = Math.sqrt(mark.x*mark.x+mark.z*mark.z);
+  mark.d_x3d = Math.sqrt(Math.pow(xyz_real.x,2)+Math.pow(xyz_real.z,2));
+  //mark.d_x3d = Math.sqrt(Math.pow(x,2)+Math.pow(z,2));
   mark.d_map = "<font style='color:red;'>drag over map</font>";
 
   mark.align = {
@@ -1376,7 +1412,12 @@ X3DOMObject.createNewMarker = function(x,y,z){
     altitude: 0,
     x: mark.x,
     y: mark.y,
-    z: mark.z
+    z: mark.z,
+    real:{
+      x: xyz_real.x,
+      y: xyz_real.y,
+      z: xyz_real.z,
+    }
   };
 
   Data.markers.push(mark);
@@ -1393,6 +1434,7 @@ X3DOMObject.createNewMarker = function(x,y,z){
   zc = campos.z;
 
   // calculate relative to the camera base
+  // converted to real world inside the function
   var da = x3dom_getDistAngle(mark.x-xc,mark.y-yc,mark.z-zc);
   var distance = da[0];
   var angle = da[1];

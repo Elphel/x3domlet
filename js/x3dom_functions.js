@@ -2,7 +2,7 @@
 
   Copyright (C) 2017 Elphel Inc.
 
-  License: GPLv3
+  License: GPL-3.0+
 
   https://www.elphel.com
 
@@ -682,6 +682,34 @@ function x3dom_2d_distance(x,z,round){
   var res = Math.sqrt(Math.pow(x,2)+Math.pow(z,2));
   res = !round? res:res.toFixed(2);
   return res;
+
+}
+
+function x3dom_scene_to_real(x,y,z){
+
+    var R0 = Data.camera.Matrices.R0;
+    var p_w = new x3dom.fields.SFVec3f(x,y,z);
+    var p_rw = R0.multMatrixVec(p_w);
+
+    return {
+      x: p_rw.x,
+      y: p_rw.y,
+      z: p_rw.z
+    }
+
+}
+
+function x3dom_real_to_scene(x,y,z){
+
+    var R0i = Data.camera.Matrices.R0.inverse();
+    var p_rw = new x3dom.fields.SFVec3f(x,y,z);
+    var p_w = R0i.multMatrixVec(p_rw);
+
+    return {
+      x: p_w.x,
+      y: p_w.y,
+      z: p_w.z
+    }
 
 }
 
