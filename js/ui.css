@@ -258,7 +258,7 @@ html, body, #x3d_wrapper {
     border-radius: 1px;
     color: black;
     font-size: 16px;
-    margin-top: 2px;
+    margin-bottom: 2px;
 }
 
 #window-viewinfo td{
@@ -272,7 +272,7 @@ html, body, #x3d_wrapper {
     border-radius: 1px;
     color: black;
     font-size: 16px;
-    margin-top: 2px;
+    margin-bottom: 2px;
 }
 
 #window-markinfo td{
@@ -286,7 +286,7 @@ html, body, #x3d_wrapper {
     border-radius: 1px;
     color: red;
     font-size: 16px;
-    margin-top: 2px;
+    margin-bottom: 2px;
 }
 
 .input{
@@ -308,7 +308,7 @@ html, body, #x3d_wrapper {
 #info-wrapper{
     position: absolute;
     left:2px;
-    bottom:2px;
+    top:2px;
 }
 
 /*button with icon*/
@@ -347,6 +347,7 @@ html, body, #x3d_wrapper {
   left:2px;
   background: rgba(256,256,256,1);
   padding:5px;
+  border: 1px solid rgba(200,200,200,0.5);
 }
 
 #aa1_dialog td{
@@ -355,4 +356,9 @@ html, body, #x3d_wrapper {
 
 #aa1_dialog button{
   margin: 0px 5px;
+}
+
+.marker_coordinates{
+  width: 50px;
+  text-align: right;
 }

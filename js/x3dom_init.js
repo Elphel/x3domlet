@@ -1353,18 +1353,40 @@ X3DOMObject.displayMarkInfo = function(index){
         msg = [
           '<div>Marker '+index+' (Satellite vs 3D model)</div>',
           '<table>',
-          '<tr title=\'drag marker over map to update distance\'>',
-          '  <th align=\'left\'>d<sub>map</sub></th>',
-          '  <td align=\'left\' style=\'text-align:left;\'>'+d_map_msg+'</td>',
-          '</tr>',
-          '<tr title=\'drag marker over 3d scene to update distance\'>',
-          '  <th align=\'left\'>d<sub>3d</sub></th>',
-          '  <td align=\'left\' style=\'text-align:left;\'>'+d_x3d_msg+'</td>',
-          '</tr>',
-          '<tr>',
-          '  <th align=\'center\'>&Delta;</th>',
-          '  <td align=\'left\' style=\'text-align:left;\'>'+delta+' m</td>',
-          '</tr>',
+          '  <tr>',
+          '    <td>',
+          '      <table title=\'change coordinates to move marker\'>',
+          '      <tr>',
+          '        <th>x</th>',
+          '        <th>y</th>',
+          '        <th>z</th>',
+          '      </tr>',
+          '      <tr>',
+          '        <td><input type=\'text\' id=\'marker_x\' index='+index+' class=\'marker_coordinates\'/></td>',
+          '        <td><input type=\'text\' id=\'marker_y\' index='+index+' class=\'marker_coordinates\'/></td>',
+          '        <td><input type=\'text\' id=\'marker_z\' index='+index+' class=\'marker_coordinates\'/></td>',
+          '      </tr>',
+          '      </table>',
+          '    </td>',
+          '  </tr>',
+          '  <tr>',
+          '    <td>',
+          '      <table>',
+          '      <tr title=\'drag marker over map to update distance\'>',
+          '        <th align=\'left\'>d<sub>map</sub></th>',
+          '        <td align=\'left\' style=\'text-align:left;\'>'+d_map_msg+'</td>',
+          '      </tr>',
+          '      <tr title=\'drag marker over 3d scene to update distance\'>',
+          '        <th align=\'left\'>d<sub>3d</sub></th>',
+          '        <td align=\'left\' style=\'text-align:left;\'>'+d_x3d_msg+'</td>',
+          '      </tr>',
+          '      <tr>',
+          '        <th align=\'center\'>&Delta;</th>',
+          '        <td align=\'left\' style=\'text-align:left;\'>'+delta+' m</td>',
+          '      </tr>',
+          '      </table>',
+          '    </td>',
+          '  </tr>',
           '</table>'
         ].join('\n');
 
@@ -1375,6 +1397,42 @@ X3DOMObject.displayMarkInfo = function(index){
     }else{
         ui_showMessage("window-markinfo",msg);
     }
+
+    // enable input fields here
+    $(".marker_coordinates").each(function(){
+
+      var index = parseInt($(this).attr("index"));
+      var marker = Data.markers[index];
+      var coord = $(this).attr("id").substr(-1);
+
+      if       (coord=="x"){
+        $(this).val(marker.align.real.x.toFixed(2));
+      }else if (coord=="y"){
+        $(this).val(marker.align.real.y.toFixed(2));
+      }else if (coord=="z"){
+        $(this).val(marker.align.real.z.toFixed(2));
+      }
+
+      //var xyz_real = x3dom_scene_to_real(x,y,z);
+      $(this).on('change',function(){
+
+        var index = parseInt($(this).attr("index"));
+        var marker = Data.markers[index];
+        var coord = $(this).attr("id").substr(-1);
+
+        var xyz = {
+          x: parseFloat($("#marker_x").val()),
+          y: parseFloat($("#marker_y").val()),
+          z: parseFloat($("#marker_z").val())
+        };
+
+        xyz = x3dom_real_to_scene(xyz.x,xyz.y,xyz.z);
+
+        X3DOMObject.Marker.place(xyz.x,xyz.y,xyz.z,"my-sph-"+index);
+        X3DOMObject.Marker.slide(index,xyz.x,xyz.y,xyz.z);
+
+      });
+    });
 
 }
 
