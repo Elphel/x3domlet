@@ -52,10 +52,11 @@ function hll_f_3d_i(i,v){
   var base = Data.camera;
   var mark = Data.markers[i];
 
-  var xyz_real = x3dom_scene_to_real(mark.align.x-base.x,mark.align.y-base.y,mark.align.z-base.z);
+  //var xyz_real = x3dom_scene_to_real(mark.align.x-base.x,mark.align.y-base.y,mark.align.z-base.z);
+  var xyz_real = x3dom_scene_to_heading(mark.align.x-base.x,mark.align.y-base.y,mark.align.z-base.z);
 
-  //var vec = new x3dom.fields.SFVec3f(xyz_real.x,xyz_real.y,xyz_real.z);
-  var vec = new x3dom.fields.SFVec3f(mark.align.x-base.x,mark.align.y-base.y,mark.align.z-base.z);
+  var vec = new x3dom.fields.SFVec3f(xyz_real.x,xyz_real.y,xyz_real.z);
+  //var vec = new x3dom.fields.SFVec3f(mark.align.x-base.x,mark.align.y-base.y,mark.align.z-base.z);
   var res = Math.atan2(vec.x,-vec.z)*180/Math.PI + v[2];
 
   if (res> 180) res = res - 360;
@@ -195,6 +196,7 @@ function hll_w_i(i,v){
   res = (res>1)?1:res;
 
   return res;
+
 }
 
 /**

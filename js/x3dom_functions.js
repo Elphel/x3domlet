@@ -744,6 +744,24 @@ function x3dom_scene_to_real(x,y,z){
 
 }
 
+/*
+ * unapply tilt and roll only, keep heading
+ */
+function x3dom_scene_to_heading(x,y,z){
+
+    //var R0 = Data.camera.Matrices.R0;
+    var R0 = Data.camera.Matrices.RC_w.inverse();
+    var p_w = new x3dom.fields.SFVec3f(x,y,z);
+    var p_rw = R0.multMatrixVec(p_w);
+
+    return {
+      x: p_rw.x,
+      y: p_rw.y,
+      z: p_rw.z
+    }
+
+}
+
 function x3dom_real_to_scene(x,y,z){
 
     var R0i = Data.camera.Matrices.R0.inverse();
