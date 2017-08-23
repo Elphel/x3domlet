@@ -209,68 +209,77 @@ function light_init(){
     $.ajax({
         url: SETTINGS.files.kml+"?"+Date.now(),
         success: function(response){
-
-            var longitude = parseFloat($(response).find("Camera").find("longitude").text());
-            var latitude  = parseFloat($(response).find("Camera").find("latitude").text());
-            var altitude  = parseFloat($(response).find("Camera").find("altitude").text());
-
-            var heading = parseFloat($(response).find("Camera").find("heading").text());
-            var tilt    = parseFloat($(response).find("Camera").find("tilt").text());
-            var roll    = parseFloat($(response).find("Camera").find("roll").text());
-
-            var fov    = parseFloat($(response).find("Camera").find("fov").text());
-
-            Data.camera = new X3L({
-                x: 0,
-                y: 0,
-                z: 0,
-                latitude: latitude || 0,
-                longitude: longitude || 0,
-                altitude: altitude || 0,
-                heading: heading || 0,
-                tilt: tilt || 0,
-                roll: roll || 0,
-                fov: fov || 0,
-            });
-
-            // store kml
-            //    this data changes only in leaflet's edit location mode
-            Data.camera.kml = {
-                latitude: latitude || 0,
-                longitude: longitude || 0,
-                altitude: altitude || 0,
-                heading: heading || 0,
-                tilt: tilt || 0,
-                roll: roll || 0,
-                name        : $(response).find("name").text(),
-                description : $(response).find("Camera").find("description").text(),
-                visibility  : $(response).find("visibility").text(),
-                href        : $(response).find("Icon").find("href").text()
-            };
-
-            var element = document.getElementById('x3d_id');
-
-            Scene = new X3DOMObject(element,Data,{});
-            Scene.initResize();
-
-            $.getScript("js/x3dom/x3dom-full.debug.js",function(){
-                Map = new LeafletObject('leaflet_map',Data,{});
-                //wait until it DOM is extended
-                x3dom.runtime.ready = function(){
-
-                    map_resize_init();
-                    deep_init();
-
-                    //align_init();
-                    x3d_initial_camera_placement();
-                    Scene.resize();
-                    x3d_events();
-                    leaf_events();
-
-                };
-            });
+          parse_light_init_response(response);
         },
+        error: function(response){
+          console.log("KML not found. Using defaults");
+          parse_light_init_response(response);
+        }
     });
+
+}
+
+function parse_light_init_response(response){
+
+  var longitude = parseFloat($(response).find("Camera").find("longitude").text());
+  var latitude  = parseFloat($(response).find("Camera").find("latitude").text());
+  var altitude  = parseFloat($(response).find("Camera").find("altitude").text());
+
+  var heading = parseFloat($(response).find("Camera").find("heading").text());
+  var tilt    = parseFloat($(response).find("Camera").find("tilt").text());
+  var roll    = parseFloat($(response).find("Camera").find("roll").text());
+
+  var fov    = parseFloat($(response).find("Camera").find("fov").text());
+
+  Data.camera = new X3L({
+      x: 0,
+      y: 0,
+      z: 0,
+      latitude: latitude || 40.7233861,
+      longitude: longitude || -111.9328843,
+      altitude: altitude || 1305.1,
+      heading: heading || 0,
+      tilt: tilt || 90,
+      roll: roll || 0,
+      fov: fov || 0,
+  });
+
+  // store kml
+  //    this data changes only in leaflet's edit location mode
+  Data.camera.kml = {
+      latitude: latitude || 40.7233861,
+      longitude: longitude || -111.9328843,
+      altitude: altitude || 1305.1,
+      heading: heading || 0,
+      tilt: tilt || 90,
+      roll: roll || 0,
+      name        : $(response).find("name").text(),
+      description : $(response).find("Camera").find("description").text(),
+      visibility  : $(response).find("visibility").text(),
+      href        : $(response).find("Icon").find("href").text()
+  };
+
+  var element = document.getElementById('x3d_id');
+
+  Scene = new X3DOMObject(element,Data,{});
+  Scene.initResize();
+
+  $.getScript("js/x3dom/x3dom-full.debug.js",function(){
+      Map = new LeafletObject('leaflet_map',Data,{});
+      //wait until it DOM is extended
+      x3dom.runtime.ready = function(){
+
+        map_resize_init();
+        deep_init();
+
+        //align_init();
+        x3d_initial_camera_placement();
+        Scene.resize();
+        x3d_events();
+        leaf_events();
+
+      };
+  });
 
 }
 
