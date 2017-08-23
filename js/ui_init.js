@@ -56,7 +56,7 @@ var SETTINGS = {
     'slidingdrag': true,
     'basepath': "models",
     'path'   : "1487451413_967079",
-    'version': "v1",
+    'version': "",
     'experimental': false,
     'edit': false,
     'files': {
