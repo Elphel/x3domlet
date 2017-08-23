@@ -93,6 +93,7 @@ function parseURL(){
             case "slidingdrag":  SETTINGS.slidingdrag = true; break;
             case "shiftspeed":   SETTINGS.shiftspeed = parseFloat(parameters[i][1]); break;
             case "markersize":   SETTINGS.markersize = parseFloat(parameters[i][1]); break;
+            case "basepath":     SETTINGS.basepath = parameters[i][1]; break;
             case "path":         SETTINGS.path = parameters[i][1]; break;
             case "ver":          SETTINGS.version = parameters[i][1]; break;
 
@@ -209,122 +210,81 @@ function light_init(){
     $.ajax({
         url: SETTINGS.files.kml+"?"+Date.now(),
         success: function(response){
-          parse_light_init_response(response);
+          parse_light_init_response(response,"init");
         },
         error: function(response){
-          console.log("KML not found. Using defaults");
-          parse_light_init_response(response);
+          console.log("Init: KML not found. Using defaults");
+          parse_light_init_response(response,"init");
         }
     });
 
 }
 
-function parse_light_init_response(response){
+function parse_light_init_response(response,state){
 
-  var longitude = parseFloat($(response).find("Camera").find("longitude").text());
-  var latitude  = parseFloat($(response).find("Camera").find("latitude").text());
-  var altitude  = parseFloat($(response).find("Camera").find("altitude").text());
+  var latitude  = parseFloat($(response).find("Camera").find("latitude").text()) || 40.7233861;
+  var longitude = parseFloat($(response).find("Camera").find("longitude").text()) || -111.9328843;
+  var altitude  = parseFloat($(response).find("Camera").find("altitude").text())  || 1305.1;
 
-  var heading = parseFloat($(response).find("Camera").find("heading").text());
-  var tilt    = parseFloat($(response).find("Camera").find("tilt").text());
-  var roll    = parseFloat($(response).find("Camera").find("roll").text());
+  var heading = parseFloat($(response).find("Camera").find("heading").text()) || 0.0001;
+  var tilt    = parseFloat($(response).find("Camera").find("tilt").text()) || 90;
+  var roll    = parseFloat($(response).find("Camera").find("roll").text()) || 0;
 
-  var fov    = parseFloat($(response).find("Camera").find("fov").text());
+  var fov    = parseFloat($(response).find("Camera").find("fov").text()) || 0;
 
   Data.camera = new X3L({
       x: 0,
       y: 0,
       z: 0,
-      latitude: latitude || 40.7233861,
-      longitude: longitude || -111.9328843,
-      altitude: altitude || 1305.1,
-      heading: heading || 0,
-      tilt: tilt || 90,
-      roll: roll || 0,
-      fov: fov || 0,
+      latitude: latitude,
+      longitude: longitude,
+      altitude: altitude,
+      heading: heading,
+      tilt: tilt,
+      roll: roll ,
+      fov: fov,
   });
 
   // store kml
   //    this data changes only in leaflet's edit location mode
   Data.camera.kml = {
-      latitude: latitude || 40.7233861,
-      longitude: longitude || -111.9328843,
-      altitude: altitude || 1305.1,
-      heading: heading || 0,
-      tilt: tilt || 90,
-      roll: roll || 0,
+      latitude: latitude,
+      longitude: longitude,
+      altitude: altitude,
+      heading: heading,
+      tilt: tilt,
+      roll: roll,
       name        : $(response).find("name").text(),
       description : $(response).find("Camera").find("description").text(),
       visibility  : $(response).find("visibility").text(),
       href        : $(response).find("Icon").find("href").text()
   };
 
-  var element = document.getElementById('x3d_id');
+  if (state=="init"){
 
-  Scene = new X3DOMObject(element,Data,{});
-  Scene.initResize();
+    var element = document.getElementById('x3d_id');
 
-  $.getScript("js/x3dom/x3dom-full.debug.js",function(){
-      Map = new LeafletObject('leaflet_map',Data,{});
-      //wait until it DOM is extended
-      x3dom.runtime.ready = function(){
+    Scene = new X3DOMObject(element,Data,{});
+    Scene.initResize();
 
-        map_resize_init();
-        deep_init();
+    $.getScript("js/x3dom/x3dom-full.debug.js",function(){
+        Map = new LeafletObject('leaflet_map',Data,{});
+        //wait until it DOM is extended
+        x3dom.runtime.ready = function(){
 
-        //align_init();
-        x3d_initial_camera_placement();
-        Scene.resize();
-        x3d_events();
-        leaf_events();
+          map_resize_init();
+          deep_init();
 
-      };
-  });
+          //align_init();
+          x3d_initial_camera_placement();
+          Scene.resize();
+          x3d_events();
+          leaf_events();
 
-}
+        };
+    });
 
-function reset_to_initial_position(){
-
-  $.ajax({
-    url: SETTINGS.files.kml+"?"+Date.now(),
-    success: function(response){
-
-      var longitude = parseFloat($(response).find("Camera").find("longitude").text());
-      var latitude  = parseFloat($(response).find("Camera").find("latitude").text());
-      var altitude  = parseFloat($(response).find("Camera").find("altitude").text());
-
-      var heading = parseFloat($(response).find("Camera").find("heading").text());
-      var tilt    = parseFloat($(response).find("Camera").find("tilt").text());
-      var roll    = parseFloat($(response).find("Camera").find("roll").text());
-
-      var fov    = parseFloat($(response).find("Camera").find("fov").text());
-
-      Data.camera = new X3L({
-          x: 0,
-          y: 0,
-          z: 0,
-          latitude: latitude || 0,
-          longitude: longitude || 0,
-          altitude: altitude || 0,
-          heading: heading || 0,
-          tilt: tilt || 0,
-          roll: roll || 0,
-          fov: fov || 0,
-      });
-
-      // store kml
-      Data.camera.kml = {
-          latitude: latitude || 0,
-          longitude: longitude || 0,
-          altitude: altitude || 0,
-          heading: heading || 0,
-          tilt: tilt || 0,
-          roll: roll || 0,
-          name        : $(response).find("name").text(),
-          description : $(response).find("Camera").find("description").text(),
-          visibility  : $(response).find("visibility").text(),
-          href        : $(response).find("Icon").find("href").text()
-      };
+  }else{
 
       Map.marker.setHeading(heading);
       Map.marker.setBasePoint(new L.LatLng(latitude,longitude));
@@ -336,6 +296,20 @@ function reset_to_initial_position(){
 
       reportKmlReloaded();
 
+  }
+
+}
+
+function reset_to_initial_position(){
+
+  $.ajax({
+    url: SETTINGS.files.kml+"?"+Date.now(),
+    success: function(response){
+      parse_light_init_response(response,"reset");
+    },
+    error: function(response){
+      console.log("Reset: KML not found. Using defaults");
+      parse_light_init_response(response,"reset");
     }
   });
 
