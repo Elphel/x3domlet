@@ -1284,9 +1284,9 @@ X3DOMObject.displayViewInfo = function(e){
       '</tr>',
       '<tr>',
       '    <td>mouse</td>',
-      '    <td>'+mouse.real.x+'</td>',
-      '    <td>'+mouse.real.y+'</td>',
-      '    <td>'+mouse.real.z+'</td>',
+      '    <td>'+(SETTINGS.global_coordinates?mouse.real.x:mouse.x)+'</td>',
+      '    <td>'+(SETTINGS.global_coordinates?mouse.real.y:mouse.y)+'</td>',
+      '    <td>'+(SETTINGS.global_coordinates?mouse.real.z:mouse.z)+'</td>',
       '    <td>'+mouse.a+'</td>',
       '    <td>'+mouse.e+'</td>',
       '    <td>'+mouse.s+'</td>',
@@ -1405,12 +1405,24 @@ X3DOMObject.displayMarkInfo = function(index){
       var marker = Data.markers[index];
       var coord = $(this).attr("id").substr(-1);
 
+      var x,y,z;
+
+      if (SETTINGS.global_coordinates){
+        x = marker.align.real.x.toFixed(2);
+        y = marker.align.real.y.toFixed(2);
+        z = marker.align.real.z.toFixed(2);
+      }else{
+        x = marker.align.x.toFixed(2);
+        y = marker.align.y.toFixed(2);
+        z = marker.align.z.toFixed(2);
+      }
+
       if       (coord=="x"){
-        $(this).val(marker.align.real.x.toFixed(2));
+        $(this).val(x);
       }else if (coord=="y"){
-        $(this).val(marker.align.real.y.toFixed(2));
+        $(this).val(y);
       }else if (coord=="z"){
-        $(this).val(marker.align.real.z.toFixed(2));
+        $(this).val(z);
       }
 
       //var xyz_real = x3dom_scene_to_real(x,y,z);
@@ -1426,7 +1438,9 @@ X3DOMObject.displayMarkInfo = function(index){
           z: parseFloat($("#marker_z").val())
         };
 
-        xyz = x3dom_real_to_scene(xyz.x,xyz.y,xyz.z);
+        if (SETTINGS.global_coordinates){
+          xyz = x3dom_real_to_scene(xyz.x,xyz.y,xyz.z);
+        }
 
         X3DOMObject.Marker.place(xyz.x,xyz.y,xyz.z,"my-sph-"+index);
         X3DOMObject.Marker.slide(index,xyz.x,xyz.y,xyz.z);

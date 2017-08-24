@@ -46,6 +46,7 @@ var Map;
 var SETTINGS = {
     'pointer':   false,
     'highlight': false,
+    'global_coordinates': true,
     'markinfo':  true,
     'viewinfo':  true,
     'moreinfo':  true,
@@ -86,6 +87,7 @@ function parseURL(){
         switch (parameters[i][0]) {
             case "pointer":      SETTINGS.pointer   = true; break;
             case "highlight":    SETTINGS.highlight = true; break;
+            case "global_coordinates":     SETTINGS.global_coordinates  = true; break;
             case "markinfo":     SETTINGS.markinfo  = true; break;
             case "viewinfo":     SETTINGS.viewinfo  = true; break;
             case "moreinfo":     SETTINGS.moreinfo  = true; break;

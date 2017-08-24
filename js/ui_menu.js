@@ -105,6 +105,10 @@ function menu_init(){
     align_init();
     work_with_kml_init();
     editmode_init();
+
+    $("#global_coordinates").on('click',function(){
+      ui_hideMessage("window-markinfo");
+    });
 }
 
 function crosshair_init(){
