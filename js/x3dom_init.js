@@ -1365,6 +1365,7 @@ X3DOMObject.displayMarkInfo = function(index){
           '        <td><input type=\'text\' id=\'marker_x\' index='+index+' class=\'marker_coordinates\'/></td>',
           '        <td><input type=\'text\' id=\'marker_y\' index='+index+' class=\'marker_coordinates\'/></td>',
           '        <td><input type=\'text\' id=\'marker_z\' index='+index+' class=\'marker_coordinates\'/></td>',
+          '        <td><input type=\'checkbox\' index='+index+' id=\'rf_switcher\' title=\'switch between global and model coordinates\'/></td>',
           '      </tr>',
           '      </table>',
           '    </td>',
@@ -1397,6 +1398,19 @@ X3DOMObject.displayMarkInfo = function(index){
     }else{
         ui_showMessage("window-markinfo",msg);
     }
+
+    if (SETTINGS.global_coordinates){
+      $("#rf_switcher").prop("checked",true);
+    }
+
+    $("#rf_switcher").on('change',function(){
+
+      //$("#global_coordinates").prop("checked",$(this).prop("checked"));
+      $("#global_coordinates").click();
+
+      X3DOMObject.displayMarkInfo($(this).attr("index"));
+
+    });
 
     // enable input fields here
     $(".marker_coordinates").each(function(){
