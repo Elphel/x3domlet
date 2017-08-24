@@ -15,6 +15,10 @@ $(function(){
 
     });
 
+    $('.copy').on('click',function(e){
+      copy_models();
+    });
+
 });
 
 function parse_list(res){
@@ -29,16 +33,35 @@ function parse_list(res){
     $(this).find("model").each(function(){
 
       var mname = $(this).attr("name");
+      var basepath = 'models/_all/'+name;
 
       var item = [
         '<li>',
-        '  <a href=\'viewer.html?basepath=models/_all/'+name+'&path='+mname+'\'>'+mname+'</a>',
+        ' <input type=\'checkbox\' class=\'chkbox\' set=\''+name+'\' model=\''+mname+'\'/>',
+        '  <a href=\'viewer.html?basepath='+basepath+'&path='+mname+'\'>'+mname+'</a>',
         '</li>'
       ].join('\n');
 
       mlist.append($(item));
 
     });
+
+  });
+
+}
+
+function copy_models(){
+
+  $(".chkbox").each(function(){
+
+    if ($(this).prop("checked")){
+      $.ajax({
+        url: "select.php?cmd=copy&set="+$(this).attr('set')+"&model="+$(this).attr('model'),
+        success: function(response){
+          console.log(response);
+        }
+      });
+    }
 
   });
 
