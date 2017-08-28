@@ -1538,4 +1538,7 @@ X3DOMObject.createNewMarker = function(x,y,z){
   // need?
   Camera._syncMeasureMarkersToBasePoint();
 
+  // this colors the marker on the map
+  Map.dehighlightMarker(Camera._measureMarkers.length-1);
+
 }
