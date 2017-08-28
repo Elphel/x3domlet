@@ -11,6 +11,8 @@ if (isset($_GET['showall'])){
 
 if ($_GET['cmd']=='copy'){
 
+  $kml_template = file_get_contents('php://input');
+
   $set = $_GET['set'];
   $model = $_GET['model'];
 
@@ -33,7 +35,12 @@ if ($_GET['cmd']=='copy'){
   $kml = "$base0/$model/$model.kml";
 
   if (!is_file($kml)){
-    file_put_contents($kml,generate_default_kml($model,$ts));
+    if ($kml_template==""){
+      $kml_data = generate_default_kml($model,$ts);
+    }else{
+      $kml_data = $kml_template;
+    }
+    file_put_contents($kml,$kml_data);
   }
 
   //gen thumbnail

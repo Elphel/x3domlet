@@ -52,11 +52,22 @@ function parse_list(res){
 
 function copy_models(){
 
+  // testing
+  $.ajax({
+    url: "select.php?cmd=copy",
+    success: function(response){
+      console.log(response);
+    }
+  });
+
   $(".chkbox").each(function(){
 
     if ($(this).prop("checked")){
       $.ajax({
         url: "select.php?cmd=copy&set="+$(this).attr('set')+"&model="+$(this).attr('model'),
+        type:'post',
+        data: $('#kml')[0].files[0],
+        processData: false,
         success: function(response){
           console.log(response);
         }
