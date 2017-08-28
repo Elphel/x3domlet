@@ -52,13 +52,13 @@ function parse_list(res){
 
 function copy_models(){
 
-  // testing
-  $.ajax({
-    url: "select.php?cmd=copy",
-    success: function(response){
-      console.log(response);
+  var kmldata = $('#kml')[0].files[0];
+
+  if (kmldata!=undefined){
+    if(kmldata.name.substr(-3)!="kml"){
+      kmldata = undefined;
     }
-  });
+  }
 
   $(".chkbox").each(function(){
 
@@ -66,7 +66,7 @@ function copy_models(){
       $.ajax({
         url: "select.php?cmd=copy&set="+$(this).attr('set')+"&model="+$(this).attr('model'),
         type:'post',
-        data: $('#kml')[0].files[0],
+        data: kmldata,
         processData: false,
         success: function(response){
           console.log(response);

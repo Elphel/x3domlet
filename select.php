@@ -12,6 +12,13 @@ if (isset($_GET['showall'])){
 if ($_GET['cmd']=='copy'){
 
   $kml_template = file_get_contents('php://input');
+  if ($kml_template!=""){
+    if (!kml_test($kml_template)){
+      $kml_template = "";
+    }
+  }
+
+  die();
 
   $set = $_GET['set'];
   $model = $_GET['model'];
@@ -81,6 +88,19 @@ foreach($series as $set){
 return_xml($res);
 
 //functions
+
+function kml_test($data){
+
+  $result = false;
+  $xml = simplexml_load_string($data);
+
+  if ($xml->Document->PhotoOverlay){
+    $result = true;
+  }
+
+  return $result;
+
+}
 
 function selective_scandir($path,$showall){
 
