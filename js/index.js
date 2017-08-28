@@ -174,6 +174,13 @@ function popup_message(marker){
 
 function register_row_events(elem){
 
+    $(elem).on("dblclick",function(e){
+
+      console.log("double click");
+      // put double click actions here
+
+    });
+
     $(elem).on("click",function(e){
 
         if (!Dragged){
