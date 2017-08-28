@@ -174,7 +174,7 @@ function popup_message(marker){
 
 function register_row_events(elem){
 
-    $(elem).on("click",function(){
+    $(elem).on("click",function(e){
 
         if (!Dragged){
 
@@ -203,17 +203,48 @@ function register_row_events(elem){
             markers[index][0]._popup.setContent(tmp);
             markers[index][0].openPopup();
 
+            $(".plist").each(function(i,c){
+              if (parseInt($(c).attr("index"))==index){
+                $(c).css({
+                  background: "rgba(220,220,230,1)"
+                });
+                $(c).addClass('plist_selected');
+              }
+            });
+
             $(".plist").on("mouseover",function(){
+
+              $(".plist").each(function(i,c){
+                if (!$(c).hasClass('plist_selected')){
+                  $(c).css({background: "white"});
+                }else{
+                  $(c).css({background: "rgba(220,220,230,1)"});
+                }
+              });
+
+              /*
               $(".plist").css({
                 background: "white"
               });
+              */
+
               $(this).css({
-                background: "rgba(240,240,240,1)"
+                background: "rgba(230,230,230,1)"
               });
 
               var j = $(this).attr("index");
               $(".pimg").attr("src","models/"+markers[j][0].name+"/thumb.jpeg");
 
+            });
+
+            $(".plist").on("mouseout",function(){
+              $(".plist").each(function(i,c){
+                if (!$(c).hasClass('plist_selected')){
+                  $(c).css({background: "white"});
+                }else{
+                  $(c).css({background: "rgba(220,220,230,1)"});
+                }
+              });
             });
 
           }
