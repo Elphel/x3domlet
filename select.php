@@ -18,8 +18,6 @@ if ($_GET['cmd']=='copy'){
     }
   }
 
-  die();
-
   $set = $_GET['set'];
   $model = $_GET['model'];
 
