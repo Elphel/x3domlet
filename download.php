@@ -20,6 +20,7 @@ $TEXTURE_EXTENSIONS = ['png','jpeg','jpg','tif','tiff','gif'];
 if (!isset($_GET['file'])) die("-1");
 
 $file = $_GET['file'];
+$filestring = $file;
 
 $patterns = ['/(\.)+\//','/^\//'];
 $replacements = ['',''];
@@ -33,7 +34,11 @@ $path = $pathinfo['dirname'];
 
 $tmp = explode("/",$path);
 
-$zipfile = $tmp[1]."_".$tmp[2].".zip";
+if ($tmp[1]=="_all"){
+  $zipfile = $tmp[2]."_".$tmp[3].".zip";
+}else{
+  $zipfile = $tmp[1]."_".$tmp[2].".zip";
+}
 
 // alright, there's this file
 $contents = file_get_contents($file);
@@ -43,20 +48,18 @@ preg_match_all('/url="([^\s]+('.implode('|',$TEXTURE_EXTENSIONS).'))"/i',$conten
 
 // make a string
 foreach($matches[1] as $v){
-  $file .= " $path/$v";
+  $filestring .= " $path/$v";
 }
 
 // add obj
-$objfile = $path."/".$tmp[1].".obj";
-if (is_file($objfile)) $file .= " $objfile";
+$objfile = substr($file,0,-3)."obj";
+if (is_file($objfile)) $filestring .= " $objfile";
 
 // add mtl
-$mtlfile = $path."/".$tmp[1].".mtl";
-if (is_file($mtlfile)) $file .= " $mtlfile";
+$mtlfile = substr($file,0,-3)."mtl";
+if (is_file($mtlfile)) $filestring .= " $mtlfile";
 
-
-
-$zipped_data = `zip -qj - $file `;
+$zipped_data = `zip -qj - $filestring `;
 header('Content-type: application/zip');
 header('Content-Disposition: attachment; filename="'.$zipfile.'"');
 echo $zipped_data;
