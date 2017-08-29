@@ -166,7 +166,8 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
     for(var i=0;i<n;i++){
       WSUM += w(i,v)
     }
-    return w(i,v)/WSUM;
+    return w(i,v)/WSUM
+
   }
 
 }
