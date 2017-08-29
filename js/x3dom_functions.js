@@ -441,13 +441,14 @@ function x3dom_translation_v2(x,y,z){
     var at = from.subtract(mat.e2());
     var up = mat.e1();
 
-    var newfrom = delta;
-
+    // corrections
+    var R0 = Data.camera.Matrices.R0;
+    var from_tmp = R0.multMatrixVec(from);
+    var delta_tmp = R0.multMatrixVec(delta);
     // keeping height
-    newfrom.y = from.y;
-
+    delta_tmp.y = from_tmp.y;
+    var newfrom = R0.inverse().multMatrixVec(delta_tmp);
     var newat = newfrom.subtract(mat.e2());
-
     var newmat = x3dom.fields.SFMatrix4f.lookAt(newfrom, newat, up);
 
     x3dom_setViewpoint(newmat);
@@ -455,8 +456,6 @@ function x3dom_translation_v2(x,y,z){
 }
 
 function x3dom_altelev(alt,elev){
-
-    console.log("setting elevation");
 
     //x3dom_matrix_test();
 
