@@ -456,14 +456,20 @@ function x3dom_translation_v2(x,y,z){
 
 function x3dom_altelev(alt,elev){
 
+    console.log("setting elevation");
+
     //x3dom_matrix_test();
 
     var mat = Scene.element.runtime.viewMatrix().inverse();
     var R0 = Data.camera.Matrices.R0;
     //var T = x3dom_toYawPitchRoll();
     var from = mat.e3();
-    from.y = alt;
 
+    //from.y = alt;
+
+    var from_tmp = R0.multMatrixVec(from);
+    from_tmp.y = alt;
+    from = R0.inverse().multMatrixVec(from_tmp);
 
     var mat = R0.mult(mat);
     var ypr = x3dom_YawPitchRoll_nc(mat);
