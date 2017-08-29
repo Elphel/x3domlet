@@ -93,19 +93,25 @@ function bring_angle_to_range_deg(a,a0,a1){
   var res = a;
   var c = 0;
 
+  console.log("Bringing value "+a+" to range ["+a0+","+a1+"]");
+
   while ((res<a0)||(res>a1)){
     c++;
+
+    console.log("a = "+res);
+
     if (res<a0) {
       res += 360;
     }else if (res>a1){
       res -= 360;
     }
     if (c==100){
-      console.log("test");
+      console.log("done");
       break;
     }
   }
 
+  console.log("    result = "+res);
   return res;
 
 }

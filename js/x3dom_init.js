@@ -1469,8 +1469,6 @@ X3DOMObject.displayMarkInfo = function(index){
  */
 X3DOMObject.createNewMarker = function(x,y,z){
 
-  console.log("createNewMarker");
-
   x = parseFloat(x);
   y = parseFloat(y);
   z = parseFloat(z);

@@ -305,8 +305,8 @@ function x3dom_align_art(){
   result.v[0] = result.v[0]*180/Math.PI;
   result.v[1] = result.v[1]*180/Math.PI;
 
-  result.v[0] = bring_angle_to_range_deg(result.v[0],-180,180);
-  result.v[1] = bring_angle_to_range_deg(result.v[1],-180,180);
+  //result.v[0] = bring_angle_to_range_deg(result.v[0],-180,180);
+  //result.v[1] = bring_angle_to_range_deg(result.v[1],-180,180);
 
   apply_alignment_dialog_art([0,0,0],result.v,result.count,result.error,true);
 
