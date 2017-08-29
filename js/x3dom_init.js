@@ -1479,7 +1479,8 @@ X3DOMObject.createNewMarker = function(x,y,z){
   // Create marker for Data
 
   var color = SETTINGS.markercolor;
-  color = AUTOCOLORS[Data.markers.length%AUTOCOLORS.length];
+  color = AUTOCOLORS[AUTOCOLORS_COUNTER%AUTOCOLORS.length];
+  AUTOCOLORS_COUNTER++;
 
   var xyz_real = x3dom_scene_to_real(x,y,z);
 

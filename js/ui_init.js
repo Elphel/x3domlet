@@ -77,6 +77,8 @@ var AUTOCOLORS = [
   "#a4f" //purple
 ];
 
+var AUTOCOLORS_COUNTER = 0;
+
 var MARKER_PREFIX = "my-sph-";
 
 // no comments
@@ -676,7 +678,8 @@ function leaf_events(){
             if (Lm!=undefined){
 
                 var color = SETTINGS.markercolor;
-                color = AUTOCOLORS[Data.markers.length%AUTOCOLORS.length];
+                color = AUTOCOLORS[AUTOCOLORS_COUNTER%AUTOCOLORS.length];
+                AUTOCOLORS_COUNTER++;
 
                 var mark = new X3L({
                     latitude: Lm._latlng.lat,
