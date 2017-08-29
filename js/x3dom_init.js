@@ -1464,7 +1464,12 @@ X3DOMObject.displayMarkInfo = function(index){
 
 }
 
+/*
+ * Called on ctrl-click over scene
+ */
 X3DOMObject.createNewMarker = function(x,y,z){
+
+  console.log("createNewMarker");
 
   x = parseFloat(x);
   y = parseFloat(y);

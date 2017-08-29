@@ -59,8 +59,10 @@ function hll_f_3d_i(i,v){
   //var vec = new x3dom.fields.SFVec3f(mark.align.x-base.x,mark.align.y-base.y,mark.align.z-base.z);
   var res = Math.atan2(vec.x,-vec.z)*180/Math.PI + v[2];
 
-  if (res> 180) res = res - 360;
-  if (res<-180) res = res + 360;
+  console.log("hll_f_3d_i: "+i+" "+res);
+
+  //if (res> 180) res = res - 360;
+  //if (res<-180) res = res + 360;
 
   return res;
 }
@@ -282,7 +284,8 @@ function art_l_i(i){
 
 function art_w_i(i,v){
   //return 1;
-  return 1/art_l_i(i);
+  //return 1/art_l_i(i);
+  return art_l_i(i);
 }
 
 /**
@@ -326,6 +329,6 @@ function art2_l_i(i){
 }
 
 function art2_w_i(i,v){
-  return 1;
-  //return 1/art_l_i(i);
+  //return 1;
+  return 1/art_l_i(i);
 }
