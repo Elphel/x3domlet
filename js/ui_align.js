@@ -241,6 +241,7 @@ function apply_alignment_hll(xyh){
 function distance_error(x,y,h){
 
   var sum = 0;
+  var wsum = 0;
 
   for(var i=0;i<Data.markers.length;i++){
       var angle0 = h;
@@ -248,14 +249,18 @@ function distance_error(x,y,h){
       var z_map = Math.cos(Math.PI/180*(angle0-angle1))*Data.markers[i].d_map;
 
       //var z_x3d = -Data.markers[i].align.z;
-
       var z_x3d = x3dom_2d_distance(Data.markers[i].align.real.x,Data.markers[i].align.real.z,false);
 
-      sum += 1/z_map-1/z_x3d;
+      var weight = Math.sqrt(z_map*z_x3d);
+
+      wsum += weight;
+      sum += (1/z_map-1/z_x3d)*weight;
+
       console.log("Marker: "+i+", Camera heading: "+angle0+", Point azimuth: "+angle1+" , z_map: "+z_map+", z_x3d: "+z_x3d+", error^-1: "+(1/z_map-1/z_x3d));
   }
 
-  sum = sum/Data.markers.length;
+  //sum = sum/Data.markers.length;
+  sum = sum/wsum;
 
   console.log("Final sum averaged: "+sum);
 

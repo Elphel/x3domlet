@@ -704,7 +704,12 @@ function leaf_events(){
                   altitude: 0,
                   x: 0,
                   y: 0,
-                  z: 0
+                  z: 0,
+                  real:{
+                    x: 0,
+                    y: 0,
+                    z: 0
+                  }
                 };
 
                 mark.d_x3d = "<font style='color:red;'>drag over 3D</font>";
