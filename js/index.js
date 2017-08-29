@@ -31,7 +31,10 @@ $(function(){
 });
 
 var SETTINGS = {
-  'showall':false
+  'showall':false,
+  'lat': 40.7233861,
+  'lng': -111.9328843,
+  'zoom': 12
 };
 
 var Dragged = false;
@@ -43,7 +46,7 @@ function init_dragging(){
       bigcounter++;
       if (bigcounter==markers.length){
         actual_dragging_init()
-        $(".arow")[0].click();
+        //$(".arow")[0].click();
       }
     });
 
@@ -73,6 +76,9 @@ function parseURL(){
     for (var i=1;i<parameters.length;i++) {
         switch (parameters[i][0]) {
             case "showall": SETTINGS.showall = true; break;
+            case "lat":     SETTINGS.lat  = parseFloat(parameters[i][1]); break;
+            case "lng":     SETTINGS.lng  = parseFloat(parameters[i][1]); break;
+            case "zoom":    SETTINGS.zoom = parseFloat(parameters[i][1]); break;
         }
     }
 }
@@ -294,7 +300,7 @@ function init_maps(){
   map = L.map('leaflet_map',{
     layers:[googleSat],
     zoomControl:false,
-  }).setView([40.7233861, -111.9328843], 12);
+  }).setView([SETTINGS.lat, SETTINGS.lng], SETTINGS.zoom);
 
   new L.Control.Zoom({ position: 'topright' }).addTo(map);
 
@@ -311,6 +317,47 @@ function init_maps(){
   //http://www.coffeegnome.net/control-button-leaflet/
 
   L.control.layers(baseMaps).addTo(map);
+
+  map.on('moveend', function() {
+
+    var bounds = map.getBounds();
+
+    $(".arow").each(function(i,c){
+
+      var index = $(this).attr("index");
+
+      if (
+        (markers[index][0].lat>bounds._northEast.lat)||
+        (markers[index][0].lat<bounds._southWest.lat)||
+        (markers[index][0].lng>bounds._northEast.lng)||
+        (markers[index][0].lng<bounds._southWest.lng)
+      ){
+        $(this).hide();
+      }else{
+        $(this).show();
+      }
+
+    });
+
+    var center = map.getCenter();
+    var zoom = map.getZoom();
+
+    window.history.pushState("", "x3d models index", "?lat="+center.lat+"&lng="+center.lng+"&zoom="+zoom);
+
+    $("#model_table").css({
+      top: "0px"
+    });
+
+  });
+
+  /*
+   * moveend is called after zoomend anyways
+   */
+  /*
+  map.on('zoomend', function() {
+     console.log("zoomend "+map.getBounds());
+  });
+  */
 
 }
 
