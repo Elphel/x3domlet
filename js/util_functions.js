@@ -87,3 +87,25 @@ function xyz_to_real_world(x,y,z){
 
   return {x: p_rw.x, y: p_rw.y, z: p_rw.z};
 }
+
+function bring_angle_to_range_deg(a,a0,a1){
+
+  var res = a;
+  var c = 0;
+
+  while ((res<a0)||(res>a1)){
+    c++;
+    if (res<a0) {
+      res += 360;
+    }else if (res>a1){
+      res -= 360;
+    }
+    if (c==100){
+      console.log("test");
+      break;
+    }
+  }
+
+  return res;
+
+}
