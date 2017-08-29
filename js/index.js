@@ -23,6 +23,7 @@ $(function(){
             List = response;
             parse_list(response);
             init_dragging();
+            map.fire('moveend');
 
         }
 
