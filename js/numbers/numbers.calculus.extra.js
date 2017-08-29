@@ -121,10 +121,10 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
   function sigma(v,n,r){
 
     var sum = 0
-    //var wsum = 0
+    var wsum = ws(v,n)
 
     for(var i=0;i<n;i++){
-      sum += wn(i,v)*r(i,v)*r(i,v)
+      sum += wn(i,v,wsum)*r(i,v)*r(i,v)
       //wsum += w(i,v)
     }
 
