@@ -165,7 +165,7 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
   // sum of weights for normalization
   function ws(v,n){
 
-    var wsum = 0;
+    var wsum = 0
 
     for(var i=0;i<n;i++){
       wsum += w(i,v)
