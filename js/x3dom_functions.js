@@ -750,7 +750,7 @@ function x3dom_scene_to_real(x,y,z){
 function x3dom_scene_to_heading(x,y,z){
 
     //var R0 = Data.camera.Matrices.R0;
-    var R0 = Data.camera.Matrices.RC_w.inverse();
+    var R0 = Data.camera.Matrices.RC_w0.inverse();
     var p_w = new x3dom.fields.SFVec3f(x,y,z);
     var p_rw = R0.multMatrixVec(p_w);
 

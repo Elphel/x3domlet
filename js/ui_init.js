@@ -454,6 +454,7 @@ function x3d_initial_camera_placement(){
         R0 : R0,
         Up0: RC_w.e1(),
         RC_w: RC_w,
+        RC_w0: RC_w
     };
 
     x3dom_setViewpoint(RC_w);
