@@ -139,6 +139,7 @@ function x3dom_align_hll(){
 
   //calc distance error
   de = distance_error(x0,y0,(h0>180)?h0-360:h0);
+  de = -de;
   //convert to conventional range
   xyh[2] = (xyh[2]+360)%360;
   //init apply dialog
@@ -251,7 +252,7 @@ function distance_error(x,y,h){
       var z_x3d = x3dom_2d_distance(Data.markers[i].align.real.x,Data.markers[i].align.real.z,false);
 
       sum += 1/z_map-1/z_x3d;
-      console.log("Marker: "+i+", Camera heading: "+angle0+", Point azimuth: "+angle1+" , z_map: "+z_map+", z_x3d: "+z_x3d+", error^-1(updated): "+(1/z_x3d-1/z_map));
+      console.log("Marker: "+i+", Camera heading: "+angle0+", Point azimuth: "+angle1+" , z_map: "+z_map+", z_x3d: "+z_x3d+", error^-1: "+(1/z_map-1/z_x3d));
   }
 
   sum = sum/Data.markers.length;
