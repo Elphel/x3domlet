@@ -3,6 +3,8 @@ var List;
 
 var markers = [];
 
+var BLOCK_MOVEEND = false;
+
 $(function(){
 
     //init();
@@ -209,6 +211,7 @@ function register_row_events(elem){
           var lat = $($(item).find("latitude")[0]).text();
           var lng = $($(item).find("longitude")[0]).text();
 
+          BLOCK_MOVEEND = true;
           map.panTo(new L.LatLng(lat, lng));
 
           if (markers[index]!=undefined){
@@ -345,9 +348,15 @@ function init_maps(){
 
     window.history.pushState("", "x3d models index", "?lat="+center.lat+"&lng="+center.lng+"&zoom="+zoom);
 
-    $("#model_table").css({
-      top: "0px"
-    });
+    if (!BLOCK_MOVEEND){
+
+      $("#model_table").css({
+        top: "0px"
+      });
+
+    }else{
+      BLOCK_MOVEEND = false;
+    }
 
   });
 
