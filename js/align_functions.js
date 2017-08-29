@@ -59,10 +59,10 @@ function hll_f_3d_i(i,v){
   //var vec = new x3dom.fields.SFVec3f(mark.align.x-base.x,mark.align.y-base.y,mark.align.z-base.z);
   var res = Math.atan2(vec.x,-vec.z)*180/Math.PI + v[2];
 
-  console.log("hll_f_3d_i: "+i+" "+res);
+  //console.log("hll_f_3d_i: "+i+" "+res);
 
-  //if (res> 180) res = res - 360;
-  //if (res<-180) res = res + 360;
+  if (res> 180) res = res - 360;
+  if (res<-180) res = res + 360;
 
   return res;
 }
