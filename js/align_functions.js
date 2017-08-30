@@ -207,11 +207,71 @@ function hll_w_i(i,v){
  * hll2_...
  */
 
-function hll2_dr_dx_i(i,v){
-  return 0;
+function hll2_r_i(i,v){
+
+  var lat = Data.camera.kml.latitude;
+  var lng = Data.camera.kml.longitude;
+
+  var f1 = hll_f_3d_i(i,[lat,lng,v[0]]);
+  var f2 = hll_f_map_i(i,[lat,lng,v[0]]);
+  //return (f1-f2+360)%360;
+  return (f1-f2);
 }
 
+function hll2_dr_dx_i(i,v){
 
+  var lat = Data.camera.kml.latitude;
+  var lng = Data.camera.kml.longitude;
+
+  return hll_dr_dh_i(i,[lat,lng,v[0]]);
+
+}
+
+function hll2_w_i(i,v){
+
+  var lat = Data.camera.kml.latitude;
+  var lng = Data.camera.kml.longitude;
+
+  return hll_w_i(i,[lat,lng,v[0]]);
+
+}
+
+/**
+ * Functions for position latitude and longitude (heading is fixed)
+ * hll3_...
+ */
+
+function hll3_r_i(i,v){
+
+  var heading = Data.camera.kml.heading;
+
+  var f1 = hll_f_3d_i(i,[v[0],v[1],heading]);
+  var f2 = hll_f_map_i(i,[v[0],v[1],heading]);
+  //return (f1-f2+360)%360;
+  return (f1-f2);
+}
+
+function hll3_dr_dx_i(i,v){
+
+  var heading = Data.camera.kml.heading;
+  return hll_dr_dx_i(i,[v[0],v[1],heading]);
+
+}
+
+function hll3_dr_dy_i(i,v){
+
+  var heading = Data.camera.kml.heading;
+  return hll_dr_dy_i(i,[v[0],v[1],heading]);
+
+}
+
+function hll3_w_i(i,v){
+
+  var heading = Data.camera.kml.heading;
+
+  return hll_w_i(i,[v[0],v[1],heading]);
+
+}
 
 
 

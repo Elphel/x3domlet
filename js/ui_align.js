@@ -48,6 +48,29 @@ function align_init(){
         x3dom_align_hll();
     });
 
+    var pos = $("#align_button").position();
+    var width = $("#align_button").width();
+
+    $("#align_button_heading").css({
+      position:"absolute",
+      top: pos.top+"px",
+      left: -(width+2)+"px"
+    });
+
+    $("#align_button_location").css({
+      position:"absolute",
+      top: pos.top+"px",
+      left: -(2*(width+2))+"px"
+    });
+
+    $("#align_button_heading").on("click",function(){
+        x3dom_align_hll2();
+    });
+
+    $("#align_button_location").on("click",function(){
+        x3dom_align_hll3();
+    });
+
     $("#align_tr_button").on("click",function(){
         x3dom_align_art();
     });
@@ -266,6 +289,108 @@ function distance_error(x,y,h){
   console.log("Final sum averaged: "+sum);
 
   return sum;
+
+}
+
+/**
+ * find heading (fixed lat and lng)
+ */
+function x3dom_align_hll2(){
+
+  // need at least 1 point
+  if (Data.markers != undefined){
+    if (Data.markers.length<1){
+        var msg = "Alignment error: place at least 1 marker";
+        ui_showMessage("window-error",msg);
+        return -1;
+    }
+  }else{
+    var msg = "Alignment error: place at least 1 marker";
+    ui_showMessage("window-error",msg);
+    return -1;
+  }
+
+  if (!check_markers()){
+    //var msg = "Alignment error: marker has not been moved over 3D or Map";
+    //ui_showMessage("window-error",msg);
+    return -2;
+  }
+
+  ui_hideMessage("window-error");
+
+  // initial approximation:
+  var x0 = Data.camera.kml.latitude;
+  var y0 = Data.camera.kml.longitude;
+  var h0 = Data.camera.kml.heading;
+  var epsilon = 1e-8;
+
+  //var xyh = [x0,y0,(h0>180)?h0-360:h0];
+  var xyh = [(h0>180)?h0-360:h0];
+
+  var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll2_r_i,[hll2_dr_dx_i],epsilon,hll2_w_i);
+
+  xyh = [x0,y0,result.v[0]];
+  var s1 = result.error;
+  var counter = result.count;
+
+  //calc distance error
+  de = distance_error(x0,y0,(h0>180)?h0-360:h0);
+  //de = -de;
+  //convert to conventional range
+  xyh[0] = (xyh[0]+360)%360;
+  //init apply dialog
+  apply_alignment_dialog_hll([x0,y0,h0],xyh,counter,s1,de);
+
+}
+
+/**
+ * find lat and lng (fixed heading)
+ */
+function x3dom_align_hll3(){
+
+  // need at least 3 points
+  if (Data.markers != undefined){
+    if (Data.markers.length<2){
+        var msg = "Alignment error: place at least 2 markers";
+        ui_showMessage("window-error",msg);
+        return -1;
+    }
+  }else{
+    var msg = "Alignment error: place at least 2 markers";
+    ui_showMessage("window-error",msg);
+    return -1;
+  }
+
+  if (!check_markers()){
+    //var msg = "Alignment error: marker has not been moved over 3D or Map";
+    //ui_showMessage("window-error",msg);
+    return -2;
+  }
+
+  ui_hideMessage("window-error");
+
+  // initial approximation:
+  var x0 = Data.camera.kml.latitude;
+  var y0 = Data.camera.kml.longitude;
+  var h0 = Data.camera.kml.heading;
+  var epsilon = 1e-8;
+
+  var xyh = [x0,y0];
+
+  var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
+
+  xyh = [result.v[0],result.v[1],h0];
+
+  var s1 = result.error;
+  var counter = result.count;
+
+  //calc distance error
+  de = distance_error(x0,y0,(h0>180)?h0-360:h0);
+  //de = -de;
+  //convert to conventional range
+  xyh[2] = (xyh[2]+360)%360;
+  //init apply dialog
+  apply_alignment_dialog_hll([x0,y0,h0],xyh,counter,s1,de);
 
 }
 
