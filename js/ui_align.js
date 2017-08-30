@@ -337,7 +337,7 @@ function x3dom_align_hll2(){
   de = distance_error(x0,y0,(h0>180)?h0-360:h0);
   //de = -de;
   //convert to conventional range
-  xyh[0] = (xyh[0]+360)%360;
+  xyh[2] = (xyh[2]+360)%360;
   //init apply dialog
   apply_alignment_dialog_hll([x0,y0,h0],xyh,counter,s1,de);
 
