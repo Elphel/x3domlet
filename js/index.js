@@ -63,9 +63,11 @@ function actual_dragging_init(){
     if (list.addEventListener) list.addEventListener('DOMMouseScroll', wheelEvent_list, false);
     list.onmousewheel = wheelEvent_list;
 
+    var h = markers.length*100;
+
     $("#model_table").draggable({
         axis: "y",
-        containment:[0,-$("#model_table").height(),0,$("#model_table").height()],
+        containment:[0,-h,0,h],
         drag: function(){
             Dragged = true;
         }
