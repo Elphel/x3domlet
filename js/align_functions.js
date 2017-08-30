@@ -203,6 +203,19 @@ function hll_w_i(i,v){
 }
 
 /**
+ * Functions for heading (position latitude and longitude are fixed)
+ * hll2_...
+ */
+
+function hll2_dr_dx_i(i,v){
+  return 0;
+}
+
+
+
+
+
+/**
  * Functions for relative altitude, tilt and roll
  * art_...
  */
