@@ -180,6 +180,9 @@ function save_rating_init(){
     url: "store_rating.php?model="+SETTINGS.path,
     complete: function(response){
       var value = parseInt(response.responseText);
+      if (isNaN(value)){
+        value = 5;
+      }
       $("#model_rating").val(value);
       // bind onchange
       $("#model_rating").on('change',function(){
