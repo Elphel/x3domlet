@@ -197,6 +197,7 @@ function controls_showhide(){
       $(".edit").hide();
     }else{
       $(".edit").show();
+      align_position();
     }
 
 }

@@ -48,20 +48,7 @@ function align_init(){
         x3dom_align_hll();
     });
 
-    var pos = $("#align_button").position();
-    var width = $("#align_button").width();
-
-    $("#align_button_heading").css({
-      position:"absolute",
-      top: pos.top+"px",
-      left: -(width+2)+"px"
-    });
-
-    $("#align_button_location").css({
-      position:"absolute",
-      top: pos.top+"px",
-      left: -(2*(width+2))+"px"
-    });
+    align_position();
 
     $("#align_button_heading").on("click",function(){
         x3dom_align_hll2();
@@ -80,6 +67,26 @@ function align_init(){
         x3dom_align_0();
     });
     */
+
+}
+
+// position extra buttons
+function align_position(){
+
+    var pos = $("#align_button").position();
+    var width = $("#align_button").width();
+
+    $("#align_button_heading").css({
+      position:"absolute",
+      top: pos.top+"px",
+      left: -(width+2)+"px"
+    });
+
+    $("#align_button_location").css({
+      position:"absolute",
+      top: pos.top+"px",
+      left: -(2*(width+2))+"px"
+    });
 
 }
 
