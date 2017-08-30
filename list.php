@@ -3,15 +3,26 @@
 $base = "models";
 
 $THUMBNAME = "thumb.jpeg";
+$RATINGFILE = "rating.txt";
 $READMENAME = "README.txt";
 
+// for htaccess
+$SECRET_PATTERN = "/# public access/";
+
 $showall = false;
+$rating = false;
+
+if (isset($_GET['rating'])){
+  $rating = intval($_GET['rating']);
+}
+
+$rating = get_allowed_rating($rating);
 
 if (isset($_GET['showall'])){
   $showall = true;
 }
 
-$models = selective_scandir($base,false);
+$models = selective_scandir($base,false,$rating);
 $res = "";
 
 foreach($models as $model){
@@ -19,37 +30,43 @@ foreach($models as $model){
     $model_path = "$base/$model";
     $thumb = "$model_path/$THUMBNAME";
 
-    $versions = selective_scandir($model_path,$showall);
+    $model_rating = get_model_rating("$model_path/$RATINGFILE");
 
-    // create thumb
-    create_thumbnail($model_path,$versions,$thumb);
+    if ($model_rating>=$rating){
 
-    if (!is_file($thumb)){
-        $thumb="";
+      $versions = selective_scandir($model_path,$showall,0);
+
+      // create thumb
+      create_thumbnail($model_path,$versions,$thumb);
+
+      if (!is_file($thumb)){
+          $thumb="";
+      }
+
+      $res .= "<model name='$model' thumb='$thumb'>\n";
+
+      // read kml
+      $res .= "\t<map>\n".parse_kml("$base/$model/$model.kml")."\t</map>\n";
+
+      foreach($versions as $version){
+
+          $res .= "\t<version name='$version'>\n";
+
+          $comments = "-";
+          $readme = "$model_path/$version/$READMENAME";
+          if (is_file($readme)){
+              $comments = trim(file_get_contents($readme),"\t\n\r");
+          }
+
+          $res .= "\t\t<comments>$comments</comments>\n";
+
+          $res .= "\t</version>\n";
+
+      }
+
+      $res .= "</model>\n";
+
     }
-
-    $res .= "<model name='$model' thumb='$thumb'>\n";
-
-    // read kml
-    $res .= "\t<map>\n".parse_kml("$base/$model/$model.kml")."\t</map>\n";
-
-    foreach($versions as $version){
-
-        $res .= "\t<version name='$version'>\n";
-
-        $comments = "-";
-        $readme = "$model_path/$version/$READMENAME";
-        if (is_file($readme)){
-            $comments = trim(file_get_contents($readme),"\t\n\r");
-        }
-
-        $res .= "\t\t<comments>$comments</comments>\n";
-
-        $res .= "\t</version>\n";
-
-    }
-
-    $res .= "</model>\n";
 
 }
 
@@ -57,7 +74,7 @@ return_xml($res);
 
 //functions
 
-function selective_scandir($path,$showall){
+function selective_scandir($path,$showall,$rating=5){
 
     $results = Array();
 
@@ -88,6 +105,42 @@ function return_xml($str){
     header("Content-Length: ".strlen($str)."\n");
     header("Pragma: no-cache\n");
     printf($str);
+
+}
+
+function get_model_rating($file){
+
+  if (is_file($file)){
+    $r = intval(trim(file_get_contents($file)));
+  }else{
+    $r = 0;
+  }
+  return $r;
+
+}
+
+function get_allowed_rating($r){
+
+  global $SECRET_PATTERN;
+
+  if (!is_file(".htaccess")) {
+
+    $r = $r;
+
+  }else{
+
+    $htaccess = file_get_contents(".htaccess");
+
+    $m = preg_match($SECRET_PATTERN,$htaccess);
+
+    // restrict to 1
+    if ($m) {
+      $r = 1;
+    }
+
+  }
+
+  return $r;
 
 }
 

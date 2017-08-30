@@ -11,7 +11,7 @@ $(function(){
     parseURL();
     init_maps();
 
-    var url = 'list.php';
+    var url = 'list.php?rating='+SETTINGS.rating;
 
     if (SETTINGS.showall){
       url += "?showall";
@@ -34,6 +34,7 @@ $(function(){
 });
 
 var SETTINGS = {
+  'rating':5,
   'showall':false,
   'lat': 40.7233861,
   'lng': -111.9328843,
@@ -79,6 +80,7 @@ function parseURL(){
     for (var i=1;i<parameters.length;i++) {
         switch (parameters[i][0]) {
             case "showall": SETTINGS.showall = true; break;
+            case "rating":  SETTINGS.rating  = parseInt(parameters[i][1]); break;
             case "lat":     SETTINGS.lat  = parseFloat(parameters[i][1]); break;
             case "lng":     SETTINGS.lng  = parseFloat(parameters[i][1]); break;
             case "zoom":    SETTINGS.zoom = parseFloat(parameters[i][1]); break;
@@ -346,7 +348,7 @@ function init_maps(){
     var center = map.getCenter();
     var zoom = map.getZoom();
 
-    window.history.pushState("", "x3d models index", "?lat="+center.lat+"&lng="+center.lng+"&zoom="+zoom);
+    window.history.pushState("", "x3d models index", "?lat="+center.lat+"&lng="+center.lng+"&zoom="+zoom+"&rating="+SETTINGS.rating);
 
     if (!BLOCK_MOVEEND){
 

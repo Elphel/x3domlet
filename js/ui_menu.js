@@ -104,6 +104,7 @@ function menu_init(){
     reset_view_init();
     align_init();
     work_with_kml_init();
+    save_rating_init();
     editmode_init();
 
     $("#global_coordinates").on('click',function(){
@@ -170,6 +171,37 @@ function work_with_kml_init(){
     $("#restorekml").on('click',function(){
         $("#reset_view").click();
     });
+
+}
+
+function save_rating_init(){
+
+  $.ajax({
+    url: "store_rating.php?model="+SETTINGS.path,
+    complete: function(response){
+      var value = parseInt(response.responseText);
+      $("#model_rating").val(value);
+      // bind onchange
+      $("#model_rating").on('change',function(){
+        $.ajax({
+          url: "store_rating.php?model="+SETTINGS.path+"&rating="+$(this).val(),
+          complete:function(response){
+            var res = parseInt(response.responseText);
+            if (res==0){
+              $("#rstatus").css({color:"rgba(70,200,70,1)"}).html("stored");
+              $("#rstatus").show(0).delay(1000).fadeOut(250);
+            }else{
+                var msg = "no access";
+                if ((res==-1)||(res==-2)) msg = "no access";
+                if (res==-3) msg = "no access";
+                $("#rstatus").css({color:"rgba(200,70,70,1)"}).html("fail: "+msg);
+                $("#rstatus").show(0).delay(1000).fadeOut(250);
+            }
+          }
+        })
+      });
+    }
+  });
 
 }
 
