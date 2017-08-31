@@ -123,11 +123,7 @@ function get_allowed_rating($r){
 
   global $SECRET_PATTERN;
 
-  if (!is_file(".htaccess")) {
-
-    $r = $r;
-
-  }else{
+  if (is_file(".htaccess")) {
 
     $htaccess = file_get_contents(".htaccess");
 
@@ -135,7 +131,7 @@ function get_allowed_rating($r){
 
     // restrict to 1
     if ($m) {
-      $r = 1;
+      $r = max(1,$r);
     }
 
   }
