@@ -182,6 +182,8 @@ function save_rating_init(){
       var value = parseInt(response.responseText);
       if (isNaN(value)){
         value = 5;
+        SETTINGS.forcehide.push("#model_rating_tr");
+        SETTINGS.forcehide.push("#kml_tr");
       }
       $("#model_rating").val(value);
       // bind onchange
@@ -232,6 +234,9 @@ function controls_showhide(){
       $(".edit").hide();
     }else{
       $(".edit").show();
+      SETTINGS.forcehide.forEach(function(i,v){
+        $(v).hide();
+      });
       align_position();
     }
 
