@@ -44,6 +44,7 @@ var Scene;
 var Map;
 
 var SETTINGS = {
+    'rating': 5, // global rating setting
     'pointer':   false,
     'highlight': false,
     'global_coordinates': true,
@@ -87,6 +88,9 @@ function parseURL(){
     for (var i=0;i<parameters.length;i++) parameters[i]=parameters[i].split("=");
     for (var i=1;i<parameters.length;i++) {
         switch (parameters[i][0]) {
+            // used only to get back to the map
+            case "rating":       SETTINGS.rating = parseInt(parameters[i][1]); break;
+
             case "pointer":      SETTINGS.pointer   = true; break;
             case "highlight":    SETTINGS.highlight = true; break;
             case "global_coordinates":     SETTINGS.global_coordinates  = true; break;

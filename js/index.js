@@ -38,7 +38,8 @@ var SETTINGS = {
   'showall':false,
   'lat': 40.7233861,
   'lng': -111.9328843,
-  'zoom': 12
+  'zoom': 12,
+  'model': undefined
 };
 
 var Dragged = false;
@@ -49,7 +50,23 @@ function init_dragging(){
     $("#model_table img").on("load",function(){
       bigcounter++;
       if (bigcounter==markers.length){
-        actual_dragging_init()
+        actual_dragging_init();
+        if (SETTINGS.model!==undefined){
+          var inviscounter = 0;
+          markers.forEach(function(c,i){
+
+            if (!$(".arow[index="+i+"]").is(":visible")) {
+              inviscounter++;
+            }
+
+            if(c[0].name==SETTINGS.model){
+              $(".arow")[i].click();
+              $("#model_table").css({
+                top: -106*(i-inviscounter)+"px"
+              });
+            }
+          });
+        }
         //$(".arow")[0].click();
       }
     });
@@ -86,6 +103,7 @@ function parseURL(){
             case "lat":     SETTINGS.lat  = parseFloat(parameters[i][1]); break;
             case "lng":     SETTINGS.lng  = parseFloat(parameters[i][1]); break;
             case "zoom":    SETTINGS.zoom = parseFloat(parameters[i][1]); break;
+            case "model":   SETTINGS.model = parameters[i][1]; break;
         }
     }
 }
@@ -94,7 +112,7 @@ function parse_list(res){
 
     var index = 0;
 
-    $(res).find("model").each(function(){
+    $(res).find("model").each(function(m_index,m_item){
 
         var row = $("<tr class='arow'>");
         var name = $(this).attr("name");
@@ -115,7 +133,7 @@ function parse_list(res){
 
             var comments = $(this).find("comments").text();
 
-            var link_url = "viewer.html?path="+name+"&ver="+$(this).attr("name");
+            var link_url = "viewer.html?path="+name+"&ver="+$(this).attr("name")+"&rating="+SETTINGS.rating;
             var link = "<a title='"+comments+"' href='"+link_url+"'>"+$(this).attr("name")+"</a>,&nbsp;";
 
             vlist += link;

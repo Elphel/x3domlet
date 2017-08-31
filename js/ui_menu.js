@@ -64,7 +64,7 @@ function menu_init(){
       var origin = window.location.origin;
       var path = window.location.pathname;
       path = path.substr(0,path.lastIndexOf("/"));
-      window.location.href = origin+path;
+      window.location.href = origin+path+"?model="+SETTINGS.path+"&rating="+SETTINGS.rating;
     });
 
     $("#download_button").on("click",function(){
