@@ -3,6 +3,8 @@ var List;
 
 var markers = [];
 
+var selected;
+
 var BLOCK_MOVEEND = false;
 
 $(function(){
@@ -47,29 +49,62 @@ var Dragged = false;
 function init_dragging(){
 
     var bigcounter = 0;
+
     $("#model_table img").on("load",function(){
+
       bigcounter++;
+
       if (bigcounter==markers.length){
         actual_dragging_init();
         if (SETTINGS.model!==undefined){
-          var inviscounter = 0;
-          markers.forEach(function(c,i){
 
-            if (!$(".arow[index="+i+"]").is(":visible")) {
-              inviscounter++;
-            }
+          find_preselected_index();
+          $(".arow")[selected].click();
+          place_selected_thumbnail();
 
-            if(c[0].name==SETTINGS.model){
-              $(".arow")[i].click();
-              $("#model_table").css({
-                top: -106*(i-inviscounter)+"px"
-              });
-            }
-          });
+        }else{
+          // if not defined then do not click at '0' - this will allow to place view properly
         }
+
         //$(".arow")[0].click();
       }
     });
+
+}
+
+function find_preselected_index(){
+
+  markers.forEach(function(c,i){
+    if (c[0].name==SETTINGS.model){
+      selected = i;
+    }
+  });
+
+  if (selected === undefined){
+    selected = 0;
+  }
+
+}
+
+function place_selected_thumbnail(){
+
+  var inviscounter = 0;
+
+  markers.forEach(function(c,i){
+
+    if (!$(".arow[index="+i+"]").is(":visible")) {
+      inviscounter++;
+    }
+
+    //if(c[0].name==SETTINGS.model){
+    if (i==selected){
+      //$(".arow")[i].click();
+      $("#model_table").css({
+        top: -106*(i-inviscounter)+"px"
+      });
+    }
+  });
+
 
 }
 
@@ -173,6 +208,7 @@ function parse_list(res){
               //console.log("clicked"+this.index);
               // find all markers under this marker
               $(".arow[index="+this.index+"]").click();
+              //place_selected_thumbnail();
             });
 
             if (markers[index]==undefined) {
@@ -237,6 +273,9 @@ function register_row_events(elem){
           map.panTo(new L.LatLng(lat, lng));
 
           if (markers[index]!=undefined){
+
+            selected = index;
+
             // find all markers under this marker
             var tmp = popup_message(markers[index]);
             markers[index][0]._popup.setContent(tmp);
@@ -364,6 +403,8 @@ function init_maps(){
       }
 
     });
+
+    //place_selected_thumbnail();
 
     var center = map.getCenter();
     var zoom = map.getZoom();

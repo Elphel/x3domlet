@@ -65,7 +65,8 @@ var SETTINGS = {
       'x3d':"",
       'kml':""
     },
-    'forcehide':[]
+    'forcehide':[],
+    'forceshow':[]
 //     'kml'    : "scene.kml"
 }
 

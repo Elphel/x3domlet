@@ -193,12 +193,20 @@ function save_rating_init(){
     url: "store_rating.php?model="+SETTINGS.path,
     complete: function(response){
       var value = parseInt(response.responseText);
+
+      // this check defines if the page is public or private
       if (isNaN(value)){
         value = 5;
         // add elements ids
-        SETTINGS.forcehide.push("model_rating_tr");
-        SETTINGS.forcehide.push("kml_tr");
+        SETTINGS.forcehide.push("#model_rating_tr");
+        SETTINGS.forcehide.push("#kml_tr");
+
+      }else{
+
+        SETTINGS.forceshow.push(".experimental");
+
       }
+
       $("#model_rating").val(value);
       // bind onchange
       $("#model_rating").on('change',function(){
@@ -240,17 +248,18 @@ function controls_showhide(){
 
     if (!SETTINGS.experimental){
       $(".experimental").hide();
+      SETTINGS.forceshow.forEach(function(c,i){$(c).show();});
     }else{
       $(".experimental").show();
+      SETTINGS.forcehide.forEach(function(c,i){$(c).hide();});
     }
 
     if (!SETTINGS.edit){
       $(".edit").hide();
+      SETTINGS.forceshow.forEach(function(c,i){$(c).show();});
     }else{
       $(".edit").show();
-      SETTINGS.forcehide.forEach(function(c,i){
-        $("#"+c).hide();
-      });
+      SETTINGS.forcehide.forEach(function(c,i){$(c).hide();});
       align_position();
     }
 
