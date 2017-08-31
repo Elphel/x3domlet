@@ -413,6 +413,10 @@ function x3dom_align_art(){
   //test_height_alignment_set3_2points();
 
   if (Data.markers.length<2){
+
+    var msg = "Alignment error: too few markers";
+    ui_showMessage("window-error",msg);
+
     console.log("Too few points");
     return;
   }

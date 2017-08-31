@@ -249,7 +249,11 @@ X3DOMObject.prototype.KeyEvents = function(){
 
     self.element.addEventListener('keypress',function(e){
         if (e.key=="r"){
-            $("#reset_view").click();
+          //reset to initial position - no tilt = horizontal
+          $("#reset_view").click();
+        }else if(e.key=="t"){
+          //reset to initial position with tilt
+          reset_to_initial_position("t");
         }
     });
 

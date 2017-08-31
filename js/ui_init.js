@@ -202,6 +202,8 @@ function background_init(){
 
 function light_init(){
 
+    var mode = "t";
+
     var x3delement = $("#x3d_id").find("scene");
 
     var model_url = SETTINGS.files.x3d;
@@ -219,17 +221,17 @@ function light_init(){
     $.ajax({
         url: SETTINGS.files.kml+"?"+Date.now(),
         success: function(response){
-          parse_light_init_response(response,"init");
+          parse_light_init_response(response,"init",mode);
         },
         error: function(response){
           console.log("Init: KML not found. Using defaults");
-          parse_light_init_response(response,"init");
+          parse_light_init_response(response,"init",mode);
         }
     });
 
 }
 
-function parse_light_init_response(response,state){
+function parse_light_init_response(response,state,mode){
 
   var latitude  = parseFloat($(response).find("Camera").find("latitude").text()) || 40.7233861;
   var longitude = parseFloat($(response).find("Camera").find("longitude").text()) || -111.9328843;
@@ -285,7 +287,7 @@ function parse_light_init_response(response,state){
           deep_init();
 
           //align_init();
-          x3d_initial_camera_placement();
+          x3d_initial_camera_placement(mode);
           Scene.resize();
           x3d_events();
           leaf_events();
@@ -299,7 +301,7 @@ function parse_light_init_response(response,state){
       Map.marker.setBasePoint(new L.LatLng(latitude,longitude));
       Map.marker._syncMeasureMarkersToBasePoint();
 
-      x3d_initial_camera_placement();
+      x3d_initial_camera_placement(mode);
       //x3d_mouseMove();
       Scene.resize();
 
@@ -309,16 +311,16 @@ function parse_light_init_response(response,state){
 
 }
 
-function reset_to_initial_position(){
+function reset_to_initial_position(mode){
 
   $.ajax({
     url: SETTINGS.files.kml+"?"+Date.now(),
     success: function(response){
-      parse_light_init_response(response,"reset");
+      parse_light_init_response(response,"reset",mode);
     },
     error: function(response){
       console.log("Reset: KML not found. Using defaults");
-      parse_light_init_response(response,"reset");
+      parse_light_init_response(response,"reset",mode);
     }
   });
 
@@ -417,7 +419,15 @@ function deep_init(){
 
 }
 
-function x3d_initial_camera_placement(){
+function x3d_initial_camera_placement(mode){
+
+    if (mode==undefined){
+      // reset horizontal
+      mode = "r";
+    }else{
+      // reset with tilt
+      mode = "t";
+    }
 
     Scene.old_view_translation = null;
 
@@ -452,8 +462,12 @@ function x3d_initial_camera_placement(){
     // exclude tilt and roll
     var RC0_rw = T.inverse().mult(Mh).mult(T);
 
+    var RC0_rw_t = T.inverse().mult(Mh).mult(Mt).mult(T);
+
     // what's this?!
-    var RC_w = R0.inverse().mult(RC0_rw);
+    var RC_w  = R0.inverse().mult(RC0_rw);
+    var RC_wt = R0.inverse().mult(RC0_rw_t);
+
     // store matrices
     Data.camera.Matrices = {
         R0 : R0,
@@ -462,7 +476,11 @@ function x3d_initial_camera_placement(){
         RC_w0: RC_w
     };
 
-    x3dom_setViewpoint(RC_w);
+    if (mode=="r"){
+      x3dom_setViewpoint(RC_w);
+    }else{
+      x3dom_setViewpoint(RC_wt);
+    }
     //x3dom_setViewpoint(RC0_rw);
     //x3dom_setViewpoint(R0);
 
@@ -929,10 +947,29 @@ function leaf_translation_v1(p0,p1){
 
 }
 
-
-
 function x3d_mouseMove(){
 
     x3dom_update_map();
+
+}
+
+function remove_markers(){
+
+  var index;
+  var elem;
+
+  Scene.highlighted_marker_index = null;
+
+  var n = Data.markers.length;
+
+  for(var i=0;i<n;i++){
+
+    index = n-1-i;
+    elem = $("#my-sph-"+index);
+
+    Data.markers.splice(index,1);
+    Map.deleteMarker(index);
+    elem.remove();
+  }
 
 }

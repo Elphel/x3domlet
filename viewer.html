@@ -150,7 +150,11 @@ Instructions:
                     <td>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td><button id='reset_view' class='donothide'>Reset view</button></td>
+                    <td>
+                      <button id='reset_view' class='donothide' title='Horizontal: heading=initial, tilt=0, roll=0. Or press r-key'>Reset view (r)</button>
+                      <button id='reset_view_t' class='donothide' title='Tilted: heading=initial, tilt=initial, roll=0. Or press t-key'>Reset view (t)</button>
+                      <button id='remove_markers' class='donothide' >Remove markers</button>
+                    </td>
                 </tr>
                 <tr>
                     <td>&nbsp;</td>
@@ -273,6 +277,14 @@ Instructions:
                         <li>markers only</li>
                     </ul>
                 </td>
+            </tr>
+            <tr>
+                <td><b>r</b>-key</td>
+                <td>reset view (heading = initial, tilt = 0, roll = 0)</td>
+            </tr>
+            <tr>
+                <td><b>t</b>-key</td>
+                <td>reset view (heading = initial, tilt = initial, roll = 0)</td>
             </tr>
             <tr>
                 <td><button>Close</button></td>

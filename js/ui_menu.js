@@ -102,6 +102,7 @@ function menu_init(){
     shiftspeed_init();
     marker_size_color_init();
     reset_view_init();
+    remove_markers_init();
     align_init();
     work_with_kml_init();
     save_rating_init();
@@ -156,6 +157,18 @@ function reset_view_init(){
 
     $("#reset_view").on('click',function(){
         reset_to_initial_position();
+    });
+
+    $("#reset_view_t").on('click',function(){
+        reset_to_initial_position("t");
+    });
+
+}
+
+function remove_markers_init(){
+
+    $("#remove_markers").on('click',function(){
+        remove_markers();
     });
 
 }
