@@ -390,3 +390,18 @@ html, body, #x3d_wrapper {
 /*   margin-right:2px; */
 }
 
+#model_name{
+  width: 200px;
+  padding: 0px 5px;
+}
+
+#import_coordinates_button{
+  height: 25px;
+}
+
+
+
+
+
+
+

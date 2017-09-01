@@ -242,6 +242,53 @@ function editmode_init(){
     controls_showhide();
   });
 
+  $("#import_coordinates_button").on('click',function(){
+
+    if ($("#model_name").val()==""){
+      $("#imstatus").css({color:"rgba(200,70,70,1)"}).html("empty field");
+      $("#imstatus").show(0).delay(1000).fadeOut(250);
+    }else{
+
+      var kmlfile = SETTINGS.basepath+"/"+$("#model_name").val()+"/"+$("#model_name").val()+".kml";
+
+      $.ajax({
+        url: kmlfile+"?"+Date.now(),
+        success:function(response){
+
+          $("#imstatus").css({color:"rgba(70,200,70,1)"}).html("ok");
+          $("#imstatus").show(0).delay(1000).fadeOut(250);
+
+          var latitude  = parseFloat($(response).find("Camera").find("latitude").text());
+          var longitude = parseFloat($(response).find("Camera").find("longitude").text());
+          var altitude  = parseFloat($(response).find("Camera").find("altitude").text());
+
+          Data.camera.latitude = latitude;
+          Data.camera.longitude = longitude;
+          Data.camera.altitude = altitude;
+
+          Data.camera.kml.latitude = latitude;
+          Data.camera.kml.longitude = longitude;
+          Data.camera.kml.altitude = altitude;
+
+          //reset
+          Map.marker.setHeading(Data.camera.heading);
+          Map.marker.setBasePoint(new L.LatLng(latitude,longitude));
+          Map.marker._syncMeasureMarkersToBasePoint();
+          Map._map.panTo(new L.LatLng(latitude,longitude));
+
+          x3d_initial_camera_placement("t");
+
+
+        },
+        error:function(response){
+          $("#imstatus").css({color:"rgba(200,70,70,1)"}).html("file not found");
+          $("#imstatus").show(0).delay(1000).fadeOut(250);
+        }
+      });
+    }
+
+  });
+
 }
 
 function controls_showhide(){

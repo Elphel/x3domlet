@@ -169,6 +169,14 @@ Instructions:
                     <td title='Adjust initial location and orientation'>Edit mode</td>
                     <td><input id='edit' type='checkbox' class='my-check-box donothide' /></td>
                 </tr>
+                <tr class='edit'>
+                    <td title=''>Import coordinates from another model</td>
+                    <td><input id='model_name' type='text' class='input donothide' placeholder='model name' /></td>
+                    <td><button id='import_coordinates_button' class='donothide' >Apply</button></td>
+                    <td valign='middle'>
+                      <div id='imstatus'></div>
+                    </td>
+                </tr>
                 <tr class='edit' id='kml_tr'>
                     <td title='.kml:
 * latitude and longitude,
