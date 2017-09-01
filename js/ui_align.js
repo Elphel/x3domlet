@@ -172,6 +172,13 @@ function x3dom_align_hll(){
   //de = -de;
   //convert to conventional range
   xyh[2] = (xyh[2]+360)%360;
+
+  // round coordinates to 1e-8
+  xyh[0] = xyh[0].toFixed(8);
+  xyh[1] = xyh[1].toFixed(8);
+  // round degrees to 0.0001
+  xyh[2] = xyh[2].toFixed(4);
+
   //init apply dialog
   apply_alignment_dialog_hll([x0,y0,h0],xyh,counter,s1,de);
 
@@ -345,6 +352,13 @@ function x3dom_align_hll2(){
   //de = -de;
   //convert to conventional range
   xyh[2] = (xyh[2]+360)%360;
+
+  // round coordinates to 1e-8
+  //xyh[0] = xyh[0].toFixed(8);
+  //xyh[1] = xyh[1].toFixed(8);
+  // round degrees to 0.0001
+  xyh[2] = xyh[2].toFixed(4);
+
   //init apply dialog
   apply_alignment_dialog_hll([x0,y0,h0],xyh,counter,s1,de);
 
@@ -394,8 +408,16 @@ function x3dom_align_hll3(){
   //calc distance error
   de = distance_error(x0,y0,(h0>180)?h0-360:h0);
   //de = -de;
+
   //convert to conventional range
   xyh[2] = (xyh[2]+360)%360;
+
+  // round coordinates to 1e-8
+  xyh[0] = xyh[0].toFixed(8);
+  xyh[1] = xyh[1].toFixed(8);
+  // round degrees to 0.0001
+  //xyh[2] = xyh[2].toFixed(4);
+
   //init apply dialog
   apply_alignment_dialog_hll([x0,y0,h0],xyh,counter,s1,de);
 
@@ -427,7 +449,14 @@ function x3dom_align_art(){
 
     var result = numbers.calculus.GaussNewton([0,0],Data.markers.length,art2_r_i,[art2_dr_dx_i,art2_dr_da_i],epsilon,art2_w_i);
     console.log(result);
+
     result.v[0] = result.v[0]*180/Math.PI;
+
+    // round degrees to 0.0001
+    result.v[0] = result.v[0].toFixed(4);
+    // round meters to 0.001
+    result.v[1] = result.v[1].toFixed(3);
+
     apply_alignment_dialog_art([0,0,0],[result.v[0],0,result.v[1]],result.count,result.error,false);
 
     return;
@@ -440,6 +469,13 @@ function x3dom_align_art(){
   //convert to degs
   result.v[0] = result.v[0]*180/Math.PI;
   result.v[1] = result.v[1]*180/Math.PI;
+
+  // round degrees to 0.0001
+  result.v[0] = result.v[0].toFixed(4);
+  // round degrees to 0.0001
+  result.v[1] = result.v[1].toFixed(4);
+  // round meters to 0.001
+  result.v[2] = result.v[2].toFixed(3);
 
   //result.v[0] = bring_angle_to_range_deg(result.v[0],-180,180);
   //result.v[1] = bring_angle_to_range_deg(result.v[1],-180,180);
@@ -671,27 +707,3 @@ function test_height_alignment_set3_2points(){
   ];
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

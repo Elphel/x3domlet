@@ -409,7 +409,7 @@ function init_maps(){
     var center = map.getCenter();
     var zoom = map.getZoom();
 
-    window.history.pushState("", "x3d models index", "?lat="+center.lat+"&lng="+center.lng+"&zoom="+zoom+"&rating="+SETTINGS.rating);
+    window.history.pushState("", "x3d models index", "?lat="+center.lat.toFixed(8)+"&lng="+center.lng.toFixed(8)+"&zoom="+zoom+"&rating="+SETTINGS.rating);
 
     if (!BLOCK_MOVEEND){
 
