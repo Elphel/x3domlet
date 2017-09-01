@@ -248,6 +248,10 @@ function apply_alignment_dialog_hll(xyh0,xyh1,c,e,de){
  */
 function apply_alignment_hll(xyh){
 
+    for(var i=0;i<xyh.length;i++){
+      xyh[i] = parseFloat(xyh[i]);
+    }
+
     var Camera = Map.marker;
 
     Data.camera.heading   = xyh[2];
@@ -464,7 +468,6 @@ function x3dom_align_art(){
   }
 
   var result = numbers.calculus.GaussNewton([0,0,0],Data.markers.length,art_r_i,[art_dr_dx_i,art_dr_dy_i,art_dr_da_i],epsilon,art_w_i);
-  console.log(result);
 
   //convert to degs
   result.v[0] = result.v[0]*180/Math.PI;
@@ -540,6 +543,10 @@ function apply_alignment_dialog_art(a0,a1,c,e,full){
 }
 
 function apply_alignment_art(tra){
+
+    for(var i=0;i<tra.length;i++){
+      tra[i] = parseFloat(tra[i]);
+    }
 
     var Camera = Map.marker;
 
