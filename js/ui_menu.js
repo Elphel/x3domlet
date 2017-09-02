@@ -74,7 +74,6 @@ function menu_init(){
     // changing a checkbox will not close menu
     menu.on('click',function(e){
         var test = $(e.target).hasClass("donothide");
-
         if (!test){
             menu.hide();
         }
@@ -107,6 +106,7 @@ function menu_init(){
     work_with_kml_init();
     save_rating_init();
     editmode_init();
+    extra_models_init();
 
     $("#global_coordinates").on('click',function(){
       ui_hideMessage("window-markinfo");
@@ -311,3 +311,77 @@ function controls_showhide(){
     }
 
 }
+
+function extra_models_init(){
+
+  var emc = $("#extra_models-content");
+
+  // get content
+  $.ajax({
+    url: [SETTINGS.basepath,SETTINGS.path,"extra.xml"].join("/"),
+    success: function(response){
+
+      var eml = ['<table>'];
+      $(response).find("model").each(function(){
+        var name = $(this).attr("name");
+        var version = $(this).attr("version");
+        eml.push([
+          '<tr>',
+          '  <td><input type=\'checkbox\' class=\'my-check-box donothide\' /></td>',
+          '  <td class=\'extra_model_item\' version=\''+version+'\'>'+name+'</td>',
+          '</tr>'
+        ].join('\n'));
+      });
+      eml.push('</table>');
+
+      emc.append($(eml.join('\n')));
+
+      var load_extra_models_button = $('<button>',{
+        id: 'load_extra_models_button',
+        title: 'load checked, hide unchecked',
+        class:'donothide'
+      }).html('Load');
+
+      emc.append('<br/>').append(load_extra_models_button);
+
+      load_extra_models_button.on('click',function(){
+        load_extra_models();
+      });
+
+    },
+    error: function(response){
+      emc.append($("<h2 style='color:red'>N/A</h2>"));
+    }
+  });
+
+
+  $("#extra_models_button").on("click",function(){
+      emc.show();
+  });
+
+  // changing a checkbox will not close menu
+  emc.on('click',function(e){
+      var test = $(e.target).hasClass("donothide");
+      if (!test){
+          emc.hide();
+      }
+  });
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

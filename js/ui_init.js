@@ -210,10 +210,21 @@ function light_init(){
     var model_url = SETTINGS.files.x3d;
     var model_back_url = SETTINGS.files.x3d_background;
 
+    // multiple models in one scene test
+    //second_x3d = SETTINGS.basepath+"/1502241323_909309/v1/1502241323_909309.x3d";
+
     var model = $([
         '<group>',
+        '  <transform id=\'x3d_transform\'>',
         '    <inline name="x3d" namespacename="x3d" url="'+model_url+'"></inline>',
-        '</group>'
+        '  </transform>',
+        '</group>',
+        // multiple models in one scene test
+        //'<group>',
+        //'  <transform rotation="0,1,0,-0.41">',
+        //'    <inline name="x3d2" namespacename="x3d2" url="'+second_x3d+'"></inline>',
+        //'  </transform>',
+        //'</group>',
       ].join('\n'));
 
     x3delement.append(model);
