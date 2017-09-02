@@ -295,6 +295,16 @@ html, body, #x3d_wrapper {
     text-align:center;
 }
 
+#window-extrainfo{
+    z-index: 10;
+    background: rgba(220,220,220,1);
+    border: 0px solid rgba(100,100,100,0.5);
+    border-radius: 1px;
+    color: black;
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
 #window-error{
     z-index: 10;
     background: rgba(256,256,256,1);

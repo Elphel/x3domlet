@@ -61,6 +61,7 @@ var SETTINGS = {
     'version': "",
     'experimental': false,
     'edit': false,
+    'manualposor': false,
     'files': {
       'x3d':"",
       'kml':""
@@ -108,6 +109,8 @@ function parseURL(){
             case "ver":          SETTINGS.version = parameters[i][1]; break;
 
             case "edit":         SETTINGS.edit = true; break;
+            case "manualposor":  SETTINGS.manualposor = true; break;
+
             case "experimental": SETTINGS.experimental = true; break;
 //             case "kml":          SETTINGS.kml = parameters[i][1]; break;
         }

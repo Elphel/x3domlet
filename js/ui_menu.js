@@ -107,6 +107,7 @@ function menu_init(){
     save_rating_init();
     editmode_init();
     extra_models_init();
+    manualposor_init();
 
     $("#global_coordinates").on('click',function(){
       ui_hideMessage("window-markinfo");
@@ -288,6 +289,45 @@ function editmode_init(){
     }
 
   });
+
+}
+
+function manualposor_init(){
+
+    $("#window-extrainfo").html([
+      '<div>',
+      ' <table id=\'mpr_table\'>',
+      ' <tr>',
+      '   <th></th>',
+      '   <th colspan=\'3\'>position, m</th>',
+      '   <th colspan=\'3\'>orientation, &deg;</th>',
+      ' </tr>',
+      ' <tr>',
+      '   <th>Model</th>',
+      '   <th>x</th>',
+      '   <th>y</th>',
+      '   <th>z</th>',
+      '   <th>azimuth</th>',
+      '   <th>elevation</th>',
+      '   <th>skew</th>',
+      ' </tr>',
+      ' </table>',
+      '</div>'
+    ].join('\n'));
+
+    if (SETTINGS.manualposor){
+        $("#window-extrainfo").show();
+    }else{
+        $("#window-extrainfo").hide();
+    }
+
+    $("#manualposor").on('click',function(){
+        if (SETTINGS.manualposor){
+            $("#window-extrainfo").show();
+        }else{
+            $("#window-extrainfo").hide();
+        }
+    });
 
 }
 
