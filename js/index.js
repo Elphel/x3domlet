@@ -38,9 +38,9 @@ $(function(){
 var SETTINGS = {
   'rating':5,
   'showall':false,
-  'lat': 40.7233861,
-  'lng': -111.9328843,
-  'zoom': 12,
+  'lat': 44.92980751,
+  'lng': -118.25683594,
+  'zoom': 7,
   'model': undefined
 };
 
