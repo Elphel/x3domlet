@@ -48,6 +48,7 @@ preg_match_all('/url="([^\s]+('.implode('|',$TEXTURE_EXTENSIONS).'))"/i',$conten
 
 // make a string
 foreach($matches[1] as $v){
+//	$filestring .= " \\\n$path/$v"; // split lines do not help, limit is for the php string length in shell_exec()
   $filestring .= " $path/$v";
 }
 
@@ -60,6 +61,11 @@ $mtlfile = substr($file,0,-3)."mtl";
 if (is_file($mtlfile)) $filestring .= " $mtlfile";
 
 $zipped_data = `zip -qj - $filestring `;
+if (strlen($zipped_data) == 0){
+	$filestring=$path."/*.*"; // too long filestring, just compress everything in the model directory
+	$zipped_data = `zip -qj - $filestring `;
+}
+
 header('Content-type: application/zip');
 header('Content-Disposition: attachment; filename="'.$zipfile.'"');
 echo $zipped_data;
