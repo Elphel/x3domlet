@@ -12,6 +12,7 @@ $(function(){
     //init();
     parseURL();
     init_maps();
+    init_help();
 
     var url = 'list.php?rating='+SETTINGS.rating;
 
@@ -431,6 +432,21 @@ function init_maps(){
      console.log("zoomend "+map.getBounds());
   });
   */
+
+}
+
+function init_help(){
+
+  var help = $("#help_content");
+  help.hide();
+
+  $("#help_button").on('click',function(){
+    help.show();
+  });
+
+  help.on('click',function(){
+    help.hide();
+  });
 
 }
 
