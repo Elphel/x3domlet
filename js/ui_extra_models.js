@@ -369,9 +369,9 @@ function manualposor_refresh_content(){
       '<tr class=\'mpr_content\'>',
       '  <td align=\'center\' class=\'mpr_name mpr_modelname\'>'+name+'</td>',
       '  <td><input type=\'checkbox\' class=\'mpr_hide\'></td>',
-      '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_x\' value=\''+tra_tra_rw.x+'\' \></td>',
-      '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_y\' value=\''+tra_tra_rw.y+'\' \></td>',
-      '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_z\' value=\''+tra_tra_rw.z+'\' \></td>',
+      '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_x\' value=\''+tra_tra_rw.x.toFixed(3)+'\' \></td>',
+      '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_y\' value=\''+tra_tra_rw.y.toFixed(3)+'\' \></td>',
+      '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_z\' value=\''+tra_tra_rw.z.toFixed(3)+'\' \></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_rot mpr_h\' value=\''+htr.yaw.toFixed(2)+'\' \></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_rot mpr_t\' value=\''+htr.pitch.toFixed(2)+'\' \></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_rot mpr_r\' value=\''+htr.roll.toFixed(2)+'\' \></td>',
@@ -453,9 +453,14 @@ function manualposor_refresh_content(){
         };
 
         distance = Math.sqrt(dp_rw.x*dp_rw.x+dp_rw.z*dp_rw.z);
+
+        angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
+
         if (dp_rw.z!=0){
           angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
         }
+
+        console.log("Angle-Distance: "+angle+" "+distance);
 
         var dp_r = x3dom_real_to_scene(dp_rw.x,dp_rw.y,dp_rw.z);
         var new_tra = [dp_r.x,dp_r.y,dp_r.z].join(",");

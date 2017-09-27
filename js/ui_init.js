@@ -419,13 +419,6 @@ function deep_init(){
 
         if (!Scene._X3DOM_SCENE_INIT_DONE&&(cnt==0)){
 
-            var ss = 10/Scene.element.runtime.viewpoint().getFar();
-
-            ss = ss.toFixed(4);
-
-            $("#shiftspeed").val(ss);
-            $("#shiftspeed").change();
-
             //Scene.initResize();
 
             // now then all shapes are parsed and accessible
@@ -433,8 +426,22 @@ function deep_init(){
 
             Scene._X3DOM_SCENE_INIT_DONE = true;
             Scene._X3DOM_SCENE_INIT_BACK_DONE = true;
+
+            x3d_setShiftSpeed();
+
         }
     };
+
+}
+
+function x3d_setShiftSpeed(){
+
+  var ss = 10/Scene.element.runtime.viewpoint().getFar();
+
+  ss = ss.toFixed(4);
+
+  $("#shiftspeed").val(ss);
+  $("#shiftspeed").change();
 
 }
 
@@ -612,6 +619,7 @@ function x3d_events(){
     },true);
 
     elem.addEventListener('mousedown',function(){
+        x3d_setShiftSpeed();
         elem.addEventListener('mousemove',x3d_mouseMove,true);
     });
 
