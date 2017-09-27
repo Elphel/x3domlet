@@ -38,6 +38,7 @@
 var Data = {
     camera:{},
     markers:[],
+    extra_models:[]
 };
 
 var Scene;
@@ -211,6 +212,7 @@ function light_init(){
     var x3delement = $("#x3d_id").find("scene");
 
     var model_url = SETTINGS.files.x3d;
+    var model_name = SETTINGS.path;
     var model_back_url = SETTINGS.files.x3d_background;
 
     // multiple models in one scene test
@@ -218,9 +220,11 @@ function light_init(){
 
     var model = $([
         '<group>',
-        '  <transform id=\'x3d_transform\'>',
-        '    <inline name="x3d" namespacename="x3d" url="'+model_url+'"></inline>',
-        '  </transform>',
+        '  <switch whichChoice=\'0\'>',
+        '    <transform id=\'x3d_transform\' class=\'inline_wrapper\'>',
+        '      <inline name="x3d_'+model_name+'" namespacename="x3d_'+model_name+'" url="'+model_url+'"></inline>',
+        '    </transform>',
+        '  </switch>',
         '</group>',
         // multiple models in one scene test
         //'<group>',

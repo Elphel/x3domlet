@@ -455,15 +455,17 @@ function wheelEvent_list(event){
       var delta = 0;
       if (!event) event = window.event; // IE
       if (event.wheelDelta) { //IE+Opera
-	      delta = event.wheelDelta/120;
-	      if (window.opera) delta = -delta;
-      } else if (event.detail) { // Mozilla
-	      delta = -event.detail;
+        delta = event.wheelDelta/120;
+	if (window.opera) delta = -delta;
+      }else if (event.detail) { // Mozilla
+        delta = -event.detail;
       }
-      if (delta)
-	      handleWheel_list(event,delta,shiftKey);
-      if (event.preventDefault)
-	      event.preventDefault();
+      if (delta){
+        handleWheel_list(event,delta,shiftKey);
+      }
+      if (event.preventDefault){
+        event.preventDefault();
+      }
       event.returnValue = false;
 }
 

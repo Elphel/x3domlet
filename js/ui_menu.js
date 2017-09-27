@@ -106,6 +106,7 @@ function menu_init(){
     work_with_kml_init();
     save_rating_init();
     editmode_init();
+    // see extra_models.js
     extra_models_init();
     manualposor_init();
 
@@ -292,45 +293,6 @@ function editmode_init(){
 
 }
 
-function manualposor_init(){
-
-    $("#window-extrainfo").html([
-      '<div>',
-      ' <table id=\'mpr_table\'>',
-      ' <tr>',
-      '   <th></th>',
-      '   <th colspan=\'3\'>position, m</th>',
-      '   <th colspan=\'3\'>orientation, &deg;</th>',
-      ' </tr>',
-      ' <tr>',
-      '   <th>Model</th>',
-      '   <th>x</th>',
-      '   <th>y</th>',
-      '   <th>z</th>',
-      '   <th>azimuth</th>',
-      '   <th>elevation</th>',
-      '   <th>skew</th>',
-      ' </tr>',
-      ' </table>',
-      '</div>'
-    ].join('\n'));
-
-    if (SETTINGS.manualposor){
-        $("#window-extrainfo").show();
-    }else{
-        $("#window-extrainfo").hide();
-    }
-
-    $("#manualposor").on('click',function(){
-        if (SETTINGS.manualposor){
-            $("#window-extrainfo").show();
-        }else{
-            $("#window-extrainfo").hide();
-        }
-    });
-
-}
-
 function controls_showhide(){
 
     if (!SETTINGS.experimental){
@@ -351,77 +313,3 @@ function controls_showhide(){
     }
 
 }
-
-function extra_models_init(){
-
-  var emc = $("#extra_models-content");
-
-  // get content
-  $.ajax({
-    url: [SETTINGS.basepath,SETTINGS.path,"extra.xml"].join("/"),
-    success: function(response){
-
-      var eml = ['<table>'];
-      $(response).find("model").each(function(){
-        var name = $(this).attr("name");
-        var version = $(this).attr("version");
-        eml.push([
-          '<tr>',
-          '  <td><input type=\'checkbox\' class=\'my-check-box donothide\' /></td>',
-          '  <td class=\'extra_model_item\' version=\''+version+'\'>'+name+'</td>',
-          '</tr>'
-        ].join('\n'));
-      });
-      eml.push('</table>');
-
-      emc.append($(eml.join('\n')));
-
-      var load_extra_models_button = $('<button>',{
-        id: 'load_extra_models_button',
-        title: 'load checked, hide unchecked',
-        class:'donothide'
-      }).html('Load');
-
-      emc.append('<br/>').append(load_extra_models_button);
-
-      load_extra_models_button.on('click',function(){
-        load_extra_models();
-      });
-
-    },
-    error: function(response){
-      emc.append($("<h2 style='color:red'>N/A</h2>"));
-    }
-  });
-
-
-  $("#extra_models_button").on("click",function(){
-      emc.show();
-  });
-
-  // changing a checkbox will not close menu
-  emc.on('click',function(e){
-      var test = $(e.target).hasClass("donothide");
-      if (!test){
-          emc.hide();
-      }
-  });
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

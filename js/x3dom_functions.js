@@ -149,7 +149,7 @@ function x3dom_getXYPosOr(cnvx,cnvy,round){
         dist_xyz = null;
     }
 
-    // azimuth, elevation and skew are relative to the camera location
+    // azimuth, elevation and roll are relative to the camera location
     az = Math.atan2(p_rw.x,-p_rw.z)*180/Math.PI;
     az = (az+360)%360;
     el = Math.atan2(p_rw.y,Math.sqrt(p_rw.x*p_rw.x+p_rw.z*p_rw.z))*180/Math.PI;

@@ -1284,7 +1284,7 @@ X3DOMObject.displayViewInfo = function(e){
       '    <th style=\'width:60px;\'>z</th>',
       '    <th>azimuth</th>',
       '    <th>elevation</th>',
-      '    <th>skew</th>',
+      '    <th>roll</th>',
       '</tr>',
       '<tr>',
       '    <td>mouse</td>',

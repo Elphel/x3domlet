@@ -303,6 +303,7 @@ html, body, #x3d_wrapper {
     color: black;
     font-size: 16px;
     margin-bottom: 2px;
+    outline:0;
 }
 
 #window-error{
@@ -416,9 +417,15 @@ html, body, #x3d_wrapper {
   height: 25px;
 }
 
+.mpr_name{
+  font-size:12px;
+}
 
+.mpr_input, .mpr_steps{
+  width:50px;
+  text-align:right;
+}
 
-
-
-
-
+#mpr_save{
+  margin: 5px;
+}
