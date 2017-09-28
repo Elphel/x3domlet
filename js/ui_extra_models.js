@@ -231,7 +231,7 @@ function parse_load_extra_model(name,version,response){
       longitude: longitude,
       altitude: altitude,
       heading: heading,
-      tilt: tilt,
+      tilt: tilt+90,
       roll: roll,
       name        : $(response).find("name").text(),
       description : $(response).find("Camera").find("description").text(),
@@ -359,7 +359,7 @@ function manualposor_refresh_content(){
     // B.
     //toMatrix
 
-    console.log(tra_rot);
+    //console.log(tra_rot);
 
     // tra_tra is local - convert to real world
     var tra_tra = $(tra).attr("translation").split(",");
@@ -399,6 +399,12 @@ function manualposor_refresh_content(){
 
     //unbind existing
     this.removeEventListener("mousewheel",false);
+    this.removeEventListener("change",false);
+
+    this.onchange = function(event){
+      manualposor_update(this);
+    }
+
     //bind new
     this.onmousewheel = function(event){
 
@@ -435,76 +441,7 @@ function manualposor_refresh_content(){
         newval = tmpval + (delta>0?speed:-speed);
         $(this).val(newval.toFixed(preci));
 
-        // move/rotate model
-        var tmp_pp = $(this).parent().parent();
-
-        var tmpname = tmp_pp.find(".mpr_name").html();
-
-        var tmptransform = $("inline[name=x3d_"+tmpname+"]").parent();
-
-        //get new coordinates
-        var angle = 0;
-        var distance = 0;
-
-        var dp_rw = {
-          x: parseFloat(tmp_pp.find(".mpr_x").val()),
-          y: parseFloat(tmp_pp.find(".mpr_y").val()),
-          z: parseFloat(tmp_pp.find(".mpr_z").val())
-        };
-
-        distance = Math.sqrt(dp_rw.x*dp_rw.x+dp_rw.z*dp_rw.z);
-
-        angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
-
-        if (dp_rw.z!=0){
-          angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
-        }
-
-        console.log("Angle-Distance: "+angle+" "+distance);
-
-        var dp_r = x3dom_real_to_scene(dp_rw.x,dp_rw.y,dp_rw.z);
-        var new_tra = [dp_r.x,dp_r.y,dp_r.z].join(",");
-
-        var heading = tmp_pp.find(".mpr_h").val()*Math.PI/180;
-        var tilt = tmp_pp.find(".mpr_t").val()*Math.PI/180;
-        var roll = tmp_pp.find(".mpr_r").val()*Math.PI/180;
-
-        // update object
-        var initial_coordinates = [Data.camera.latitude,Data.camera.longitude];
-        var p0 = new L.LatLng(initial_coordinates[0],initial_coordinates[1]);//Camera._latlng;
-        var p1 = p0.CoordinatesOf(angle,distance);
-
-        Data.extra_models["x3d_"+tmpname].latitude = p1.lat.toFixed(8);
-        Data.extra_models["x3d_"+tmpname].longitude = p1.lng.toFixed(8);
-
-        Data.extra_models["x3d_"+tmpname].heading = (parseFloat(tmp_pp.find(".mpr_h").val())+360)%360;
-        Data.extra_models["x3d_"+tmpname].tilt    = parseFloat(tmp_pp.find(".mpr_t").val())+90;
-        Data.extra_models["x3d_"+tmpname].roll    = tmp_pp.find(".mpr_r").val();
-
-        // Heading,Tilt,Roll
-        var Mh = x3dom.fields.SFMatrix4f.rotationZ(heading);
-        var Mt = x3dom.fields.SFMatrix4f.rotationY(tilt);
-        var Mr = x3dom.fields.SFMatrix4f.rotationX(roll);
-
-        // proper Euler rotation
-        var R = Mh.mult(Mt).mult(Mr);
-        //var R = Mr.mult(Mt).mult(Mh);
-        // convert to proper Euler
-        var T = x3dom_toYawPitchRoll();
-
-        var R1 = T.inverse().mult(R).mult(T);
-        var R0 = Data.camera.Matrices.R0;
-
-        var R_diff = R1.mult(R0.inverse());
-        //var R_diff = R1;
-
-        var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
-        Q.setValue(R_diff);
-        var AA = Q.toAxisAngle();
-        var new_rot = AA[0].toString()+" "+AA[1];
-
-        tmptransform.attr("rotation",new_rot);
-        tmptransform.attr("translation",new_tra);
+        manualposor_update(this);
 
       }
 
@@ -513,5 +450,72 @@ function manualposor_refresh_content(){
 
 }
 
+function manualposor_update(elem){
+
+  var tmp_pp = $(elem).parent().parent();
+  var tmpname = tmp_pp.find(".mpr_name").html();
+  var tmptransform = $("inline[name=x3d_"+tmpname+"]").parent();
+
+  var dp_rw = {
+    x: parseFloat(tmp_pp.find(".mpr_x").val()),
+    y: parseFloat(tmp_pp.find(".mpr_y").val()),
+    z: parseFloat(tmp_pp.find(".mpr_z").val())
+  };
+
+  var distance = Math.sqrt(dp_rw.x*dp_rw.x+dp_rw.z*dp_rw.z);
+  var angle = 180/Math.PI*Math.atan2(dp_rw.x,-dp_rw.z);
+
+  var dp_r = x3dom_real_to_scene(dp_rw.x,dp_rw.y,dp_rw.z);
+  var new_tra = [dp_r.x,dp_r.y,dp_r.z].join(",");
+
+  var heading = tmp_pp.find(".mpr_h").val()*Math.PI/180;
+  var tilt = tmp_pp.find(".mpr_t").val()*Math.PI/180;
+  var roll = tmp_pp.find(".mpr_r").val()*Math.PI/180;
+
+  var heading = tmp_pp.find(".mpr_h").val()*Math.PI/180;
+  var tilt = tmp_pp.find(".mpr_t").val()*Math.PI/180;
+  var roll = tmp_pp.find(".mpr_r").val()*Math.PI/180;
+
+  // update object
+  var initial_coordinates = [Data.camera.latitude,Data.camera.longitude];
+  var p0 = new L.LatLng(initial_coordinates[0],initial_coordinates[1]);//Camera._latlng;
+  var p1 = p0.CoordinatesOf(angle,distance);
+
+  if (tmpname!=SETTINGS.path){
+
+    Data.extra_models["x3d_"+tmpname].latitude = p1.lat.toFixed(8);
+    Data.extra_models["x3d_"+tmpname].longitude = p1.lng.toFixed(8);
+
+    Data.extra_models["x3d_"+tmpname].heading = (parseFloat(tmp_pp.find(".mpr_h").val())+360)%360;
+    Data.extra_models["x3d_"+tmpname].tilt    = parseFloat(tmp_pp.find(".mpr_t").val())+90;
+    Data.extra_models["x3d_"+tmpname].roll    = tmp_pp.find(".mpr_r").val();
+
+  }
+  // Heading,Tilt,Roll
+  var Mh = x3dom.fields.SFMatrix4f.rotationZ(heading);
+  var Mt = x3dom.fields.SFMatrix4f.rotationY(tilt);
+  var Mr = x3dom.fields.SFMatrix4f.rotationX(roll);
+
+  // proper Euler rotation
+  var R = Mh.mult(Mt).mult(Mr);
+  //var R = Mr.mult(Mt).mult(Mh);
+  // convert to proper Euler
+  var T = x3dom_toYawPitchRoll();
+
+  var R1 = T.inverse().mult(R).mult(T);
+  var R0 = Data.camera.Matrices.R0;
+
+  var R_diff = R1.mult(R0.inverse());
+  //var R_diff = R1;
+
+  var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
+  Q.setValue(R_diff);
+  var AA = Q.toAxisAngle();
+  var new_rot = AA[0].toString()+" "+AA[1];
+
+  tmptransform.attr("rotation",new_rot);
+  tmptransform.attr("translation",new_tra);
+
+}
 
 
