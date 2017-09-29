@@ -61,14 +61,12 @@ function manualposor_init(){
       '<div>',
       ' <table id=\'mpr_table\'>',
       ' <tr>',
-      '   <th></th>',
-      '   <th></th>',
+      '   <th colspan=\'4\'></th>',
       '   <th align=\'left\' colspan=\'3\'>position, m</th>',
       '   <th align=\'left\' colspan=\'3\'>orientation, &deg;</th>',
       ' </tr>',
       ' <tr>',
-      '   <th></th>',
-      '   <th></th>',
+      '   <th colspan=\'4\'></th>',
       '   <th class=\'mpr_name\'>step, m :</th>',
       '   <th class=\'mpr_name\'><input id=\'mpr_step_m\' type=\'text\' class=\'mpr_steps\' value=\'0.001\'></th>',
       '   <th></th>',
@@ -77,6 +75,8 @@ function manualposor_init(){
       ' </tr>',
       ' <tr>',
       '   <th>Model</th>',
+      '   <th class=\'mpr_name\' title=\'glued\'>r1</th>',
+      '   <th class=\'mpr_name\' title=\'unglued\'>r2</th>',
       '   <th class=\'mpr_name\' title=\'hide on shift key\'>hide</th>',
       '   <th class=\'mpr_name\'>x</th>',
       '   <th class=\'mpr_name\'>y</th>',
@@ -264,7 +264,8 @@ function parse_load_extra_model(name,version,response){
   var R1 = T.inverse().mult(R).mult(T);
   var R0 = Data.camera.Matrices.R0;
 
-  var R_diff = R1.mult(R0.inverse());
+  //var R_diff = R1.mult(R0.inverse());
+  var R_diff = R0.inverse().mult(R1);
 
   var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
   Q.setValue(R_diff);
@@ -368,6 +369,8 @@ function manualposor_refresh_content(){
     $("#mpr_table").append($([
       '<tr class=\'mpr_content\'>',
       '  <td align=\'center\' class=\'mpr_name mpr_modelname\'>'+name+'</td>',
+      '  <td><input type=\'radio\' class=\'mpr_r1\' name=\'r1\' ></td>',
+      '  <td><input type=\'radio\' class=\'mpr_r2\' name=\'r2\' ></td>',
       '  <td><input type=\'checkbox\' class=\'mpr_hide\'></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_x\' value=\''+tra_tra_rw.x.toFixed(3)+'\' \></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_y\' value=\''+tra_tra_rw.y.toFixed(3)+'\' \></td>',
