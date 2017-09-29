@@ -383,8 +383,8 @@ function manualposor_refresh_content(){
     $("#mpr_table").append($([
       '<tr class=\'mpr_content\'>',
       '  <td align=\'center\' class=\'mpr_name mpr_modelname\'>'+name+'</td>',
-      '  <td><input type=\'radio\' class=\'mpr_r1\' name=\'r1\' value=\''+name+'\' id=\'r1_'+name+'\'></td>',
-      '  <td><input type=\'radio\' class=\'mpr_r2\' name=\'r2\' value=\''+name+'\' id=\'r2_'+name+'\'></td>',
+      '  <td><input type=\'radio\' class=\'mpr_r1\' name=\'r1\' value=\''+name+'\'></td>',
+      '  <td><input type=\'radio\' class=\'mpr_r2\' name=\'r2\' value=\''+name+'\'></td>',
       '  <td><input type=\'checkbox\' class=\'mpr_hide\'></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_x\' value=\''+tra_tra_rw.x.toFixed(3)+'\' \></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_y\' value=\''+tra_tra_rw.y.toFixed(3)+'\' \></td>',
