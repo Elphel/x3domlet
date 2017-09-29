@@ -66,7 +66,9 @@ function manualposor_init(){
       '   <th align=\'left\' colspan=\'3\'>orientation, &deg;</th>',
       ' </tr>',
       ' <tr>',
-      '   <th colspan=\'4\'></th>',
+      '   <th colspan=\'1\'></th>',
+      '   <th colspan=\'2\'><button title=\'reset radios (r1 & r2)\' id=\'mpr_reset_radios\'>reset</button></th>',
+      '   <th colspan=\'1\'></th>',
       '   <th class=\'mpr_name\'>step, m :</th>',
       '   <th class=\'mpr_name\'><input id=\'mpr_step_m\' type=\'text\' class=\'mpr_steps\' value=\'0.001\'></th>',
       '   <th></th>',
@@ -152,6 +154,18 @@ function manualposor_init(){
           postKmlData(filename, output);
         }
       });
+    });
+
+    $("#mpr_reset_radios").on('click',function(){
+
+      $(".mpr_r1").each(function(){
+        $(this).prop("checked",false);
+      });
+
+      $(".mpr_r2").each(function(){
+        $(this).prop("checked",false);
+      });
+
     });
 
 }
@@ -369,8 +383,8 @@ function manualposor_refresh_content(){
     $("#mpr_table").append($([
       '<tr class=\'mpr_content\'>',
       '  <td align=\'center\' class=\'mpr_name mpr_modelname\'>'+name+'</td>',
-      '  <td><input type=\'radio\' class=\'mpr_r1\' name=\'r1\' ></td>',
-      '  <td><input type=\'radio\' class=\'mpr_r2\' name=\'r2\' ></td>',
+      '  <td><input type=\'radio\' class=\'mpr_r1\' name=\'r1\' value=\''+name+'\' id=\'r1_'+name+'\'></td>',
+      '  <td><input type=\'radio\' class=\'mpr_r2\' name=\'r2\' value=\''+name+'\' id=\'r2_'+name+'\'></td>',
       '  <td><input type=\'checkbox\' class=\'mpr_hide\'></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_x\' value=\''+tra_tra_rw.x.toFixed(3)+'\' \></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_y\' value=\''+tra_tra_rw.y.toFixed(3)+'\' \></td>',
@@ -381,6 +395,11 @@ function manualposor_refresh_content(){
       '</tr>',
     ].join("\n")));
 
+  });
+
+  // rebind all
+  $(".mpr_r1[name=r1]").off('change').change(function(){
+    console.log("Go "+this.value);
   });
 
   // remove entry if inline missing
@@ -521,5 +540,37 @@ function manualposor_update(elem){
   tmptransform.attr("translation",new_tra);
 
 }
+
+function manualposor_rotate_glued(){
+
+  $(".mpr_r1[name=r1]:checked").each(function(){
+
+    var modelname = $(this).val();
+    var tmptransform = $("inline[name=x3d_"+modelname+"]").parent().parent();
+
+    var vm = Scene.element.runtime.viewMatrix().inverse();
+
+
+  });
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

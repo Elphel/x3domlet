@@ -427,6 +427,9 @@ function deep_init(){
 
           //x3dom_testbox();
           x3dom_setUpRight();
+          if (SETTINGS.manualposor){
+            manualposor_rotate_glued();
+          }
 
         }
 
