@@ -124,7 +124,7 @@ function manualposor_init(){
           var modelname = $(this).html();
           var checkbox = $(this).parent().find(".mpr_hide");
           if (checkbox.prop("checked")){
-            $("inline[name=x3d_"+modelname+"]").parent().parent().attr("whichChoice",-1);
+            $("inline[name=x3d_"+modelname+"]").parent().parent().parent().attr("whichChoice",-1);
           }
         });
       }
@@ -134,7 +134,7 @@ function manualposor_init(){
     $("#window-extrainfo").on('keyup',function(e){
       $(this).find(".mpr_modelname").each(function(){
         var modelname = $(this).html();
-        $("inline[name=x3d_"+modelname+"]").parent().parent().attr("whichChoice",0);
+        $("inline[name=x3d_"+modelname+"]").parent().parent().parent().attr("whichChoice",0);
       });
     });
 
@@ -210,7 +210,7 @@ function load_extra_model(name,version){
 
 function hide_extra_model(name){
   //donothing
-  $("inline[name=x3d_"+name+"]").parent().parent().parent().remove();
+  $("inline[name=x3d_"+name+"]").parent().parent().parent().parent().remove();
   manualposor_refresh_content();
 
 }
@@ -243,13 +243,8 @@ function parse_load_extra_model(name,version,response){
   var p0 = new L.LatLng(Data.camera.kml.latitude,Data.camera.kml.longitude);
   var p1 = new L.LatLng(Data.extra_models["x3d_"+name].latitude,Data.extra_models["x3d_"+name].longitude);
   var p_w = x3dom_delta_map2scene(p0,p1);
-  console.log(p0);
-  console.log(p1);
-  console.log(p_w);
 
   var tstring = [p_w.x,p_w.y,p_w.z].join(",");
-
-  console.log("tstring: "+tstring);
 
   heading = heading*Math.PI/180;
   tilt = tilt*Math.PI/180;
@@ -280,11 +275,15 @@ function parse_load_extra_model(name,version,response){
 
   model_url = SETTINGS.basepath+"/"+name+"/"+version+"/"+name+".x3d";
 
+  var mountshift = [SETTINGS.mountshift.x,SETTINGS.mountshift.y,SETTINGS.mountshift.z].join(',');
+
   var model = $([
       '<group>',
       '  <switch whichChoice=\'0\'>',
       '    <transform rotation=\''+rstring+'\' translation=\''+tstring+'\'>',
-      '      <inline name="x3d_'+name+'" namespacename="x3d_'+name+'" url="'+model_url+'"></inline>',
+      '      <transform translation=\''+mountshift+'\'>',
+      '        <inline name="x3d_'+name+'" namespacename="x3d_'+name+'" url="'+model_url+'"></inline>',
+      '      </transform>',
       '    </transform>',
       '  </switch>',
       '</group>'
@@ -328,7 +327,7 @@ function manualposor_refresh_content(){
     console.log("Model "+tmpstr+": "+name);
 
     // get rotation and translation
-    var tra = $(this).parent();
+    var tra = $(this).parent().parent();
     //console.log($(tra).attr("translation")+' vs '+$(tra).attr("rotation"));
     // always defined
     // 0,0,0 vs 0,0,0,0
@@ -345,7 +344,8 @@ function manualposor_refresh_content(){
     var m = q.toMatrix();
     // convert to real world
     var R0 = Data.camera.Matrices.R0;
-    m = m.mult(R0);
+    //m = m.mult(R0);
+    m = R0.mult(m);
 
     var htr = x3dom_YawPitchRoll_nc_degs(m);
     console.log(htr);
@@ -454,7 +454,7 @@ function manualposor_update(elem){
 
   var tmp_pp = $(elem).parent().parent();
   var tmpname = tmp_pp.find(".mpr_name").html();
-  var tmptransform = $("inline[name=x3d_"+tmpname+"]").parent();
+  var tmptransform = $("inline[name=x3d_"+tmpname+"]").parent().parent();
 
   var dp_rw = {
     x: parseFloat(tmp_pp.find(".mpr_x").val()),
@@ -505,7 +505,8 @@ function manualposor_update(elem){
   var R1 = T.inverse().mult(R).mult(T);
   var R0 = Data.camera.Matrices.R0;
 
-  var R_diff = R1.mult(R0.inverse());
+  //var R_diff = R1.mult(R0.inverse());
+  var R_diff = R0.inverse().mult(R1);
   //var R_diff = R1;
 
   var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);

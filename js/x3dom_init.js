@@ -631,6 +631,7 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
                 Scene.updateMarkersIndices();
 
                 Map.deleteMarker(index);
+                Map.marker.draggedMarker._index = null;
 
                 Scene.highlighted_marker_index = null;
             }

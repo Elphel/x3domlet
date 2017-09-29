@@ -59,10 +59,29 @@
           <!--<Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0' ></Viewpoint>-->
           <!-- in x3dom 1.7.2 - bug: zNear does not work properly -->
           <!--<Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0' zNear='3'></Viewpoint>-->
-          <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0'></Viewpoint>
 <!--          <group>
             <inline name="back" namespacename="back" url="models/m1/v1/background.x3d"/>
           </group>-->
+          <group id='viewpoint_group'>
+            <transform id='viewpoint_transform'>
+              <Viewpoint fieldOfView='1' position='0 0 0' orientation='0 0 1 0'>
+              </Viewpoint>
+<!--
+              <transform id="testbox" DEF="boxTrafo" translation='0 0 0'>
+                <transform translation='0 0 -5.5'>
+                  <shape DEF="boxShape">
+                    <appearance DEF="boxApp">
+                      <material diffuseColor="1 0 0" specularColor="0.7 0 0" />
+                    </appearance>
+                    <box DEF="box" size='0.3,0.3,0.3'></box>
+                  </shape>
+                </transform>
+              </transform>
+              -->
+            </transform>
+
+          </group>
+
         </scene>
       </x3d>
     </div>

@@ -840,6 +840,16 @@ function x3dom_update_map(){
 
 }
 
+function x3dom_testbox(){
+    // keep the test cube
+    var mat = Scene.element.runtime.viewMatrix().inverse();
+    var Q = new x3dom.fields.Quaternion(0, 0, 1, 0);
+    Q.setValue(mat);
+    var AA = Q.toAxisAngle();
+    var testbox = $("#testbox");
+    testbox.attr("rotation",AA[0].toString()+" "+AA[1]);
+}
+
 // uses globals
 function x3dom_setViewpoint(m){
 
@@ -851,6 +861,12 @@ function x3dom_setViewpoint(m){
     viewpoint.attr("orientation",AA[0].toString()+" "+AA[1]);
     viewpoint.attr("position",m.e3().toString());
     viewpoint.attr("centerOfRotation",m.e3().toString());
+
+    /*
+    var viewpoint = $("#viewpoint_transform");
+    viewpoint.attr("rotation",AA[0].toString()+" "+AA[1]);
+    viewpoint.attr("translation",m.e3().toString());
+    */
 
     // update every time
     Data.camera.Matrices.RC_w = m;

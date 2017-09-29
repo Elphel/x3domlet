@@ -68,7 +68,12 @@ var SETTINGS = {
       'kml':""
     },
     'forcehide':[],
-    'forceshow':[]
+    'forceshow':[],
+    'mountshift':{
+      x: 0,
+      y: 0,
+      z: -0.12
+    }
 //     'kml'    : "scene.kml"
 }
 
@@ -222,7 +227,9 @@ function light_init(){
         '<group>',
         '  <switch whichChoice=\'0\'>',
         '    <transform id=\'x3d_transform\' class=\'inline_wrapper\'>',
-        '      <inline name="x3d_'+model_name+'" namespacename="x3d_'+model_name+'" url="'+model_url+'"></inline>',
+        '      <transform translation=\''+([SETTINGS.mountshift.x,SETTINGS.mountshift.y,SETTINGS.mountshift.z].join(','))+'\'>',
+        '        <inline name="x3d_'+model_name+'" namespacename="x3d_'+model_name+'" url="'+model_url+'"></inline>',
+        '      </transform>',
         '    </transform>',
         '  </switch>',
         '</group>',
@@ -407,6 +414,7 @@ function deep_init(){
         cnt = parseInt(progress_counter[1]);
 
         if (!Scene._X3DOM_SCENE_INIT_BACK_DONE){
+
           //console.log(cnt+" "+background_check());
 
           var bc = background_check();
@@ -414,6 +422,11 @@ function deep_init(){
             background_init();
             Scene._X3DOM_SCENE_INIT_BACK_DONE = true;
           }
+
+        }else{
+
+          //x3dom_testbox();
+          x3dom_setUpRight();
 
         }
 
@@ -430,6 +443,7 @@ function deep_init(){
             x3d_setShiftSpeed();
 
         }
+
     };
 
 }
@@ -679,7 +693,7 @@ function x3d_events(){
 
         if (e.buttons==1){
             // upright view
-            x3dom_setUpRight();
+            //x3dom_setUpRight();
         }
 
         // what is this?
