@@ -359,7 +359,9 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
         // if self._shiftKey then the mouse will always be over the pointer marker
 
         if ((self._shiftKey)||(SETTINGS.highlight)){
-            X3DOMObject.Shape.toggle(this);
+            if (!SETTINGS.manualposor){
+              X3DOMObject.Shape.toggle(this);
+            }
         }
 
         if (self._ctrlKey){
@@ -391,7 +393,7 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
         // e.ctrlKey will not work because X3DOM does something to events
         if (self._shiftKey){
 
-            if (self._HIGHLIGHT_ON_MOUSEOVER){
+            if (self._HIGHLIGHT_ON_MOUSEOVER&&!SETTINGS.manualposor){
                 X3DOMObject.Shape.highlight(this);
             }
 

@@ -45361,9 +45361,11 @@ x3dom.DefaultNavigation.prototype.onDrag = function(view, x, y, buttonState)
 
     if (buttonState & 1) //left
     {
-        //examine rotation is here. oleg.
-        dx = -dx/3;
-        dy = -dy/3;
+
+        //EXAMINE rotation is here. oleg.
+        var fov = viewpoint.getFieldOfView();
+        dx = -dx/4*fov;
+        dy = -dy/4*fov;
 
         alpha = (dy * 2 * Math.PI) / view._width;
         beta = (dx * 2 * Math.PI) / view._height;

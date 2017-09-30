@@ -541,13 +541,24 @@ function x3d_events(){
 
         // 'shift' is for shapes toggling
         if ((e.key=="Shift")||(SETTINGS.highlight&&!SETTINGS.pointer)){
+
+          // manualposor is more toxic
+          if (SETTINGS.manualposor){
+
+            // blink procedure:
+            // step 1: keydown - r1
+            // step 2: keyup   - r1 & r2
+            // step 3: keydown - r2
+            // step 4: keyup   - r1 & r2
+            manualposor_blink();
+
+          }else{
             // select shape
             var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
-
             if (!$(sr.pickObject).hasClass("shapemarker")){
                 X3DOMObject.Shape.highlight(sr.pickObject);
             }
-
+          }
 
         }
 
@@ -617,8 +628,13 @@ function x3d_events(){
 
         // 'shift' is for shapes toggling
         if (e.key=="Shift"){
+
+          if(SETTINGS.manualposor){
+            manualposor_unblink();
+          }else{
             var sr = elem.runtime.shootRay(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y);
             X3DOMObject.Shape.dehighlight(sr.pickObject);
+          }
         }
 
         if (e.key=="Control"){

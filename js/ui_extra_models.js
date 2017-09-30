@@ -79,7 +79,7 @@ function manualposor_init(){
       '   <th>Model</th>',
       '   <th class=\'mpr_name\' title=\'glued\'>r1</th>',
       '   <th class=\'mpr_name\' title=\'unglued\'>r2</th>',
-      '   <th class=\'mpr_name\' title=\'hide on shift key\'>hide</th>',
+      //'   <th class=\'mpr_name\' title=\'hide on shift key\'>hide</th>',
       '   <th class=\'mpr_name\'>x</th>',
       '   <th class=\'mpr_name\'>y</th>',
       '   <th class=\'mpr_name\'>z</th>',
@@ -110,35 +110,46 @@ function manualposor_init(){
         }
     });
 
+    /*
     $("#window-extrainfo").on('mouseenter',function(){
       $(this).focus();
     });
+    */
 
+    /*
     $("#window-extrainfo").on('mouseleave',function(){
       $(this).trigger('keyup');
       //$(this).focus();
     });
+    */
 
-    // stop propagation to the scene
+    /*
     $("#window-extrainfo").on('keydown',function(e){
       if(e.key=="Shift"){
         $(this).find(".mpr_modelname").each(function(){
           var modelname = $(this).html();
-          var checkbox = $(this).parent().find(".mpr_hide");
-          if (checkbox.prop("checked")){
-            $("inline[name=x3d_"+modelname+"]").parent().parent().parent().attr("whichChoice",-1);
-          }
+          // mpr_hide disabled
+
+          //var checkbox = $(this).parent().find(".mpr_hide");
+          //if (checkbox.prop("checked")){
+          //  $("inline[name=x3d_"+modelname+"]").parent().parent().parent().attr("whichChoice",-1);
+          //}
+
         });
       }
       e.stopPropagation();
-    });
 
+    });
+    */
+
+    /*
     $("#window-extrainfo").on('keyup',function(e){
       $(this).find(".mpr_modelname").each(function(){
         var modelname = $(this).html();
         $("inline[name=x3d_"+modelname+"]").parent().parent().parent().attr("whichChoice",0);
       });
     });
+    */
 
     // save all models in the list
     $("#mpr_save").on('click',function(){
@@ -165,6 +176,8 @@ function manualposor_init(){
       $(".mpr_r2").each(function(){
         $(this).prop("checked",false);
       });
+
+      MPR_PO = null;
 
     });
 
@@ -385,7 +398,7 @@ function manualposor_refresh_content(){
       '  <td align=\'center\' class=\'mpr_name mpr_modelname\'>'+name+'</td>',
       '  <td><input type=\'radio\' class=\'mpr_r1\' name=\'r1\' value=\''+name+'\'></td>',
       '  <td><input type=\'radio\' class=\'mpr_r2\' name=\'r2\' value=\''+name+'\'></td>',
-      '  <td><input type=\'checkbox\' class=\'mpr_hide\'></td>',
+      //'  <td><input type=\'checkbox\' class=\'mpr_hide\'></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_x\' value=\''+tra_tra_rw.x.toFixed(3)+'\' \></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_y\' value=\''+tra_tra_rw.y.toFixed(3)+'\' \></td>',
       '  <td><input type=\'text\' class=\'mpr_input mpr_tra mpr_z\' value=\''+tra_tra_rw.z.toFixed(3)+'\' \></td>',
@@ -398,8 +411,12 @@ function manualposor_refresh_content(){
   });
 
   // rebind all
-  $(".mpr_r1[name=r1]").off('change').change(function(){
-    console.log("Go "+this.value);
+  $(".mpr_r1[name=r1]").off('change').on('change',function(){
+    manualposor_init_mode();
+  });
+
+  $(".mpr_r2[name=r2]").off('change').on('change',function(){
+    manualposor_init_mode();
   });
 
   // remove entry if inline missing
@@ -415,6 +432,8 @@ function manualposor_refresh_content(){
     }
 
   });
+
+  manualposor_init_mode();
 
   // events - mousewheel
   $(".mpr_input").each(function(){
@@ -541,25 +560,133 @@ function manualposor_update(elem){
 
 }
 
+var MPR_PO;
+
 function manualposor_rotate_glued(){
 
-  $(".mpr_r1[name=r1]:checked").each(function(){
+  var r1 = $(".mpr_r1[name=r1]:checked");
 
-    var modelname = $(this).val();
+  if (r1.length!=0){
+
+    //console.log(MPR_PO);
+
+    // update inputs
+
+    var modelname = r1.val();
+
     var tmptransform = $("inline[name=x3d_"+modelname+"]").parent().parent();
-
     var vm = Scene.element.runtime.viewMatrix().inverse();
 
+    var dR = vm.mult(MPR_PO.viewmatrix.inverse());
 
-  });
+    var q = x3dom.fields.Quaternion.parseAxisAngle(MPR_PO.rotation);
+    var m = q.toMatrix();
+    m = dR.mult(m);
+    q.setValue(m);
+    var AA = q.toAxisAngle();
+    var new_rot = AA[0].toString()+" "+AA[1];
+
+
+    var tra1 = MPR_PO.translation.split(",");
+    tra1 = new x3dom.fields.SFVec3f(tra1[0],tra1[1],tra1[2]);
+
+    var rv1 = MPR_PO.viewmatrix.e3();
+    var rv2 = vm.e3();
+
+    var tra2 = rv2.add(dR.multMatrixVec(tra1.subtract(rv1)));
+
+    console.log("check 2: "+tra2.toString());
+
+    //var new_tra = dR.multMatrixVec(tra);
+    new_tra = [tra2.x,tra2.y,tra2.z].join(",");
+
+    console.log(new_tra);
+
+    tmptransform.attr("rotation",new_rot);
+    //tmptransform.attr("translation",new_tra);
+    tmptransform.attr("translation",new_tra);
+
+  }
 
 }
 
+function manualposor_init_mode(){
 
+  console.log("mpr mode refresh");
 
+  // hide all
+  $(".mpr_r1").each(function(){
+    var modelname = $(this).val();
+    $("inline[name=x3d_"+modelname+"]").parent().parent().parent().attr("whichChoice",-1);
+  });
 
+  //show selected only
+  var r1 = $(".mpr_r1[name=r1]:checked");
+  var r2 = $(".mpr_r2[name=r2]:checked");
 
+  if (r1.length!=0){
 
+    var in_t_t = $("inline[name=x3d_"+r1.val()+"]").parent().parent()
+    in_t_t.parent().attr("whichChoice",0);
+
+    var vm = Scene.element.runtime.viewMatrix().inverse();
+
+    // remember transform
+    MPR_PO = {
+      rotation: in_t_t.attr('rotation'),
+      translation: in_t_t.attr('translation'),
+      viewmatrix: vm
+    }
+  }
+
+  if (r2.length!=0){
+    $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",0);
+  }
+
+  // show all
+  if ((r1.length==0)&&(r2.length==0)){
+    $(".mpr_r1").each(function(){
+      var modelname = $(this).val();
+      $("inline[name=x3d_"+modelname+"]").parent().parent().parent().attr("whichChoice",0);
+    });
+  }
+
+}
+
+var MPR_BS = false;
+
+function manualposor_blink(){
+
+  var r1 = $(".mpr_r1[name=r1]:checked");
+  var r2 = $(".mpr_r2[name=r2]:checked");
+
+  MPR_BS = !MPR_BS;
+
+  if (MPR_BS){
+    if (r2.length!=0){
+      $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",-1);
+    }
+  }else{
+    if (r1.length!=0){
+      $("inline[name=x3d_"+r1.val()+"]").parent().parent().parent().attr("whichChoice",-1);
+    }
+  }
+}
+
+function manualposor_unblink(){
+
+  var r1 = $(".mpr_r1[name=r1]:checked");
+  var r2 = $(".mpr_r2[name=r2]:checked");
+
+  if (r1.length!=0){
+    $("inline[name=x3d_"+r1.val()+"]").parent().parent().parent().attr("whichChoice",0);
+  }
+
+  if (r2.length!=0){
+    $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",0);
+  }
+
+}
 
 
 
