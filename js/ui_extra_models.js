@@ -586,7 +586,6 @@ function manualposor_rotate_glued(){
     var AA = q.toAxisAngle();
     var new_rot = AA[0].toString()+" "+AA[1];
 
-
     var tra1 = MPR_PO.translation.split(",");
     tra1 = new x3dom.fields.SFVec3f(tra1[0],tra1[1],tra1[2]);
 
@@ -595,12 +594,12 @@ function manualposor_rotate_glued(){
 
     var tra2 = rv2.add(dR.multMatrixVec(tra1.subtract(rv1)));
 
-    console.log("check 2: "+tra2.toString());
+    //console.log("check 2: "+tra2.toString());
 
     //var new_tra = dR.multMatrixVec(tra);
     new_tra = [tra2.x,tra2.y,tra2.z].join(",");
 
-    console.log(new_tra);
+    //console.log(new_tra);
 
     tmptransform.attr("rotation",new_rot);
     //tmptransform.attr("translation",new_tra);
@@ -688,9 +687,62 @@ function manualposor_unblink(){
 
 }
 
+function manualposor_init_shootrays(x,y){
 
+  MPR.counter = 1;
+  MPR.x = x;
+  MPR.y = y;
 
+}
 
+function manualposor_shootrays(){
+
+  var r1 = $(".mpr_r1[name=r1]:checked");
+  var r2 = $(".mpr_r2[name=r2]:checked");
+
+  if (MPR.counter==1){
+
+    if (r2.length!=0){
+      $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",-1);
+    }
+
+    //Scene.element.runtime.enterFrame();
+
+  }else if (MPR.counter==2){
+
+    var ray1 = Scene.element.runtime.shootRay(MPR.x,MPR.y);
+    console.log(ray1);
+
+    if (r1.length!=0){
+      $("inline[name=x3d_"+r1.val()+"]").parent().parent().parent().attr("whichChoice",-1);
+    }
+
+  }else if(MPR.counter==3){
+
+    var ray2 = Scene.element.runtime.shootRay(MPR.x,MPR.y);
+    console.log(ray2);
+
+    MPR.counter = 0;
+
+  }
+
+  if (MPR.counter!=0){
+    console.log("Counter: "+MPR.counter);
+    MPR.counter++;
+
+    setTimeout(function(){
+      var r1 = $(".mpr_r1[name=r1]:checked");
+      if (r1.length!=0){
+        $("inline[name=x3d_"+r1.val()+"]").parent().parent().parent().attr("whichChoice",0);
+      }
+      if (r2.length!=0){
+        $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",0);
+      }
+    },10);
+
+  }
+
+}
 
 
 

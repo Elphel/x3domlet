@@ -272,6 +272,8 @@ X3DOMObject.prototype.ShapeEvents = function(){
 
     inlines.each(function(){
 
+        console.log("binding inline: "+$(this).attr("name"));
+
         if ($(this).attr("name")!="back"){
 
             var shapes = $(this).find("Shape");
@@ -295,7 +297,17 @@ X3DOMObject.prototype.ShapeEvents = function(){
 X3DOMObject.Shape = function(element){
 
     this._elem  = element
+    this._clearEvents();
     this._registerEvents();
+
+}
+
+X3DOMObject.Shape.prototype._clearEvents = function(){
+
+  $(this._elem).off("mousemove");
+  $(this._elem).off("click");
+  $(this._elem).off("mouseover");
+  $(this._elem).off("mouseout");
 
 }
 
@@ -305,32 +317,40 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
 
     $(this._elem).on("mousemove",function(e){
 
-        var x = e.originalEvent.worldX;
-        var y = e.originalEvent.worldY;
-        var z = e.originalEvent.worldZ;
+        if(!SETTINGS.manualposor){
 
-        var xyz = zNear_bug_correction([x,y,z]);
+          var x = e.originalEvent.worldX;
+          var y = e.originalEvent.worldY;
+          var z = e.originalEvent.worldZ;
 
-        x = xyz[0];
-        y = xyz[1];
-        z = xyz[2];
+          var xyz = zNear_bug_correction([x,y,z]);
 
-        // (not used atm) store x3dom event to use in normal events
-        self._stored_x3dom_event = e.originalEvent;
+          x = xyz[0];
+          y = xyz[1];
+          z = xyz[2];
 
-        if (self._ctrlKey||SETTINGS.pointer){
+          // (not used atm) store x3dom event to use in normal events
+          self._stored_x3dom_event = e.originalEvent;
 
-            // place pointer marker
-            X3DOMObject.PointerMarker.updatePars();
+          if (self._ctrlKey||SETTINGS.pointer){
 
-            X3DOMObject.Marker.place(x,y,z,"sliding_sphere");
-            $("#sliding_sphere").find("switch").attr("whichChoice",0);
+              // place pointer marker
+              X3DOMObject.PointerMarker.updatePars();
+
+              X3DOMObject.Marker.place(x,y,z,"sliding_sphere");
+              $("#sliding_sphere").find("switch").attr("whichChoice",0);
+
+          }else{
+
+              // place at 0,0,0 and hide
+              X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
+              $("#sliding_sphere").find("switch").attr("whichChoice",-1);
+
+          }
 
         }else{
 
-            // place at 0,0,0 and hide
-            X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
-            $("#sliding_sphere").find("switch").attr("whichChoice",-1);
+          // for align marker? do nothing
 
         }
 
@@ -366,17 +386,29 @@ X3DOMObject.Shape.prototype._registerEvents = function(){
 
         if (self._ctrlKey){
 
-          var x = e.originalEvent.worldX;
-          var y = e.originalEvent.worldY;
-          var z = e.originalEvent.worldZ;
+          if(!SETTINGS.manualposor){
 
-          var xyz = zNear_bug_correction([x,y,z]);
+            var x = e.originalEvent.worldX;
+            var y = e.originalEvent.worldY;
+            var z = e.originalEvent.worldZ;
 
-          x = xyz[0];
-          y = xyz[1];
-          z = xyz[2];
+            var xyz = zNear_bug_correction([x,y,z]);
 
-          X3DOMObject.createNewMarker(x,y,z);
+            x = xyz[0];
+            y = xyz[1];
+            z = xyz[2];
+
+            X3DOMObject.createNewMarker(x,y,z);
+
+          }else{
+
+            // align marker
+            var lx = e.originalEvent.layerX;
+            var ly = e.originalEvent.layerY;
+
+            manualposor_init_shootrays(lx,ly);
+
+          }
 
         }
 

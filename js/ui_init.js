@@ -91,6 +91,13 @@ var AUTOCOLORS_COUNTER = 0;
 
 var MARKER_PREFIX = "my-sph-";
 
+// Manual Position & Orientation mode
+var MPR = {
+  counter: 0,
+  x: null,
+  y: null
+};
+
 // no comments
 function parseURL(){
     var parameters=location.href.replace(/\?/ig,"&").split("&");
@@ -427,9 +434,15 @@ function deep_init(){
 
           //x3dom_testbox();
           x3dom_setUpRight();
+
           if (SETTINGS.manualposor){
+
+            manualposor_shootrays();
             manualposor_rotate_glued();
+
           }
+
+          // shoot ray here
 
         }
 
@@ -445,6 +458,11 @@ function deep_init(){
 
             x3d_setShiftSpeed();
 
+        }
+
+        // loading extra models?
+        if (Scene._X3DOM_SCENE_INIT_DONE&&(cnt!=0)){
+            Scene._X3DOM_SCENE_INIT_DONE = false;
         }
 
     };
@@ -571,24 +589,33 @@ function x3d_events(){
 
             Scene._ctrlKey = true;
 
-            var x,y,z;
-            var dist = 1111;
+            if(!SETTINGS.manualposor){
 
-            var mouse = x3dom_getXYPosOr(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y,false);
+              var x,y,z;
+              var dist = 1111;
 
-            if (mouse.d_xz != null){
+              var mouse = x3dom_getXYPosOr(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y,false);
 
-                dist = parseFloat(mouse.d_xz);
+              if (mouse.d_xz != null){
 
-                X3DOMObject.Marker.place(mouse.x,mouse.y,mouse.z,"sliding_sphere");
+                  dist = parseFloat(mouse.d_xz);
 
-                if (Scene.highlighted_marker_index==null) {
-                  $("#sliding_sphere").find("switch").attr("whichChoice",0);
-                }
+                  X3DOMObject.Marker.place(mouse.x,mouse.y,mouse.z,"sliding_sphere");
+
+                  if (Scene.highlighted_marker_index==null) {
+                    $("#sliding_sphere").find("switch").attr("whichChoice",0);
+                  }
+
+              }
+
+              Map.marker.placeSlidingMarker(mouse.a,dist);
+
+            }else{
+
+              // place align marker here
 
             }
 
-            Map.marker.placeSlidingMarker(mouse.a,dist);
 
             /*
             // Debugging
@@ -642,10 +669,17 @@ function x3d_events(){
             Scene._ctrlKey = false;
             //remove on keydown?
 
-            X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
-            $("#sliding_sphere").find("switch").attr("whichChoice",-1);
+            if(!SETTINGS.manualposor){
 
-            Map.marker.removeSlidingMarker();
+              X3DOMObject.Marker.place(0,0,0,"sliding_sphere");
+              $("#sliding_sphere").find("switch").attr("whichChoice",-1);
+              Map.marker.removeSlidingMarker();
+
+            }else{
+
+              // place align marker disable here
+
+            }
 
         }
 
