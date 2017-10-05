@@ -947,14 +947,19 @@ MPRMarker.prototype.init = function(){
 
   $(this.target).append(html);
 
-  html.find("shape").on('click',function(){
-    var uid = $(this).attr("uid");
-    $(".mprmarker[uid="+uid+"]").each(function(){
-      $(this).parent().parent().parent().remove();
-    });
+  html.find("shape").on('click',function(e){
 
-    // remove from Data.mpr.markers
-    mpr_marker_remove_by_uid(uid);
+    if(Scene._ctrlKey){
+
+      var uid = $(this).attr("uid");
+      $(".mprmarker[uid="+uid+"]").each(function(){
+        $(this).parent().parent().parent().remove();
+      });
+
+      // remove from Data.mpr.markers
+      mpr_marker_remove_by_uid(uid);
+
+    }
 
   });
 
