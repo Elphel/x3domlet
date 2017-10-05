@@ -720,6 +720,22 @@ function manualposor_rotate_glued(){
     //tmptransform.attr("translation",new_tra);
     tmptransform.attr("translation",new_tra);
 
+    // update input fields
+    var r1p = r1.parent().parent();
+
+    r1p.find(".mpr_x").val(tra2.x.toFixed(3));
+    r1p.find(".mpr_y").val(tra2.y.toFixed(3));
+    r1p.find(".mpr_z").val(tra2.z.toFixed(3));
+
+    var m = q.toMatrix();
+    var R0 = Data.camera.Matrices.R0;
+    m = R0.mult(m);
+    var htr = x3dom_YawPitchRoll_nc_degs(m);
+
+    r1p.find(".mpr_h").val(htr.yaw.toFixed(2));
+    r1p.find(".mpr_t").val(htr.pitch.toFixed(2));
+    r1p.find(".mpr_r").val(htr.roll.toFixed(2));
+
   }
 
 }
