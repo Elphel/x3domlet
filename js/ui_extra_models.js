@@ -34,6 +34,8 @@ function extra_models_init(){
         load_extra_models();
       });
 
+      //mpr_marks_load();
+
     },
     error: function(response){
       emc.append($("<h2 style='color:red'>N/A</h2>"));
@@ -90,7 +92,8 @@ function manualposor_init(){
       ' </table>',
       '</div>',
       '<div>',
-      '  <div><button id=\'mpr_save\'>save</button></div>',
+      '  <div><button id=\'mpr_save\'>save kmls</button></div>',
+      '  <div><button id=\'mpr_save_marks\' title=\'save to file\' >save marks</button></div>',
       '</div>',
     ].join('\n'));
 
@@ -179,7 +182,79 @@ function manualposor_init(){
 
       MPR_PO = null;
 
+      $("inline").each(function(){
+        $(this).parent().parent().parent().attr("whichChoice",0);
+      });
+
     });
+
+    $("#mpr_save_marks").on('click',function(){
+
+      //var str = mpr_markers_print();
+      //console.log(str);
+
+      var str = mpr_markers_to_xml();
+      console.log(str);
+
+      $.ajax({
+        url: "store_marks.php?model="+SETTINGS.path,
+        type: "POST",
+        data: str,
+        async: true,
+        complete: function(response){
+          var res = parseInt(response.responseText);
+          if (res!=0){
+            ui_showMessage("window-error","Error saving marks, code: "+res);
+          }
+        },
+        contentType: "text/xml; charset=\"utf-8\""
+      });
+
+    });
+
+}
+
+function mpr_marks_load(){
+
+  $.ajax({
+    url: [SETTINGS.basepath,SETTINGS.path,"marks.xml"].join("/"),
+    success: function(response){
+
+      $(response).find("record").each(function(){
+
+        var uid = $(this).attr("uid");
+        var marks = $(this).find("mark");
+
+        var name1 = $(marks[0]).attr("model");
+        var p1    = $(marks[0]).attr("position").split(",");
+        var p1l   = new x3dom.fields.SFVec3f(p1[0],p1[1],p1[2]);
+
+        var name2 = $(marks[1]).attr("model");
+        var p2    = $(marks[1]).attr("position").split(",");
+        var p2l   = new x3dom.fields.SFVec3f(p2[0],p2[1],p2[2]);
+
+        // local position is constant
+        Data.mpr.markers.push({
+          uid: uid,
+          m1:{
+            name: name1,
+            position: p1l
+          },
+          m2:{
+            name: name2,
+            position: p2l
+          }
+        });
+
+      });
+
+      MPR_MARKS_LOADED = true;
+
+    },
+    error: function(response){
+      MPR_MARKS_LOADED = true;
+    }
+  });
 
 }
 
@@ -322,6 +397,46 @@ function parse_load_extra_model(name,version,response){
 
   //update content
   manualposor_refresh_content();
+
+  // now there are mpr_marks
+  for(var i=0;i<Data.mpr.markers.length;i++){
+    var mark = Data.mpr.markers[i];
+    //check if already placed
+    if ($('.mprmarker[uid='+mark.uid+']').length==0){
+      var inline1 = $('inline[name=x3d_'+mark.m1.name+']');
+      var inline2 = $('inline[name=x3d_'+mark.m2.name+']');
+      // now check if both models are loaded
+      if((inline1.length!=0)&&(inline2.length!=0)){
+
+        // place now
+        var p1 = mark.m1.position;
+        var p2 = mark.m2.position;
+
+        var d = x3dom_3d_distance(p1.x,p1.y,p1.z,true);
+        var size = 1*SETTINGS.markersize_k*d;
+        var color = x3dom_autocolor();
+
+        var uid = mark.uid;
+
+        var p1l = p1;
+        var p2l = p2;
+
+        var target1 = inline1;
+        var target2 = inline2;
+
+        var name1 = mark.m1.name;
+        var name2 = mark.m2.name;
+
+        var d = x3dom_3d_distance(p1.x,p1.y,p1.z,true);
+        var size = 1*SETTINGS.markersize_k*d;
+
+        new MPRMarker({target:target1.parent(), uid:uid, model:name1, position:p1l, size: size, color: color});
+        new MPRMarker({target:target2.parent(), uid:uid, model:name2, position:p2l, size: size, color: color});
+
+      }
+    }
+
+  }
 
 }
 
@@ -695,59 +810,224 @@ function manualposor_init_shootrays(x,y){
 
 }
 
+
 function manualposor_shootrays(){
 
   var r1 = $(".mpr_r1[name=r1]:checked");
   var r2 = $(".mpr_r2[name=r2]:checked");
 
+  if (r1.length==0||r2.length==0){
+    MPR.counter = 0;
+    return;
+  }
+
+  // need to delete
   if (MPR.counter==1){
 
-    if (r2.length!=0){
-      $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",-1);
-    }
-
-    //Scene.element.runtime.enterFrame();
+    $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",-1);
 
   }else if (MPR.counter==2){
 
-    var ray1 = Scene.element.runtime.shootRay(MPR.x,MPR.y);
-    console.log(ray1);
-
-    if (r1.length!=0){
+    MPR.ray1 = x3dom_shootRay_fixed(MPR.x,MPR.y);
+    if(MPR.ray1==-1){
+      MPR.counter=0;
+      ui_showMessage("window-error","ray didn't hit a model (models must overlap)");
+    }else{
       $("inline[name=x3d_"+r1.val()+"]").parent().parent().parent().attr("whichChoice",-1);
     }
 
-  }else if(MPR.counter==3){
+  }else if (MPR.counter==3){
 
-    var ray2 = Scene.element.runtime.shootRay(MPR.x,MPR.y);
-    console.log(ray2);
+    MPR.ray2 = x3dom_shootRay_fixed(MPR.x,MPR.y);
+    MPR.counter=0;
 
-    MPR.counter = 0;
+    // register and place marker pair
+    if(MPR.ray2!=-1){
+      manualposor_newMarksPair(MPR.ray1,MPR.ray2);
+    }else{
+      ui_showMessage("window-error","ray didn't hit a model (models must overlap)");
+    }
 
   }
 
-  if (MPR.counter!=0){
-    console.log("Counter: "+MPR.counter);
-    MPR.counter++;
+  // force enterFrame event
+  if(MPR.counter!=0){
 
     setTimeout(function(){
-      var r1 = $(".mpr_r1[name=r1]:checked");
-      if (r1.length!=0){
-        $("inline[name=x3d_"+r1.val()+"]").parent().parent().parent().attr("whichChoice",0);
-      }
-      if (r2.length!=0){
-        $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",0);
-      }
+      $("inline[name=x3d_"+r1.val()+"]").parent().parent().parent().attr("whichChoice",0);
+      $("inline[name=x3d_"+r2.val()+"]").parent().parent().parent().attr("whichChoice",0);
     },10);
+
+    MPR.counter++;
 
   }
 
 }
 
+// register and place marker pair
+function manualposor_newMarksPair(ray1,ray2){
 
+  console.log("new pair");
 
+  // already with x3d_
+  var name1 = ray1.pickObject.id.split("__")[0].substr(4);
+  var name2 = ray2.pickObject.id.split("__")[0].substr(4);
 
+  // uid matches uid in global array
+  var uid = "s"+Date.now();
 
+  var p1 = ray1.pickPosition;
+  var p2 = ray2.pickPosition;
+
+  // force relative size (relative to p1 point)
+  var d = x3dom_3d_distance(p1.x,p1.y,p1.z,true);
+  var size = 1*SETTINGS.markersize_k*d;
+  var color = x3dom_autocolor();
+
+  var target1 = $("inline[name=x3d_"+name1+"]");
+  var m = x3dom_getTransorm_from_2_parents(target1);
+  var p1l = m.inverse().multMatrixVec(p1);
+
+  var target2 = $("inline[name=x3d_"+name2+"]");
+  m = x3dom_getTransorm_from_2_parents(target2);
+  var p2l = m.inverse().multMatrixVec(p2);
+
+  new MPRMarker({target:target1.parent(), uid:uid, model:name1, position:p1l, size: size, color: color});
+  new MPRMarker({target:target2.parent(), uid:uid, model:name2, position:p2l, size: size, color: color});
+
+  // local position is constant
+  Data.mpr.markers.push({
+    uid: uid,
+    m1:{
+      name: name1,
+      position: p1l
+    },
+    m2:{
+      name: name2,
+      position: p2l
+    }
+  });
+
+}
+
+var MPRMarker = function(options){
+
+  this.uid      = options.uid;
+  this.target   = options.target;
+  this.name     = options.name;
+  // position
+  this.p     = options.position;
+  this.color = options.color;
+
+  this.size = options.size;
+
+  this.size_str  = [this.size,this.size,this.size].join(",");
+
+  this.init();
+
+}
+
+MPRMarker.prototype.init = function(){
+
+  var html = $([
+    '<group>',
+    '  <switch whichChoice="0">',
+    //'    <transform translation="'+(this.p.x-this.size/2)+' '+(this.p.y-this.size/2)+' '+(this.p.z-this.size/2)+'" rotation="0 0 0 0">',
+    '    <transform translation="'+(this.p.x)+' '+(this.p.y)+' '+(this.p.z)+'" rotation="0 0 0 0">',
+    '      <shape class="mprmarker" uid="'+this.uid+'">',
+    '        <appearance>',
+    '          <material diffuseColor="'+this.color+'" transparency="0.0" myColor="'+this.color+'"></material>',
+    '        </appearance>',
+    '        <box DEF="box" size="'+this.size_str+'" />',
+    '      </shape>',
+    '    </transform>',
+    '  </switch>',
+    '</group>'
+  ].join('\n'));
+
+  $(this.target).append(html);
+
+  html.find("shape").on('click',function(){
+    var uid = $(this).attr("uid");
+    $(".mprmarker[uid="+uid+"]").each(function(){
+      $(this).parent().parent().parent().remove();
+    });
+
+    // remove from Data.mpr.markers
+    mpr_marker_remove_by_uid(uid);
+
+  });
+
+}
+
+function mpr_marker_remove_by_uid(uid){
+    var c;
+    for(var i=0;i<Data.mpr.markers.length;i++){
+      c = Data.mpr.markers[i];
+      if(c.uid==uid){
+        Data.mpr.markers.splice(i,1);
+        break;
+      }
+    }
+}
+
+function mpr_markers_print(){
+
+  var str = [];
+
+  for(var i=0;i<Data.mpr.markers.length;i++){
+
+    var rec = Data.mpr.markers[i];
+
+    str[i] = [
+      '\n{',
+      '  uid: \''+rec.uid+'\',',
+      '  m1: {',
+      '        name: \''+rec.m1.name+'\',',
+      '        position: { x: '+rec.m1.position.x+', y: '+rec.m1.position.y+', z: '+rec.m1.position.z+' }',
+      '      },',
+      '  m2: {',
+      '        name: \''+rec.m2.name+'\',',
+      '        position: { x: '+rec.m2.position.x+', y: '+rec.m2.position.y+', z: '+rec.m2.position.z+' }',
+      '      }',
+      '}'
+    ].join("\n");
+
+  }
+
+  str = "["+str.join(",")+"\n]";
+
+  return str;
+
+}
+
+function mpr_markers_to_xml(){
+
+  var str = [];
+
+  for(var i=0;i<Data.mpr.markers.length;i++){
+
+    var rec = Data.mpr.markers[i];
+
+    str[i] = [
+      '  <record uid=\''+rec.uid+'\'>',
+      '    <mark model=\''+rec.m1.name+'\' position=\''+rec.m1.position.x+','+rec.m1.position.y+','+rec.m1.position.z+'\'></mark>',
+      '    <mark model=\''+rec.m2.name+'\' position=\''+rec.m2.position.x+','+rec.m2.position.y+','+rec.m2.position.z+'\'></mark>',
+      '  </record>'
+    ].join("\n");
+
+  }
+
+  str = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<Document>',
+    str.join('\n'),
+    '</Document>'
+  ].join('\n');
+
+  return str;
+
+}
 
 
 

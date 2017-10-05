@@ -64,6 +64,7 @@ var X3DOMObject = function(element,data,options){
     // status vars
     this._X3DOM_SCENE_INIT_BACK_DONE = false;
     this._X3DOM_SCENE_INIT_DONE = false;
+
     this._ctrlKey = false;
     this._shiftKey = false;
     this._stored_x3dom_event = null;
@@ -515,7 +516,7 @@ X3DOMObject.prototype.createMarker = function(x,y,z,id){
     var index = null;
 
     var color = convert_color_l2x(SETTINGS.markercolor);
-    var size = SETTINGS.markersize/2;
+    var size = x3dom_markersize()/2;
 
     if ((id=="")||(id==undefined)){
         sph_class = "my-markers";
@@ -1014,7 +1015,7 @@ X3DOMObject.PointerMarker.updatePars = function(){
   // place pointer marker
   $("#sliding_sphere").find('material').attr("diffuseColor",convert_color_l2x(SETTINGS.markercolor));
   $("#sliding_sphere").find('material').attr("transparency","0.2");
-  $("#sliding_sphere").find('Sphere').attr("radius",SETTINGS.markersize/2);
+  $("#sliding_sphere").find('Sphere').attr("radius",((SETTINGS.markersize<0)?-1:1)*SETTINGS.markersize/2);
 
 }
 
@@ -1515,9 +1516,7 @@ X3DOMObject.createNewMarker = function(x,y,z){
   var Camera = Map.marker;
   // Create marker for Data
 
-  var color = SETTINGS.markercolor;
-  color = AUTOCOLORS[AUTOCOLORS_COUNTER%AUTOCOLORS.length];
-  AUTOCOLORS_COUNTER++;
+  var color = x3dom_autocolor();
 
   var xyz_real = x3dom_scene_to_real(x,y,z);
 
@@ -1526,7 +1525,7 @@ X3DOMObject.createNewMarker = function(x,y,z){
       y: y || 0,
       z: z || 0,
       color: color,
-      size:  SETTINGS.markersize,
+      size: x3dom_markersize(x,y,z)
   });
 
   mark.d_x3d = Math.sqrt(Math.pow(xyz_real.x,2)+Math.pow(xyz_real.z,2));

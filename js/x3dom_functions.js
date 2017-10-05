@@ -356,6 +356,24 @@ function zNear_bug_correction(xyz){
 
 }
 
+// shoot ray with zNear correction
+function x3dom_shootRay_fixed(x,y){
+
+  var ray =  Scene.element.runtime.shootRay(x,y);
+
+  // missed
+  if (ray.pickPosition==null){
+    return -1;
+  }
+
+  var tmp = zNear_bug_correction([ray.pickPosition.x,ray.pickPosition.y,ray.pickPosition.z]);
+
+  ray.pickPosition = new x3dom.fields.SFVec3f(tmp[0],tmp[1],tmp[2]);
+
+  return ray;
+
+}
+
 // this upright is for world coordinates, not the camera's
 // the up vector should be taken from the initial camera orientation in kml.
 function x3dom_setUpRight(){
@@ -870,5 +888,53 @@ function x3dom_setViewpoint(m){
 
     // update every time
     Data.camera.Matrices.RC_w = m;
+
+}
+
+function x3dom_markersize(x,y,z){
+
+  if (SETTINGS.markersize<0){
+    var d = x3dom_3d_distance(x,y,z,true);
+    res = -SETTINGS.markersize*SETTINGS.markersize_k*d;
+  }else{
+    res = SETTINGS.markersize;
+  }
+
+  return res;
+
+}
+
+function x3dom_getTransorm(element){
+
+    var tra_str = $(element).attr("translation");
+    var rot_str = $(element).attr("rotation");
+
+    var mr = x3dom.fields.Quaternion.parseAxisAngle(rot_str).toMatrix();
+
+    var tra = x3dom.fields.SFVec3f.parse(tra_str);
+    var mt  = x3dom.fields.SFMatrix4f.translation(tra);
+    var mtn = x3dom.fields.SFMatrix4f.translation(tra.negate());
+
+    var m = mr.mult(mt);
+
+    return m;
+}
+
+function x3dom_getTransorm_from_2_parents(element){
+
+  var m1 = x3dom_getTransorm(element.parent());
+  var m2 = x3dom_getTransorm(element.parent().parent());
+
+  return m1.mult(m2);
+
+}
+
+function x3dom_autocolor(){
+
+  var color = SETTINGS.markercolor;
+  color = AUTOCOLORS[AUTOCOLORS_COUNTER%AUTOCOLORS.length];
+  AUTOCOLORS_COUNTER++;
+
+  return color;
 
 }

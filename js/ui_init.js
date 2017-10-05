@@ -38,7 +38,10 @@
 var Data = {
     camera:{},
     markers:[],
-    extra_models:[]
+    extra_models:[],
+    mpr:{
+      markers:[]
+    }
 };
 
 var Scene;
@@ -54,6 +57,8 @@ var SETTINGS = {
     'moreinfo':  true,
     'crosshair': false,
     'shiftspeed' : 0.01,
+    // for relative size
+    'markersize_k': 0.025,
     'markersize' : 1,
     'markercolor': "#1f1",
     'slidingdrag': true,
@@ -92,11 +97,16 @@ var AUTOCOLORS_COUNTER = 0;
 var MARKER_PREFIX = "my-sph-";
 
 // Manual Position & Orientation mode
+// x,y - canvas coordinates - click position
+// counter - helper counter
 var MPR = {
   counter: 0,
   x: null,
   y: null
 };
+
+// recorded marks restored
+var MPR_MARKS_LOADED = false;
 
 // no comments
 function parseURL(){
@@ -458,6 +468,7 @@ function deep_init(){
 
             x3d_setShiftSpeed();
 
+            if (!MPR_MARKS_LOADED) mpr_marks_load();
         }
 
         // loading extra models?
@@ -612,7 +623,7 @@ function x3d_events(){
 
             }else{
 
-              // place align marker here
+              // for alignment? do nothing
 
             }
 
