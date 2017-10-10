@@ -94,6 +94,7 @@ function manualposor_init(){
       '<div>',
       '  <div><button id=\'mpr_save\'>save kmls</button></div>',
       '  <div><button id=\'mpr_save_marks\' title=\'save to file\' >save marks</button></div>',
+      '  <div><button id=\'mpr_match\' title=\'run models matching algorithm\' >Match models</button></div>',
       '</div>',
     ].join('\n'));
 
@@ -212,12 +213,18 @@ function manualposor_init(){
 
     });
 
+    $("#mpr_match").on('click',function(){
+      x3dom_align_models();
+    });
+
 }
 
 function mpr_marks_load(){
 
   $.ajax({
+
     url: [SETTINGS.basepath,SETTINGS.path,"marks.xml"].join("/"),
+
     success: function(response){
 
       $(response).find("record").each(function(){
@@ -229,20 +236,28 @@ function mpr_marks_load(){
         var p1    = $(marks[0]).attr("position").split(",");
         var p1l   = new x3dom.fields.SFVec3f(p1[0],p1[1],p1[2]);
 
+        var c1    = $(marks[0]).attr("camera").split(",");
+        var c1l   = new x3dom.fields.SFVec3f(c1[0],c1[1],c1[2]);
+
         var name2 = $(marks[1]).attr("model");
         var p2    = $(marks[1]).attr("position").split(",");
         var p2l   = new x3dom.fields.SFVec3f(p2[0],p2[1],p2[2]);
+
+        var c2    = $(marks[1]).attr("camera").split(",");
+        var c2l   = new x3dom.fields.SFVec3f(c2[0],c2[1],c2[2]);
 
         // local position is constant
         Data.mpr.markers.push({
           uid: uid,
           m1:{
             name: name1,
-            position: p1l
+            position: p1l,
+            camera: c1l
           },
           m2:{
             name: name2,
-            position: p2l
+            position: p2l,
+            camera: c2l
           }
         });
 
@@ -251,9 +266,17 @@ function mpr_marks_load(){
       MPR_MARKS_LOADED = true;
 
     },
+
     error: function(response){
+
+      if (response.status==200){
+        this.success(response.responseText);
+      }else{
+        console.log("mpr markers failed");
+      }
       MPR_MARKS_LOADED = true;
     }
+
   });
 
 }
@@ -900,13 +923,18 @@ function manualposor_newMarksPair(ray1,ray2){
   var size = 1*SETTINGS.markersize_k*d;
   var color = x3dom_autocolor();
 
+  var vmat = Scene.element.runtime.viewMatrix().inverse();
+  var camera = vmat.e3();
+
   var target1 = $("inline[name=x3d_"+name1+"]");
   var m = x3dom_getTransorm_from_2_parents(target1);
   var p1l = m.inverse().multMatrixVec(p1);
+  var c1l = m.inverse().multMatrixVec(camera);
 
   var target2 = $("inline[name=x3d_"+name2+"]");
   m = x3dom_getTransorm_from_2_parents(target2);
   var p2l = m.inverse().multMatrixVec(p2);
+  var c2l = m.inverse().multMatrixVec(camera);
 
   new MPRMarker({target:target1.parent(), uid:uid, model:name1, position:p1l, size: size, color: color});
   new MPRMarker({target:target2.parent(), uid:uid, model:name2, position:p2l, size: size, color: color});
@@ -916,11 +944,13 @@ function manualposor_newMarksPair(ray1,ray2){
     uid: uid,
     m1:{
       name: name1,
-      position: p1l
+      position: p1l,
+      camera: c1l
     },
     m2:{
       name: name2,
-      position: p2l
+      position: p2l,
+      camera: c2l
     }
   });
 
@@ -1032,8 +1062,8 @@ function mpr_markers_to_xml(){
 
     str[i] = [
       '  <record uid=\''+rec.uid+'\'>',
-      '    <mark model=\''+rec.m1.name+'\' position=\''+rec.m1.position.x+','+rec.m1.position.y+','+rec.m1.position.z+'\'></mark>',
-      '    <mark model=\''+rec.m2.name+'\' position=\''+rec.m2.position.x+','+rec.m2.position.y+','+rec.m2.position.z+'\'></mark>',
+      '    <mark model=\''+rec.m1.name+'\' position=\''+rec.m1.position.x+','+rec.m1.position.y+','+rec.m1.position.z+'\' camera=\''+rec.m1.camera.x+','+rec.m1.camera.y+','+rec.m1.camera.z+'\'></mark>',
+      '    <mark model=\''+rec.m2.name+'\' position=\''+rec.m2.position.x+','+rec.m2.position.y+','+rec.m2.position.z+'\' camera=\''+rec.m2.camera.x+','+rec.m2.camera.y+','+rec.m2.camera.z+'\'></mark>',
       '  </record>'
     ].join("\n");
 

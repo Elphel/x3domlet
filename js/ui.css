@@ -426,6 +426,6 @@ html, body, #x3d_wrapper {
   text-align:right;
 }
 
-#mpr_save, #mpr_save_marks{
+#mpr_save, #mpr_save_marks,#mpr_match{
   margin: 0px 5px 5px 5px;
 }

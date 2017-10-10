@@ -447,6 +447,8 @@ function deep_init(){
 
           if (SETTINGS.manualposor){
 
+            if (!MPR_MARKS_LOADED) mpr_marks_load();
+
             manualposor_shootrays();
             manualposor_rotate_glued();
 
@@ -468,7 +470,7 @@ function deep_init(){
 
             x3d_setShiftSpeed();
 
-            if (!MPR_MARKS_LOADED) mpr_marks_load();
+            //if (!MPR_MARKS_LOADED) mpr_marks_load();
         }
 
         // loading extra models?
