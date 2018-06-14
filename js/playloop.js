@@ -34,15 +34,7 @@
  *  for the JavaScript code in this page.
  */
 
-var SETTINGS = {
-    'path'   : "models/1497599073_599932/x3d605/1497599073_599932",
-    'sufx' : "D0.0.jpeg",
-    'n'      : 4,
-    'interval' : 100,
-    'order': [0,1,3,2]
-}
-
-
+// already parsed by php
 function parseURL(){
 
     var parameters=location.href.replace(/\?/ig,"&").split("&");
@@ -65,24 +57,59 @@ var images = [];
 
 $(function(){
   init();
+  resize();
+  // initial resize
+  $("#rotator img").css({
+    height: $("#rotator").height()
+  });
+
 });
+
+function resize(){
+
+  // calc window size?
+  document.body.style.overflow = 'hidden';
+
+  var w = $(window).width();
+  var h = $(window).height();
+  // panel height is fixed
+  var ph = $("#panel").height();
+  h = h - ph;
+
+  console.log(w+" x "+h);
+
+  $("#rotator").css({
+    position:"absolute",
+    left: 0,
+    top: 0,
+    width: w,
+    height: h
+  });
+
+  $("#panel").css({
+    position:"absolute",
+    left: 0,
+    top: h,
+    width: w,
+    height: ph
+  });
+
+}
 
 function init(){
 
-  parseURL();
+  //parseURL();
 
+  index = SETTINGS.order[0];
+
+  //load images
   for (var i=0;i<SETTINGS.n;i++){
     imgs.push(SETTINGS.path+"-0"+(SETTINGS.order[i])+"-"+SETTINGS.sufx);
     images[i] = new Image();
     images[i].src = imgs[i];
   }
 
-  //load images
-
-  index = SETTINGS.order[0];
-
   init_rotator(document.getElementById('rotator'));
-
   init_controls(document.getElementById('rotator'));
 
   seti(index);
@@ -93,7 +120,10 @@ function init_rotator(elem){
 
   rotator = document.createElement("img");
 
-  rotator.style.width = elem.offsetWidth+"px";
+  //rotator.style.width = elem.offsetWidth+"px";
+  $(rotator).css({
+    height: $(elem).height()
+  });
 
   elem.appendChild(rotator);
 
@@ -122,12 +152,14 @@ function init_rotator(elem){
 }
 
 function set_n(){
-  index = (index+1)&0x3;
+  //index = (index+1)&0x3;
+  index = (index+1)%SETTINGS.n;
   seti(index);
 }
 
 function set_p(){
-  index = (index-1)&0x3;
+  //index = (index-1)&0x3;
+  index = (index-1)%SETTINGS.n;
   seti(index);
 }
 
