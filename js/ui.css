@@ -195,6 +195,7 @@ html, body, #x3d_wrapper {
 #align_button_location,
 #align_tr_button,
 #download_button,
+#view_src_images_button,
 #extra_models_button{
     background-size: 32px 32px;
     background-repeat: no-repeat;
@@ -214,6 +215,11 @@ html, body, #x3d_wrapper {
 
 #download_button{
     background-image:url('images/ic_file_download_black_48dp_1x.png');
+    background-size: 26px 26px;
+}
+
+#view_src_images_button{
+    background-image:url('images/baseline_photo_library_black_48dp.png');
     background-size: 26px 26px;
 }
 
@@ -238,6 +244,7 @@ html, body, #x3d_wrapper {
 #align_button_location:hover,
 #align_tr_button:hover,
 #download_button:hover,
+#view_src_images_button:hover,
 #extra_models_button:hover{
 /*     background-image:url('images/align.png'); */
     background-color: rgba(240,240,240,1);
@@ -403,6 +410,13 @@ html, body, #x3d_wrapper {
 #align_button,
 #align_button_heading,
 #align_button_location{
+  display: block;
+/*   float:right; */
+/*   margin-right:2px; */
+}
+
+#download_button,
+#view_src_images_button{
   display: block;
 /*   float:right; */
 /*   margin-right:2px; */

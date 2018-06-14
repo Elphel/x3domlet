@@ -175,7 +175,22 @@ function title_init(){
     $("body").append(html);
     */
 
-    $("#lpl").attr("href","playloop.php?interval=200&sufx=D0.0.jpeg&path="+SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path).css({color:"white"});
+    var title_url = "playloop.php?interval=200&sufx=D0.0.jpeg&path="+SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path;
+
+    //$("#lpl").attr("href",title_url).css({color:"white"});
+
+    $("#view_src_images_button").on('click',function(){
+      window.open(title_url,'_blank');
+    });
+
+    var pos = $("#download_button").position();
+    var width = $("#download_button").width();
+
+    $("#view_src_images_button").css({
+      position:"absolute",
+      top: pos.top+"px",
+      left: -(width+2)+"px"
+    });
 
 }
 
