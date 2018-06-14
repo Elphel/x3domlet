@@ -311,7 +311,8 @@ function parse_light_init_response(response,state,mode){
       name        : $(response).find("name").text(),
       description : $(response).find("Camera").find("description").text(),
       visibility  : $(response).find("visibility").text(),
-      href        : $(response).find("Icon").find("href").text()
+      href        : $(response).find("Icon").find("href").text(),
+      timestamp   : $(response).find("TimeStamp").find("when").text(),
   };
 
   if (state=="init"){

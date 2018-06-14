@@ -39,6 +39,9 @@ function generateKML(nodes){
         '     <tilt>'+nodes[i].tilt+'</tilt>',
         '     <roll>'+nodes[i].roll+'</roll>',
         '   </Camera>',
+        '   <TimeStamp>',
+        '     <when>'+nodes[i].timestamp+'</when>',
+        '   </TimeStamp>',
         '   <Icon>',
         '     <href>'+nodes[i].href+'</href>',
         '   </Icon>'].join('\n');

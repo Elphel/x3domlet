@@ -58,9 +58,10 @@ $old_PhotoOverlay = $target_xml->Document->PhotoOverlay;
 
 foreach ($new_PhotoOverlay as $new_node) {
     foreach ($old_PhotoOverlay as $old_node) {
-	$old_str = "{$old_node->Icon->href}";
-	$new_str = "{$new_node->Icon->href}";
+	$old_str = "{$old_node->TimeStamp->when}";
+	$new_str = "{$new_node->TimeStamp->when}";
 	//if ("{$new_node->Icon->href}"=="{$old_node->Icon->href}") {
+	//if ($new_str==$old_str) {
 	if (strstr($new_str,$old_str)!=false) {
 	    $old_node->name              = $new_node->name;
 	    $old_node->description       = $new_node->description;
