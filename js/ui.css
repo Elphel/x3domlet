@@ -195,6 +195,7 @@ html, body, #x3d_wrapper {
 #align_button_location,
 #align_tr_button,
 #download_button,
+#download_button_ml,
 #view_src_images_button,
 #extra_models_button{
     background-size: 32px 32px;
@@ -213,7 +214,9 @@ html, body, #x3d_wrapper {
     background-image:url('images/ic_exit_to_app_black_48dp_1x.png');
 }
 
-#download_button{
+#download_button,
+#download_button_ml
+{
     background-image:url('images/ic_file_download_black_48dp_1x.png');
     background-size: 26px 26px;
 }
@@ -244,6 +247,7 @@ html, body, #x3d_wrapper {
 #align_button_location:hover,
 #align_tr_button:hover,
 #download_button:hover,
+#download_button_ml:hover,
 #view_src_images_button:hover,
 #extra_models_button:hover{
 /*     background-image:url('images/align.png'); */
@@ -407,6 +411,10 @@ html, body, #x3d_wrapper {
     background-color: rgba(200,200,250,1);
 }
 
+#download_button_ml{
+    background-color: rgba(200,250,200,1);
+}
+
 #align_button,
 #align_button_heading,
 #align_button_location{
@@ -416,6 +424,7 @@ html, body, #x3d_wrapper {
 }
 
 #download_button,
+#download_button_ml,
 #view_src_images_button{
   display: block;
 /*   float:right; */

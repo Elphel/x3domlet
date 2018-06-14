@@ -177,19 +177,31 @@ function title_init(){
 
     var title_url = "playloop.php?interval=200&sufx=D0.0.jpeg&path="+SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path;
 
+    var db_ml_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/ml";
+
     //$("#lpl").attr("href",title_url).css({color:"white"});
 
     $("#view_src_images_button").on('click',function(){
       window.open(title_url,'_blank');
     });
 
+    $("#download_button_ml").on('click',function(){
+      window.open(db_ml_url,'_blank');
+    });
+
     var pos = $("#download_button").position();
     var width = $("#download_button").width();
 
+    $("#download_button_ml").css({
+      position:"absolute",
+      top: pos.top,
+      left: -(width+2)
+    });
+
     $("#view_src_images_button").css({
       position:"absolute",
-      top: pos.top+"px",
-      left: -(width+2)+"px"
+      top: pos.top,
+      left: -2*(width+2)
     });
 
 }
