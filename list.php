@@ -81,7 +81,7 @@ function selective_scandir($path,$showall,$rating=5){
     $contents = scandir($path);
 
     foreach($contents as $item){
-        if ($item!='.'&&$item!='..'&&is_dir("$path/$item")){
+        if ($item!='.'&&$item!='..'&&$item!="jp4"&&is_dir("$path/$item")){
             if ($showall){
               array_push($results,$item);
             }else{
