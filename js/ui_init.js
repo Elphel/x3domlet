@@ -287,17 +287,29 @@ function light_init(){
 
     x3delement.append(model);
 
-
+    // get master kml file if possible
     $.ajax({
-        url: SETTINGS.files.kml+"?"+Date.now(),
-        success: function(response){
-          parse_light_init_response(response,"init",mode);
-        },
-        error: function(response){
-          console.log("Init: KML not found. Using defaults");
-          parse_light_init_response(response,"init",mode);
+      url: "check_master_kml.php?path="+SETTINGS.basepath+"/"+SETTINGS.path,
+      success: function(response){
+        if (response!="-1"){
+          SETTINGS.files.kml = SETTINGS.basepath+"/"+response+"/"+response+".kml";
         }
+
+        // ready to read kml files
+        $.ajax({
+            url: SETTINGS.files.kml+"?"+Date.now(),
+            success: function(response){
+              parse_light_init_response(response,"init",mode);
+            },
+            error: function(response){
+              console.log("Init: KML not found. Using defaults");
+              parse_light_init_response(response,"init",mode);
+            }
+        });
+
+      }
     });
+
 
 }
 
