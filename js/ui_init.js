@@ -787,7 +787,12 @@ function x3d_events(){
 
           // sliding marker
           var mouse = x3dom_getXYPosOr(mouse_position[0],mouse_position[1],false);
-          var dist = parseFloat(mouse.d_xz) || 1116;
+
+          var dist_default = 1116;
+          if ($(".GroupTop").attr("bboxSize")!=undefined){
+            dist_default = parseFloat($(".GroupTop").attr("bboxSize").trim().split(" ")[2]);
+          }
+          var dist = parseFloat(mouse.d_xz) || dist_default;
           Map.marker.placeSlidingMarker(mouse.a,dist);
 
         }else{

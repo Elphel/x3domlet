@@ -1184,7 +1184,8 @@ X3DOMObject.displayInfo = function(e){
             X3DOMObject.displayMarkInfo(mouse.index);
         }
 
-        var dist = 1115;
+        //var dist = 1115;
+        var dist = parseFloat($(".GroupTop").attr("bboxSize").trim().split(" ")[2]);
 
         $("#window-info").css({"font-size":"20px"});
 
