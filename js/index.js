@@ -5,6 +5,8 @@ var markers = [];
 
 var selected;
 
+var map_autofit = true;
+
 var BLOCK_MOVEEND = false;
 
 $(function(){
@@ -26,6 +28,7 @@ $(function(){
         success: function(response){
 
             List = response;
+            if (map_autofit) fit_map(response);
             parse_list(response);
             init_dragging();
             map.fire('moveend');
@@ -47,6 +50,17 @@ var SETTINGS = {
 };
 
 var Dragged = false;
+
+function fit_map(xml){
+
+  var coords = [];
+
+  $(xml).find("Camera").each(function(){
+    coords.push([$(this).find("latitude").text(),$(this).find("longitude").text()]);
+  });
+
+  map.fitBounds(coords);
+}
 
 function init_dragging(){
 
@@ -137,8 +151,8 @@ function parseURL(){
         switch (parameters[i][0]) {
             case "showall": SETTINGS.showall = true; break;
             case "rating":  SETTINGS.rating  = parseInt(parameters[i][1]); break;
-            case "lat":     SETTINGS.lat  = parseFloat(parameters[i][1]); break;
-            case "lng":     SETTINGS.lng  = parseFloat(parameters[i][1]); break;
+            case "lat":     SETTINGS.lat  = parseFloat(parameters[i][1]); map_autofit = false; break;
+            case "lng":     SETTINGS.lng  = parseFloat(parameters[i][1]); map_autofit = false; break;
             case "zoom":    SETTINGS.zoom = parseFloat(parameters[i][1]); break;
             // selected model
             case "model":    SETTINGS.model = parameters[i][1]; break;
