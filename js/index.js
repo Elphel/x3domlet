@@ -275,7 +275,7 @@ function parse_list(res){
 
 function popup_message(marker){
 
-  var msg = "<div><img class='pimg' alt='n/a' src='models/"+marker[0].name+"/thumb.jpeg' index='"+marker[0].index+"' ></img></div>";
+  var msg = "<div><img class='pimg' alt='n/a' src='"+SETTINGS.basepath+"/"+marker[0].name+"/thumb.jpeg' index='"+marker[0].index+"' ></img></div>";
 
   markers.forEach(function(c,i){
     if (marker[0].lat==c[0].lat){
@@ -367,7 +367,7 @@ function register_row_events(elem){
               });
 
               var j = $(this).attr("index");
-              $(".pimg").attr("src","models/"+markers[j][0].name+"/thumb.jpeg");
+              $(".pimg").attr("src",SETTINGS.basepath+"/"+markers[j][0].name+"/thumb.jpeg");
 
             });
 
