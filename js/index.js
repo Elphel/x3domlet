@@ -14,7 +14,7 @@ $(function(){
     init_maps();
     init_help();
 
-    var url = 'list.php?rating='+SETTINGS.rating;
+    var url = 'list.php?rating='+SETTINGS.rating+'&basepath='+SETTINGS.basepath;
 
     if (SETTINGS.showall){
       url += "?showall";
@@ -42,7 +42,8 @@ var SETTINGS = {
   'lat': 44.92980751,
   'lng': -118.25683594,
   'zoom': 7,
-  'model': undefined
+  'model': undefined,
+  'basepath': 'models/all'
 };
 
 var Dragged = false;
@@ -139,9 +140,48 @@ function parseURL(){
             case "lat":     SETTINGS.lat  = parseFloat(parameters[i][1]); break;
             case "lng":     SETTINGS.lng  = parseFloat(parameters[i][1]); break;
             case "zoom":    SETTINGS.zoom = parseFloat(parameters[i][1]); break;
-            case "model":   SETTINGS.model = parameters[i][1]; break;
+            // selected model
+            case "model":    SETTINGS.model = parameters[i][1]; break;
+            case "basepath": SETTINGS.basepath = parameters[i][1]; break;
         }
     }
+}
+
+function update_links(){
+
+  // a. update links for selected only?
+  // b. update all - won't take long
+
+  // List
+  $('.arow').each(function(){
+
+    var arow = this;
+
+    $(List).find('model[name="'+$(arow).attr("title")+'"]').each(function(){
+
+      var name = $(this).attr("name");
+
+      var vlist = "";
+      $(this).find("version").each(function(i,v){
+          var comments = $(this).find("comments").text();
+          var link_url = "viewer.html?path="+name+"&ver="+$(this).attr("name")+"&rating="+SETTINGS.rating;
+          link_url += "&basepath="+SETTINGS.basepath;
+          var center = map.getCenter();
+          var zoom = map.getZoom();
+          link_url += "&lat="+center.lat.toFixed(8)+"&lng="+center.lng.toFixed(8)+"&zoom="+zoom;
+          var link = "<a title='"+comments+"' href='"+link_url+"'>"+$(this).attr("name")+"</a>,&nbsp;";
+          vlist += link;
+      });
+      vlist = vlist.slice(0,-7);
+
+      $(arow).attr("vlist",vlist);
+      markers[$(arow).attr("index")][0].vlist = vlist;
+      var tmp = popup_message(markers[$(arow).attr("index")]);
+      markers[$(arow).attr("index")][0]._popup.setContent(tmp);
+    });
+
+  });
+
 }
 
 function parse_list(res){
@@ -155,12 +195,13 @@ function parse_list(res){
         var thumb = $(this).attr("thumb");
 
         if (thumb.length!=""){
-            srcpath ="models/"+name+"/thumb.jpeg";
+            srcpath = SETTINGS.basepath+"/"+name+"/thumb.jpeg";
         }else{
             srcpath ="js/images/thumb_na.jpeg";
         }
 
         row.append("<td class='acell' title='"+name+"' ><div><img src='"+srcpath+"'></img></div></td>");
+        row.attr('title',name);
 
         //row.append("<td class='acell' valign='top'>"+name+"</td>");
 
@@ -170,6 +211,13 @@ function parse_list(res){
             var comments = $(this).find("comments").text();
 
             var link_url = "viewer.html?path="+name+"&ver="+$(this).attr("name")+"&rating="+SETTINGS.rating;
+            link_url += "&basepath="+SETTINGS.basepath;
+
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+
+            link_url += "&lat="+center.lat.toFixed(8)+"&lng="+center.lng.toFixed(8)+"&zoom="+zoom;
+
             var link = "<a title='"+comments+"' href='"+link_url+"'>"+$(this).attr("name")+"</a>,&nbsp;";
 
             vlist += link;
@@ -247,6 +295,14 @@ function register_row_events(elem){
       console.log("double click");
       // put double click actions here
 
+      var index = $(this).attr("index");
+      var list = $(List).find("model");
+      var item = list[index];
+      var lat = $($(item).find("latitude")[0]).text();
+      var lng = $($(item).find("longitude")[0]).text();
+      map.panTo(new L.LatLng(lat, lng));
+      $(this).click();
+
     });
 
     $(elem).on("click",function(e){
@@ -271,7 +327,6 @@ function register_row_events(elem){
           var lng = $($(item).find("longitude")[0]).text();
 
           BLOCK_MOVEEND = true;
-          map.panTo(new L.LatLng(lat, lng));
 
           if (markers[index]!=undefined){
 
@@ -410,7 +465,9 @@ function init_maps(){
     var center = map.getCenter();
     var zoom = map.getZoom();
 
-    window.history.pushState("", "x3d models index", "?lat="+center.lat.toFixed(8)+"&lng="+center.lng.toFixed(8)+"&zoom="+zoom+"&rating="+SETTINGS.rating);
+    window.history.pushState("", "x3d models index", "?lat="+center.lat.toFixed(8)+"&lng="+center.lng.toFixed(8)+"&zoom="+zoom+"&rating="+SETTINGS.rating+"&basepath="+SETTINGS.basepath);
+
+    update_links();
 
     if (!BLOCK_MOVEEND){
 

@@ -1,6 +1,10 @@
 <?php
 
-$base = "models";
+if (isset($_GET['basepath'])){
+  $base = $_GET['basepath'];
+}else{
+  $base = "models/all";
+}
 
 $THUMBNAME = "thumb.jpeg";
 $RATINGFILE = "rating.txt";

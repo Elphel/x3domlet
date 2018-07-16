@@ -64,7 +64,17 @@ function menu_init(){
       var origin = window.location.origin;
       var path = window.location.pathname;
       path = path.substr(0,path.lastIndexOf("/"));
-      window.location.href = origin+path+"?model="+SETTINGS.path+"&rating="+SETTINGS.rating;
+      //var index_url = origin+path+"?model="+SETTINGS.path+"&rating="+SETTINGS.rating;
+      var index_url = [
+        origin+path,
+        "?lat="+SETTINGS.lat,
+        "&lng="+SETTINGS.lng,
+        "&zoom="+SETTINGS.zoom,
+        "&rating="+SETTINGS.rating,
+        "&basepath="+SETTINGS.basepath,
+        "&model="+SETTINGS.path
+      ].join("");
+      window.location.href = index_url;
     });
 
     $("#download_button").on("click",function(){

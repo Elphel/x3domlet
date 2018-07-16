@@ -1185,7 +1185,10 @@ X3DOMObject.displayInfo = function(e){
         }
 
         //var dist = 1115;
-        var dist = parseFloat($(".GroupTop").attr("bboxSize").trim().split(" ")[2]);
+        var dist = 1115;
+        if ($(".GroupTop").attr("bboxSize")!=undefined){
+          dist = parseFloat($(".GroupTop").attr("bboxSize").trim().split(" ")[2]);
+        }
 
         $("#window-info").css({"font-size":"20px"});
 

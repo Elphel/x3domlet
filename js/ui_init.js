@@ -135,6 +135,11 @@ function parseURL(){
             case "manualposor":  SETTINGS.manualposor = true; break;
 
             case "experimental": SETTINGS.experimental = true; break;
+            // to recover the index position
+            case "lat"         : SETTINGS.lat = parameters[i][1]; break;
+            case "lng"         : SETTINGS.lng = parameters[i][1]; break;
+            case "zoom"        : SETTINGS.zoom = parameters[i][1]; break;
+
 //             case "kml":          SETTINGS.kml = parameters[i][1]; break;
         }
     }
