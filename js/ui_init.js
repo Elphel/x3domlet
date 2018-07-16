@@ -63,6 +63,7 @@ var SETTINGS = {
     'markercolor': "#1f1",
     'slidingdrag': true,
     'basepath': "models",
+    'group':"",
     'path'   : "1487451413_967079",
     'version': "",
     'experimental': false,
@@ -128,6 +129,7 @@ function parseURL(){
             case "shiftspeed":   SETTINGS.shiftspeed = parseFloat(parameters[i][1]); break;
             case "markersize":   SETTINGS.markersize = parseFloat(parameters[i][1]); break;
             case "basepath":     SETTINGS.basepath = parameters[i][1]; break;
+            case "group":        SETTINGS.group = parameters[i][1]; break;
             case "path":         SETTINGS.path = parameters[i][1]; break;
             case "ver":          SETTINGS.version = parameters[i][1]; break;
 
@@ -149,9 +151,9 @@ $(function(){
 
     parseURL();
 
-    SETTINGS.files.x3d = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
+    SETTINGS.files.x3d = SETTINGS.basepath+"/"+SETTINGS.group+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path+".x3d";
     // always reload kml
-    SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml";
+    SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.group+"/"+SETTINGS.path+"/"+SETTINGS.path+".kml";
 
     title_init();
     help_init();
@@ -180,9 +182,9 @@ function title_init(){
     $("body").append(html);
     */
 
-    var title_url = "playloop.php?interval=200&sufx=D0.0.jpeg&path="+SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path;
+    var title_url = "playloop.php?interval=200&sufx=D0.0.jpeg&path="+SETTINGS.basepath+"/"+SETTINGS.group+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+SETTINGS.path;
 
-    var db_ml_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/ml";
+    var db_ml_url = SETTINGS.basepath+"/"+SETTINGS.group+"/"+SETTINGS.path+"/"+SETTINGS.version+"/ml";
 
     //$("#lpl").attr("href",title_url).css({color:"white"});
 
@@ -229,7 +231,7 @@ function background_init(){
     if (mback.length>0){
       frontUrl = mback.attr('frontUrl');
       if (frontUrl.length!=0){
-        model_back_url = SETTINGS.basepath+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+frontUrl;
+        model_back_url = SETTINGS.basepath+"/"+SETTINGS.group+"/"+SETTINGS.path+"/"+SETTINGS.version+"/"+frontUrl;
       }
     }
 
@@ -294,10 +296,10 @@ function light_init(){
 
     // get master kml file if possible
     $.ajax({
-      url: "check_master_kml.php?path="+SETTINGS.basepath+"/"+SETTINGS.path,
+      url: "check_master_kml.php?path="+SETTINGS.basepath+"/"+SETTINGS.group+"/"+SETTINGS.path,
       success: function(response){
         if (response!="-1"){
-          SETTINGS.files.kml = SETTINGS.basepath+"/"+response+"/"+response+".kml";
+          SETTINGS.files.kml = SETTINGS.basepath+"/"+SETTINGS.group+"/"+response+"/"+response+".kml";
         }
 
         // ready to read kml files

@@ -160,15 +160,33 @@ function update_links(){
     $(List).find('model[name="'+$(arow).attr("title")+'"]').each(function(){
 
       var name = $(this).attr("name");
+      var group = $(this).attr("group");
 
       var vlist = "";
       $(this).find("version").each(function(i,v){
           var comments = $(this).find("comments").text();
-          var link_url = "viewer.html?path="+name+"&ver="+$(this).attr("name")+"&rating="+SETTINGS.rating;
-          link_url += "&basepath="+SETTINGS.basepath;
+
           var center = map.getCenter();
           var zoom = map.getZoom();
-          link_url += "&lat="+center.lat.toFixed(8)+"&lng="+center.lng.toFixed(8)+"&zoom="+zoom;
+
+
+          //var link_url = "viewer.html?path="+name+"&ver="+$(this).attr("name")+"&rating="+SETTINGS.rating;
+          //link_url += "&basepath="+SETTINGS.basepath;
+          //link_url += "&lat="+center.lat.toFixed(8)+"&lng="+center.lng.toFixed(8)+"&zoom="+zoom;
+
+          var link_url = [
+            "viewer.html",
+            "?basepath="+SETTINGS.basepath,
+            "&group="+group,
+            "&path="+name,
+            "&ver="+$(this).attr("name"),
+            "&rating="+SETTINGS.rating,
+            "&lat="+center.lat.toFixed(8),
+            "&lng="+center.lng.toFixed(8),
+            "&zoom="+zoom
+          ].join("");
+
+
           var link = "<a title='"+comments+"' href='"+link_url+"'>"+$(this).attr("name")+"</a>,&nbsp;";
           vlist += link;
       });
@@ -192,10 +210,11 @@ function parse_list(res){
 
         var row = $("<tr class='arow'>");
         var name = $(this).attr("name");
+        var group = $(this).attr("group");
         var thumb = $(this).attr("thumb");
 
         if (thumb.length!=""){
-            srcpath = SETTINGS.basepath+"/"+name+"/thumb.jpeg";
+            srcpath = SETTINGS.basepath+"/"+group+"/"+name+"/thumb.jpeg";
         }else{
             srcpath ="js/images/thumb_na.jpeg";
         }
@@ -249,6 +268,7 @@ function parse_list(res){
 
             marker.index = index;
             marker.name = name;
+            marker.group = group;
             marker.vlist = vlist;
             marker.lat = lat;
             marker.lng = lng;
@@ -275,7 +295,7 @@ function parse_list(res){
 
 function popup_message(marker){
 
-  var msg = "<div><img class='pimg' alt='n/a' src='"+SETTINGS.basepath+"/"+marker[0].name+"/thumb.jpeg' index='"+marker[0].index+"' ></img></div>";
+  var msg = "<div><img class='pimg' alt='n/a' src='"+SETTINGS.basepath+"/"+marker[0].group+"/"+marker[0].name+"/thumb.jpeg' index='"+marker[0].index+"' ></img></div>";
 
   markers.forEach(function(c,i){
     if (marker[0].lat==c[0].lat){
@@ -367,7 +387,7 @@ function register_row_events(elem){
               });
 
               var j = $(this).attr("index");
-              $(".pimg").attr("src",SETTINGS.basepath+"/"+markers[j][0].name+"/thumb.jpeg");
+              $(".pimg").attr("src",SETTINGS.basepath+"/"+markers[j][0].group+"/"+markers[j][0].name+"/thumb.jpeg");
 
             });
 

@@ -27,6 +27,7 @@ if (isset($_GET['showall'])){
 }
 
 $models = selective_scandir($base,false,$rating);
+
 $res = "";
 
 foreach($models as $model){
@@ -34,41 +35,72 @@ foreach($models as $model){
     $model_path = "$base/$model";
     $thumb = "$model_path/$THUMBNAME";
 
-    $model_rating = get_model_rating("$model_path/$RATINGFILE");
+    $f1 = is_file("$model_path/$THUMBNAME");
+    $f2 = is_file("$model_path/$RATINGFILE");
+    $f3 = is_file("$model_path/$model.kml");
 
-    if ($model_rating>=$rating){
+    if (!($f1||$f2||$f3)){
 
-      $versions = selective_scandir($model_path,$showall,0);
+      $group_path = selective_scandir($model_path,false,$rating);
+      foreach($group_path as $group_item){
+        $model_path = "$base/$model/$group_item";
+        $thumb = "$model_path/$THUMBNAME";
 
-      // create thumb
-      create_thumbnail($model_path,$versions,$thumb);
+        $model_rating = get_model_rating("$model_path/$RATINGFILE");
+        if ($model_rating>=$rating){
 
-      if (!is_file($thumb)){
-          $thumb="";
-      }
+          $versions = selective_scandir($model_path,$showall,0);
+          // create thumb
+          create_thumbnail($model_path,$versions,$thumb);
 
-      $res .= "<model name='$model' thumb='$thumb'>\n";
+          if (!is_file($thumb)){$thumb="";}
 
-      // read kml
-      $res .= "\t<map>\n".parse_kml("$base/$model/$model.kml")."\t</map>\n";
+          $res .= "<model name='$group_item' group='$model' thumb='$thumb'>\n";
+          // read kml
+          $res .= "\t<map>\n".parse_kml("$model_path/$group_item.kml")."\t</map>\n";
+          foreach($versions as $version){
 
-      foreach($versions as $version){
-
-          $res .= "\t<version name='$version'>\n";
-
-          $comments = "-";
-          $readme = "$model_path/$version/$READMENAME";
-          if (is_file($readme)){
-              $comments = trim(file_get_contents($readme),"\t\n\r");
+              $res .= "\t<version name='$version'>\n";
+              $comments = "-";
+              $readme = "$model_path/$version/$READMENAME";
+              if (is_file($readme)){
+                  $comments = trim(file_get_contents($readme),"\t\n\r");
+              }
+              $res .= "\t\t<comments>$comments</comments>\n";
+              $res .= "\t</version>\n";
           }
-
-          $res .= "\t\t<comments>$comments</comments>\n";
-
-          $res .= "\t</version>\n";
+          $res .= "</model>\n";
+        }
 
       }
 
-      $res .= "</model>\n";
+    }else{
+
+      $model_rating = get_model_rating("$model_path/$RATINGFILE");
+      if ($model_rating>=$rating){
+
+        $versions = selective_scandir($model_path,$showall,0);
+        // create thumb
+        create_thumbnail($model_path,$versions,$thumb);
+
+        if (!is_file($thumb)){$thumb="";}
+
+        $res .= "<model name='$model' group='' thumb='$thumb'>\n";
+        // read kml
+        $res .= "\t<map>\n".parse_kml("$model_path/$model.kml")."\t</map>\n";
+        foreach($versions as $version){
+
+            $res .= "\t<version name='$version'>\n";
+            $comments = "-";
+            $readme = "$model_path/$version/$READMENAME";
+            if (is_file($readme)){
+                $comments = trim(file_get_contents($readme),"\t\n\r");
+            }
+            $res .= "\t\t<comments>$comments</comments>\n";
+            $res .= "\t</version>\n";
+        }
+        $res .= "</model>\n";
+      }
 
     }
 
@@ -83,12 +115,14 @@ function selective_scandir($path,$showall,$rating=5){
     $results = Array();
 
     $contents = scandir($path);
+    $contents = array_diff($contents, [".", ".."]);
 
     foreach($contents as $item){
-        if ($item!='.'&&$item!='..'&&$item!="jp4"&&is_dir("$path/$item")){
+        if ($item!="jp4"&&is_dir("$path/$item")){
             if ($showall){
               array_push($results,$item);
             }else{
+              // hidden directories
               if (($item[0]!=".")&&($item[0]!="_")){
                 array_push($results,$item);
               }

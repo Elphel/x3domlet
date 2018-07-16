@@ -34,11 +34,7 @@ $path = $pathinfo['dirname'];
 
 $tmp = explode("/",$path);
 
-if ($tmp[1]=="_all"){
-  $zipfile = $tmp[2]."_".$tmp[3].".zip";
-}else{
-  $zipfile = $tmp[1]."_".$tmp[2].".zip";
-}
+$zipfile =  (array_slice($tmp,-2)[0])."_".(array_slice($tmp,-1)[0]).".zip";
 
 // alright, there's this file
 $contents = file_get_contents($file);
