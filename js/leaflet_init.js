@@ -63,7 +63,9 @@ var LeafletObject = function(id,data,options){
 
     this.fov = data.camera.fov;
 
-    //this.initialize();
+    // quick fix, will reinit
+    this.initialize();
+
     var self = this;
 
     $.ajax({
