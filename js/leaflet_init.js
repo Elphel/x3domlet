@@ -40,6 +40,8 @@
 // http://leafletjs.com/examples/extending/extending-1-classes.html
 // - extend or include
 
+var mbxtoken = "";
+
 var LeafletObject = function(id,data,options){
 
     var defaults = {
@@ -61,7 +63,19 @@ var LeafletObject = function(id,data,options){
 
     this.fov = data.camera.fov;
 
-    this.initialize();
+    //this.initialize();
+    var self = this;
+
+    $.ajax({
+      url: "mapbox_token.txt",
+      success: function(token){
+        mbxtoken = token;
+        self.initialize();
+      },
+      error: function(response){
+        self.initialize();
+      }
+    });
 
 };
 
@@ -92,15 +106,50 @@ LeafletObject.prototype.initialize = function(){
     }
   );
 
-  this._map = L.map(this._id,{
-    layers:[googleSat]
-  }).setView(this.center, this._settings.zoom);
+  var mapboxattr = '<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox</a> <a href="https://openstreetmap.org/about/" target="_blank">© OpenStreetMap</a>';
 
-  var baseMaps = {
-    "Esri world imagery": Esri_WorldImagery,
-    "Google": googleSat,
-    "Open Street Map": OSMTiles
-  };
+  var mbxurl1   = "https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.png?access_token="+mbxtoken;
+  var mbxurl2   = "https://api.mapbox.com/v4/mapbox.pencil/{z}/{x}/{y}@2x.png?access_token="+mbxtoken;
+
+  var MBXTiles1 = L.tileLayer(mbxurl1,
+    {
+      maxZoom: this._settings.maxzoom,
+      attribution: mapboxattr
+    }
+  );
+
+  var MBXTiles2 = L.tileLayer(mbxurl2,
+    {
+      maxZoom: this._settings.maxzoom,
+      attribution: mapboxattr
+    }
+  );
+
+  if (mbxtoken==""){
+    selected_layer = googleSat;
+
+    var baseMaps = {
+      "Esri world imagery": Esri_WorldImagery,
+      "Google": googleSat,
+      "Open Street Map": OSMTiles
+    };
+
+  }else{
+    selected_layer = MBXTiles1;
+
+    var baseMaps = {
+      "Mapbox 1": MBXTiles1,
+      "Mapbox 2": MBXTiles2,
+      "Esri world imagery": Esri_WorldImagery,
+      "Google": googleSat,
+      "Open Street Map": OSMTiles
+    };
+
+  }
+
+  this._map = L.map(this._id,{
+    layers:[selected_layer]
+  }).setView(this.center, this._settings.zoom);
 
   L.control.layers(baseMaps).addTo(this._map);
 
