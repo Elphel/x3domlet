@@ -9,35 +9,47 @@ var map_autofit = true;
 
 var BLOCK_MOVEEND = false;
 
+var mbxtoken = "";
+
 $(function(){
 
     //init();
-    parseURL();
-    init_maps();
-    init_help();
-
-    var url = 'list.php?rating='+SETTINGS.rating+'&basepath='+SETTINGS.basepath;
-
-    if (SETTINGS.showall){
-      url += "?showall";
-    }
-
     $.ajax({
-
-        url: url,
-        success: function(response){
-
-            List = response;
-            if (map_autofit) fit_map(response);
-            parse_list(response);
-            init_dragging();
-            map.fire('moveend');
-
-        }
-
+      url: "mapbox_token.txt",
+      success: function(token){
+        mbxtoken = token;
+        init();
+      },
+      error: function(response){
+        init();
+      }
     });
 
 });
+
+function init(){
+  
+  parseURL();
+  init_maps();
+  init_help();
+
+  var url = 'list.php?rating='+SETTINGS.rating+'&basepath='+SETTINGS.basepath;
+
+  if (SETTINGS.showall){
+    url += "?showall";
+  }
+
+  $.ajax({
+    url: url,
+    success: function(response){
+      List = response;
+      if (map_autofit) fit_map(response);
+      parse_list(response);
+      init_dragging();
+      map.fire('moveend');
+    }
+  });  
+}
 
 var SETTINGS = {
   'rating':5,
@@ -452,18 +464,53 @@ function init_maps(){
     }
   );
 
+  var mapboxattr = '<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox</a> <a href="https://openstreetmap.org/about/" target="_blank">© OpenStreetMap</a>';
+
+  var mbxurl1   = "https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.png?access_token="+mbxtoken;
+  var mbxurl2   = "https://api.mapbox.com/v4/mapbox.pencil/{z}/{x}/{y}@2x.png?access_token="+mbxtoken;
+  
+  var MBXTiles1 = L.tileLayer(mbxurl1,
+    {
+      maxZoom: 21,
+      attribution: mapboxattr
+    }
+  );
+
+  var MBXTiles2 = L.tileLayer(mbxurl2,
+    {
+      maxZoom: 21,
+      attribution: mapboxattr
+    }
+  );
+  
+  if (mbxtoken==""){
+    selected_layer = googleSat;
+
+    var baseMaps = {
+      "Esri world imagery": Esri_WorldImagery,
+      "Google": googleSat,
+      "Open Street Map": OSMTiles
+    };
+
+  }else{
+    selected_layer = MBXTiles1;
+
+    var baseMaps = {
+      "Mapbox 1": MBXTiles1,
+      "Mapbox 2": MBXTiles2,
+      "Esri world imagery": Esri_WorldImagery,
+      "Google": googleSat,
+      "Open Street Map": OSMTiles
+    };
+
+  }
+  
   map = L.map('leaflet_map',{
-    layers:[googleSat],
+    layers:[selected_layer],
     zoomControl:false,
   }).setView([SETTINGS.lat, SETTINGS.lng], SETTINGS.zoom);
 
   new L.Control.Zoom({ position: 'topright' }).addTo(map);
-
-  var baseMaps = {
-    "Esri world imagery": Esri_WorldImagery,
-    "Google": googleSat,
-    "Open Street Map": OSMTiles
-  };
 
   //Esri_WorldImagery.addTo(map);
   //googleSat.addTo(map);

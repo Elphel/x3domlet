@@ -367,23 +367,27 @@ function parse_light_init_response(response,state,mode){
 
     Scene = new X3DOMObject(element,Data,{});
     Scene.initResize();
-    Map = new LeafletObject('leaflet_map',Data,{});
+    Map = new LeafletObject('leaflet_map',Data,{},function(){
+      
+      $.getScript("js/x3dom/x3dom-full.debug.js",function(){
 
-    $.getScript("js/x3dom/x3dom-full.debug.js",function(){
+          console.log("loaded x3dom");
+        
+          //wait until it DOM is extended
+          x3dom.runtime.ready = function(){
 
-        //wait until it DOM is extended
-        x3dom.runtime.ready = function(){
+            map_resize_init();
+            deep_init();
 
-          map_resize_init();
-          deep_init();
+            //align_init();
+            x3d_initial_camera_placement(mode);
+            Scene.resize();
+            x3d_events();
+            leaf_events();
 
-          //align_init();
-          x3d_initial_camera_placement(mode);
-          Scene.resize();
-          x3d_events();
-          leaf_events();
-
-        };
+          };
+      });
+      
     });
 
   }else{

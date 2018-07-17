@@ -42,7 +42,7 @@
 
 var mbxtoken = "";
 
-var LeafletObject = function(id,data,options){
+var LeafletObject = function(id,data,options,callback){
 
     var defaults = {
         debug: true,
@@ -73,9 +73,11 @@ var LeafletObject = function(id,data,options){
       success: function(token){
         mbxtoken = token;
         self.initialize();
+        callback();
       },
       error: function(response){
         self.initialize();
+        callback();
       }
     });
 
