@@ -56,8 +56,10 @@ foreach($models as $model){
           if (!is_file($thumb)){$thumb="";}
 
           $res .= "<model name='$group_item' group='$model' thumb='$thumb'>\n";
+
           // read kml
-          $res .= "\t<map>\n".parse_kml("$model_path/$group_item.kml")."\t</map>\n";
+          $res .= "\t<map>\n".parse_kml($model_path,$group_item)."\t</map>\n";
+
           foreach($versions as $version){
 
               $res .= "\t<version name='$version'>\n";
@@ -87,7 +89,7 @@ foreach($models as $model){
 
         $res .= "<model name='$model' group='' thumb='$thumb'>\n";
         // read kml
-        $res .= "\t<map>\n".parse_kml("$model_path/$model.kml")."\t</map>\n";
+        $res .= "\t<map>\n".parse_kml($model_path,$model)."\t</map>\n";
         foreach($versions as $version){
 
             $res .= "\t<version name='$version'>\n";
@@ -233,13 +235,23 @@ function create_thumbnail($path,$vpaths,$thumbname){
 
 }
 
-function parse_kml($file){
+// there is master_kml.xml
+function parse_kml($path,$file){
+
+    $master_kml = "$path/master_kml.xml";
+
+    if (is_file($master_kml)){
+      $xml = simplexml_load_file($master_kml);
+      $file = "../".($xml->name)."/".($xml->name);
+    }
+
+    $pf = "$path/$file.kml";
 
     $res = "";
 
-    if (is_file($file)){
+    if (is_file($pf)){
 
-        $xml = simplexml_load_file($file);
+        $xml = simplexml_load_file($pf);
 
         $recs = $xml->Document->children();
 
@@ -248,6 +260,7 @@ function parse_kml($file){
         }
 
     }else{
+        echo "File not found, you suck!\n";
         $res = <<<TEXT
 <Camera>
     <longitude>-111.9328843</longitude>
