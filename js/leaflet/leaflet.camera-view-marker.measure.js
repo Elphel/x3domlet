@@ -302,6 +302,9 @@
 
         placeSlidingMarker: function(angle,distance){
 
+            // temporary sliding marker
+            this._hideMeasureMarkersTTs();
+
             var p1_ll = this._measureBase;
             var p2_ll = p1_ll.CoordinatesOf(angle,distance);
 
@@ -340,6 +343,8 @@
         },
 
         removeSlidingMarker: function(){
+
+            this._showMeasureMarkersTTs();
 
             if (this._slidingMarker != undefined){
 
@@ -448,8 +453,6 @@
 
         _syncMeasureMarkersToBasePoint: function(e){
 
-            console.log("sync measure markers");
-
             if (this._measureMarkers.length!=0){
                 if (
                   (this._measureBase.lat!=this._latlng.lat)&&
@@ -489,6 +492,8 @@
 
                 this._map.on('mousemove',this.setMarkerPoint,this);
                 this._map.on ('mouseup',this._mouseUp_M,this);
+
+                this._hideMeasureMarkersTTs();
             }
 
         },
@@ -505,6 +510,8 @@
 
             this.draggedMarker._index = null;
 
+            this._showMeasureMarkersTTs();
+
         },
 
         _updateMeasureMarkersIndices:function(){
@@ -516,6 +523,26 @@
             });
 
         },
+
+        _hideMeasureMarkersTTs:function(){
+
+            var self = this;
+
+            this._measureMarkers.forEach(function(c,i){
+                self._measureMarkers[i].closeTooltip();
+            });
+
+        },
+
+        _showMeasureMarkersTTs:function(){
+
+            var self = this;
+
+            this._measureMarkers.forEach(function(c,i){
+                self._measureMarkers[i].openTooltip();
+            });
+
+        }
 
     });
 

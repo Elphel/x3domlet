@@ -547,6 +547,8 @@ function x3d_setShiftSpeed(){
 
 function x3d_initial_camera_placement(mode){
 
+    console.log("x3d_initial_camera_placement");
+
     if (mode==undefined){
       // reset horizontal
       mode = "r";

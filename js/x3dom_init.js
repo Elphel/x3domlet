@@ -771,6 +771,9 @@ X3DOMObject.Marker.prototype._registerEvents = function(){
 
 X3DOMObject.Marker.mouseUp = function(){
 
+    //console.log("Drag STOP");
+    Map.marker._showMeasureMarkersTTs();
+
     var elem = Scene.draggedTransformNode.parent().parent();
 
     // click is already bound
@@ -797,6 +800,8 @@ X3DOMObject.Marker.mouseUp = function(){
 
 // from https://x3dom.org/x3dom/example/MovingObjectsWithDOMEvents.html
 X3DOMObject.Marker.dragStart = function(elem){
+
+    //console.log("Drag START");
 
     Scene.markerToDrag=elem;
 
@@ -831,7 +836,11 @@ X3DOMObject.Marker.dragStart = function(elem){
 
 }
 
+// gets called when existing marker is dragged
 X3DOMObject.Marker.mouseMove = function(event){
+
+    // hide ToolTips with meters and staff
+    Map.marker._hideMeasureMarkersTTs();
 
     Scene.markerdragged = true;
 
