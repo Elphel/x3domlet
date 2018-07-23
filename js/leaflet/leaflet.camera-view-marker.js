@@ -127,6 +127,7 @@
             var hecs = this.getHCState();
 
             if (param.target){
+
                 latlng = param.latlng;
 
                 if (hecs){
@@ -147,6 +148,7 @@
             }
 
             this._latlng = latlng;
+            this._measureBase = latlng;
             this._updateCameraViewMarker();
 
         },

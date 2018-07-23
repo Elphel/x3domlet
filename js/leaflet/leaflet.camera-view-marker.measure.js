@@ -448,6 +448,8 @@
 
         _syncMeasureMarkersToBasePoint: function(e){
 
+            console.log("sync measure markers");
+
             if (this._measureMarkers.length!=0){
                 if (
                   (this._measureBase.lat!=this._latlng.lat)&&

@@ -368,11 +368,11 @@ function parse_light_init_response(response,state,mode){
     Scene = new X3DOMObject(element,Data,{});
     Scene.initResize();
     Map = new LeafletObject('leaflet_map',Data,{},function(){
-      
+
       $.getScript("js/x3dom/x3dom-full.debug.js",function(){
 
           console.log("loaded x3dom");
-        
+
           //wait until it DOM is extended
           x3dom.runtime.ready = function(){
 
@@ -387,7 +387,7 @@ function parse_light_init_response(response,state,mode){
 
           };
       });
-      
+
     });
 
   }else{
