@@ -661,6 +661,11 @@ function x3d_events(){
               var x,y,z;
               var dist = 1111;
 
+              var campos = x3dom_getCameraPosOr();
+              var xc = campos.x;
+              var yc = campos.y;
+              var zc = campos.z;
+
               var mouse = x3dom_getXYPosOr(e.path[0].mouse_drag_x,e.path[0].mouse_drag_y,false);
 
               if (mouse.d_xz != null){
@@ -675,7 +680,11 @@ function x3d_events(){
 
               }
 
-              Map.marker.placeSlidingMarker(mouse.a,dist);
+              var da = x3dom_getDistAngle(mouse.x-xc,mouse.y-yc,mouse.z-zc);
+              var distance = da[0];
+              var angle = da[1];
+
+              Map.marker.placeSlidingMarker(angle,distance);
 
             }else{
 
@@ -806,8 +815,20 @@ function x3d_events(){
           if ($(".GroupTop").attr("bboxSize")!=undefined){
             dist_default = parseFloat($(".GroupTop").attr("bboxSize").trim().split(" ")[2]);
           }
+
+          var campos = x3dom_getCameraPosOr();
+          var xc = campos.x;
+          var yc = campos.y;
+          var zc = campos.z;
+
+          var da = x3dom_getDistAngle(mouse.x-xc,mouse.y-yc,mouse.z-zc);
+          var distance = da[0];
+          var angle = da[1];
+
           var dist = parseFloat(mouse.d_xz) || dist_default;
-          Map.marker.placeSlidingMarker(mouse.a,dist);
+
+          //Map.marker.placeSlidingMarker(mouse.a,dist);
+          Map.marker.placeSlidingMarker(angle,distance);
 
         }else{
 
