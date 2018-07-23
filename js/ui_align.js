@@ -248,11 +248,11 @@ function apply_alignment_dialog_hll(xyh0,xyh1,c,e,de){
  */
 function apply_alignment_hll(xyh){
 
+    //console.log("Applying Ze Alignment!");
+
     for(var i=0;i<xyh.length;i++){
       xyh[i] = parseFloat(xyh[i]);
     }
-
-    var Camera = Map.marker;
 
     Data.camera.heading   = xyh[2];
     Data.camera.latitude  = xyh[0];
@@ -268,10 +268,10 @@ function apply_alignment_hll(xyh){
     Map.marker._syncMeasureMarkersToBasePoint();
 
     //update on 3d
-    var p1_ll = Camera._latlng;
+    var p1_ll = Map.marker._latlng;
 
     for(var i=0;i<Data.markers.length;i++){
-      var p2_ll = Camera._measureMarkers[i]._latlng;
+      var p2_ll = Map.marker._measureMarkers[i]._latlng;
       leaf_update_x3dom_marker(p1_ll,p2_ll,i);
     }
 

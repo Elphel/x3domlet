@@ -337,6 +337,8 @@
                 this._slidingMarker.setLatLng(p2_ll);
                 this._slidingLine.setLatLngs(l_d);
                 this._slidingMarker.setTooltipContent(distance.toFixed(1)+' m');
+                // close
+                this._slidingMarker.closeTooltip();
 
             }
 
