@@ -59,7 +59,7 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
     var v1 = iterate(v0,n,r,dr)
 
-    //console.log(v1);
+    console.log(v1);
 
     var s0 = sigma(v0,n,r)
     var s1 = sigma(v1,n,r)
@@ -84,8 +84,6 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
     var wsum = ws(v,n)
 
     var J = jacobian(v,n,dr)
-
-    console.log(J);
 
     var Jt = numbers.matrix.transpose(J)
 
@@ -197,6 +195,8 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
   var counter = 0
   var v0 = v
 
+  var xn = r.length;
+
   if (w===undefined){
     w = function(){
       return 1;
@@ -231,7 +231,11 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
   //functions
   function iterate(v,n,r,dr){
 
-    var wsum = ws(v,n)
+    var wsum = 0;
+
+    for(var j=0;j<xn;j++){
+      wsum += ws(v,n,xn)
+    }
 
     var J = jacobian(v,n,dr)
     var Jt = numbers.matrix.transpose(J)
@@ -307,19 +311,19 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
   }
 
   // normalized weight
-  function wn(i,v,wsum){
+  function wn(i,v,wsum,xn){
 
-    return w(i,v)/wsum
+    return w[xn](i,v)/wsum
 
   }
 
   // sum of weights for normalization
-  function ws(v,n){
+  function ws(v,n,xn){
 
     var wsum = 0
 
     for(var i=0;i<n;i++){
-      wsum += w(i,v)
+      wsum += w[xn](i,v)
     }
 
     return wsum

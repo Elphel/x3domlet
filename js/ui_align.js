@@ -401,7 +401,18 @@ function x3dom_align_hll3(){
   var xyh = [x0,y0];
 
   var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
-  //var result = numbers.calculus.GaussNewton_nD(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
+
+  /*
+  var rs_i = [hll3_r_i, hll3_r_i];
+  var drs_i = [
+    [hll3_dr_dx_i, hll3_dr_dy_i],
+    [hll3_dr_dx_i, hll3_dr_dy_i]
+  ];
+
+  var ws_i = [hll3_w_i, hll3_w_i];
+
+  var result = numbers.calculus.GaussNewton_nD(xyh,Data.markers.length,rs_i,drs_i,epsilon,ws_i);
+  */
 
   xyh = [result.v[0],result.v[1],h0];
 
