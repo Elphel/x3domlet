@@ -462,7 +462,7 @@ function x3dom_align_art(){
     // round meters to 0.001
     result.v[1] = result.v[1].toFixed(3);
 
-    apply_alignment_dialog_art([0,0,0],[result.v[0],0,result.v[1]],result.count,result.error,false);
+    apply_alignment_dialog_art([tra0[0],0,tra0[2]],[result.v[0],0,result.v[1]],result.count,result.error,false);
 
     return;
 
@@ -484,7 +484,7 @@ function x3dom_align_art(){
   //result.v[0] = bring_angle_to_range_deg(result.v[0],-180,180);
   //result.v[1] = bring_angle_to_range_deg(result.v[1],-180,180);
 
-  apply_alignment_dialog_art([0,0,0],result.v,result.count,result.error,true);
+  apply_alignment_dialog_art(tra0,result.v,result.count,result.error,true);
 
 }
 
