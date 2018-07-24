@@ -248,8 +248,6 @@ function apply_alignment_dialog_hll(xyh0,xyh1,c,e,de){
  */
 function apply_alignment_hll(xyh){
 
-    //console.log("Applying Ze Alignment!");
-
     for(var i=0;i<xyh.length;i++){
       xyh[i] = parseFloat(xyh[i]);
     }
@@ -375,13 +373,13 @@ function x3dom_align_hll3(){
 
   // need at least 3 points
   if (Data.markers != undefined){
-    if (Data.markers.length<2){
-        var msg = "Alignment error: place at least 2 markers";
+    if (Data.markers.length<1){
+        var msg = "Alignment error: place at least 1 marker";
         ui_showMessage("window-error",msg);
         return -1;
     }
   }else{
-    var msg = "Alignment error: place at least 2 markers";
+    var msg = "Alignment error: place at least 1 marker";
     ui_showMessage("window-error",msg);
     return -1;
   }
@@ -447,10 +445,13 @@ function x3dom_align_art(){
     return;
   }
 
+  var tra0 = [Data.camera.kml.tilt-90, Data.camera.kml.roll, Data.camera.kml.altitude];
+
   if (Data.markers.length==2){
 
     console.log("2 Markers provided: align Height'n'Tilt only (while Roll = 0)");
 
+    // use [tra[0],tra[2]]
     var result = numbers.calculus.GaussNewton([0,0],Data.markers.length,art2_r_i,[art2_dr_dx_i,art2_dr_da_i],epsilon,art2_w_i);
     console.log(result);
 
@@ -562,6 +563,8 @@ function apply_alignment_art(tra){
     // no need
     Map.marker._syncMeasureMarkersToBasePoint();
 
+    // sets in degrees?
+    Map.marker.setHeading(Data.camera.heading);
     x3d_initial_camera_placement();
 
 }

@@ -84,6 +84,9 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
     var wsum = ws(v,n)
 
     var J = jacobian(v,n,dr)
+
+    console.log(J);
+
     var Jt = numbers.matrix.transpose(J)
 
     for(var i=0;i<n;i++){
