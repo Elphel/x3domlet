@@ -401,6 +401,7 @@ function x3dom_align_hll3(){
   var xyh = [x0,y0];
 
   var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
+  //var result = numbers.calculus.GaussNewton_nD(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
 
   xyh = [result.v[0],result.v[1],h0];
 

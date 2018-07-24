@@ -236,17 +236,35 @@ function hll2_w_i(i,v){
 
 }
 
+function bring_degrees_to_n180_180(a){
+
+  while(a<-180){
+    a += 360;
+  }
+  while(a>180){
+    a -= 360;
+  }
+  return a;
+
+}
+
 /**
  * Functions for position latitude and longitude (heading is fixed)
  * hll3_...
  */
-
 function hll3_r_i(i,v){
 
   var heading = Data.camera.kml.heading;
 
   var f1 = hll_f_3d_i(i,[v[0],v[1],heading]);
   var f2 = hll_f_map_i(i,[v[0],v[1],heading]);
+
+  f1 -= heading;
+  f2 -= heading;
+
+  f1 = bring_degrees_to_n180_180(f1);
+  f2 = bring_degrees_to_n180_180(f2);
+
   //return (f1-f2+360)%360;
   return (f1-f2);
 }
