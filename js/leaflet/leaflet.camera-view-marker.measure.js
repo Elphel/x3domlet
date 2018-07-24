@@ -330,7 +330,8 @@
                     direction:"right",
                     className: "measurementtooltip",
                     offset:[0,0],
-                }).openTooltip();
+                });//.openTooltip();
+                this._slidingMarker.closeTooltip();
 
             }else{
 
