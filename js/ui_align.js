@@ -563,8 +563,10 @@ function apply_alignment_art(tra){
     // no need
     Map.marker._syncMeasureMarkersToBasePoint();
 
-    // sets in degrees?
-    Map.marker.setHeading(Data.camera.heading);
+    // sets in degrees
+    // proper reset view
+    Data.camera.heading = Data.camera.kml.heading;
+    Map.marker.setHeading(Data.camera.kml.heading);
     x3d_initial_camera_placement();
 
 }
