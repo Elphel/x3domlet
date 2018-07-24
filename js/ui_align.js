@@ -403,13 +403,13 @@ function x3dom_align_hll3(){
   var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
 
   /*
-  var rs_i = [hll3_r_i, hll3_r_i];
+  var rs_i = [hll3_r_i,hll3_r_i];
   var drs_i = [
     [hll3_dr_dx_i, hll3_dr_dy_i],
     [hll3_dr_dx_i, hll3_dr_dy_i]
   ];
 
-  var ws_i = [hll3_w_i, hll3_w_i];
+  var ws_i = [hll3_w_i,hll3_w_i];
 
   var result = numbers.calculus.GaussNewton_nD(xyh,Data.markers.length,rs_i,drs_i,epsilon,ws_i);
   */

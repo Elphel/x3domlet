@@ -40,8 +40,14 @@
  */
 numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
+  // divide delta by 2
+  var D_DIV = 2
+
+  console.log("Will divide delta by "+D_DIV)
+
   var epsilon = eps || 1e-8
-  var limit = 1000
+  //var limit = 1000
+  var limit = 50
 
   var stop = false
   var counter = 0
@@ -113,7 +119,7 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
     var res = []
 
     for(var i=0;i<v.length;i++){
-      res[i] = v[i]-delta[i][0]
+      res[i] = v[i]-delta[i][0]/D_DIV
     }
 
     return res
@@ -231,17 +237,24 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
   //functions
   function iterate(v,n,r,dr){
 
-    var wsum = 0;
+    var xn = r.length;
+
+    var wsum = 0
+    var J = []
 
     for(var j=0;j<xn;j++){
-      wsum += ws(v,n,xn)
+      wsum += ws(v,n,j)
+      J = J.concat(jacobian(v,n,dr[j]))
     }
 
-    var J = jacobian(v,n,dr)
+    console.log(J)
+
     var Jt = numbers.matrix.transpose(J)
 
-    for(var i=0;i<n;i++){
-      J = numbers.matrix.rowScale(J,i,wn(i,v,wsum))
+    for(var j=0;j<xn;j++){
+      for(var i=0;i<n;i++){
+        J = numbers.matrix.rowScale(J,n*j+i,wn(i,v,wsum,j))
+      }
     }
 
     // JtJ
@@ -254,8 +267,10 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
 
     var V = []
 
-    for(var i=0;i<n;i++){
-      V.push([wn(i,v,wsum)*r(i,v)])
+    for(var j=0;j<xn;j++){
+      for(var i=0;i<n;i++){
+        V.push([wn(i,v,wsum,j)*r[j](i,v)])
+      }
     }
 
     var delta = numbers.matrix.multiply(J,V)
@@ -275,12 +290,20 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
 
   function sigma(v,n,r){
 
+    var xn = r.length;
     var sum = 0
-    var wsum = ws(v,n)
 
-    for(var i=0;i<n;i++){
-      sum += wn(i,v,wsum)*r(i,v)*r(i,v)
-      //wsum += w(i,v)
+    var wsum = 0;
+    for(var j=0;j<xn;j++){
+      wsum += ws(v,n,j)
+    }
+
+
+    for(var j=0;j<xn;j++){
+      for(var i=0;i<n;i++){
+        sum += wn(i,v,wsum,j)*r[j](i,v)*r[j](i,v)
+        //wsum += w(i,v)
+      }
     }
 
     //console.log("sum = "+sum+" wsum = "+wsum);
