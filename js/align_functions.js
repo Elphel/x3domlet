@@ -107,6 +107,11 @@ function hll_r_i(i,v){
   var f1 = hll_f_3d_i(i,v);
   var f2 = hll_f_map_i(i,v);
   //return (f1-f2+360)%360;
+  f1 -= v[2];
+  f2 -= v[2];
+  f1 = bring_degrees_to_n180_180(f1);
+  f2 = bring_degrees_to_n180_180(f2);
+
   return (f1-f2);
 }
 
@@ -214,6 +219,12 @@ function hll2_r_i(i,v){
 
   var f1 = hll_f_3d_i(i,[lat,lng,v[0]]);
   var f2 = hll_f_map_i(i,[lat,lng,v[0]]);
+
+  f1 -= v[0];
+  f2 -= v[0];
+  f1 = bring_degrees_to_n180_180(f1);
+  f2 = bring_degrees_to_n180_180(f2);
+
   //return (f1-f2+360)%360;
   return (f1-f2);
 }
@@ -261,7 +272,6 @@ function hll3_r_i(i,v){
 
   f1 -= heading;
   f2 -= heading;
-
   f1 = bring_degrees_to_n180_180(f1);
   f2 = bring_degrees_to_n180_180(f2);
 
