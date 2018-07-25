@@ -215,6 +215,9 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
     };
   }
 
+  console.log("V0:")
+  console.log(v0)
+
   while(!stop){
 
     counter++
@@ -232,6 +235,9 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
       rs1.push(r(i,v1))
       diff.push(r(i,v1)-r(i,v0))
     }
+
+    console.log("V1:")
+    console.log(v1)
 
     console.log("residuals old:")
     console.log(rs0)
@@ -255,9 +261,16 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
     }
 
     if (sscale!=0){
+
+      console.log("SCALE = "+sscale)
+
       for(var i=0;i<n;i++){
         v1[i] = v0[i] + diff[i]*sscale
       }
+
+      console.log("Corrected V1:")
+      console.log(v1)
+
     }
 
     var s0 = sigma(v0,n,r)
