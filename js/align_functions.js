@@ -303,7 +303,7 @@ function hll3_w_i(i,v){
 
 /**
  * Functions for position latitude and longitude (heading is fixed)
- * hll3a_...
+ * hll4a_...
  */
 
 

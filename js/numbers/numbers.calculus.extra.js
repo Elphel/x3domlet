@@ -185,6 +185,201 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
 
 }
 
+/**
+ * Gauss-Newton algorithm for minimizing error function which
+ * is a sum of squared errors for each measurement
+ *
+ * @v {Array} vector, initial approximation
+ * @n {Number} number of measuments
+ * @r {Function} residual function
+ * @dr {Array} array of derivative functions
+ * @eps {Number} precision
+ *
+ */
+numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
+
+  // divide delta by 2
+  var D_DIV = 1
+  // degrees
+  var STEP_SIZE_LIMIT = 10
+
+  console.log("Will divide delta by "+D_DIV)
+
+  var epsilon = eps || 1e-8
+  //var limit = 1000
+  var limit = 50
+  var delta_divider = D_DIV
+
+  var stop = false
+  var counter = 0
+  var v0 = v
+
+  if (w===undefined){
+    w = function(){
+      return 1;
+    };
+  }
+
+  while(!stop){
+
+    counter++
+
+    var v1 = iterate(v0,n,r,dr)
+
+    rs0 = []
+    rs1 = []
+    diff = []
+
+    var reiterate = false
+
+    for(var i=0;i<n;i++){
+      rs0.push(r(i,v0))
+      rs1.push(r(i,v1))
+      diff.push(r(i,v1)-r(i,v0))
+      if (diff[i]>STEP_SIZE_LIMIT){
+        reiterate = true
+        break
+      }
+    }
+
+    console.log("residuals old:")
+    console.log(rs0)
+    console.log("residuals new:")
+    console.log(rs1)
+    console.log("difference:")
+    console.log(diff)
+
+    if (!reiterate){
+
+      delta_divider = D_DIV
+
+      var s0 = sigma(v0,n,r)
+      var s1 = sigma(v1,n,r)
+
+      if((Math.abs(s1-s0)<epsilon)||(counter==limit)){
+        stop = true
+      }
+
+      v0 = v1
+    }else{
+
+      delta_divider *= 2
+
+      console.log("REITERATE WITH A SMALLER JUMP")
+    }
+
+  }
+
+  return {
+    count: counter,
+    error: s1,
+    v: v0
+  }
+
+  //functions
+  function iterate(v,n,r,dr){
+
+    var wsum = ws(v,n)
+
+    var J = jacobian(v,n,dr)
+
+    var Jt = numbers.matrix.transpose(J)
+
+    for(var i=0;i<n;i++){
+      J = numbers.matrix.rowScale(J,i,wn(i,v,wsum))
+    }
+
+    // JtJ
+    J = numbers.matrix.multiply(Jt,J)
+
+    // (Jt x J)^-1
+    J = numbers.matrix.inverse(J)
+    // (Jt x J)^-1 x Jt
+    J = numbers.matrix.multiply(J,Jt)
+
+    var V = []
+
+    for(var i=0;i<n;i++){
+      V.push([wn(i,v,wsum)*r(i,v)])
+    }
+
+    var delta = numbers.matrix.multiply(J,V)
+
+    //console.log("delta: ");
+    //console.log(delta);
+
+    var res = []
+
+    for(var i=0;i<v.length;i++){
+      res[i] = v[i]-delta[i][0]/delta_divider
+    }
+
+    return res
+
+  }
+
+  function sigma(v,n,r){
+
+    var sum = 0
+    var wsum = ws(v,n)
+
+    for(var i=0;i<n;i++){
+      sum += wn(i,v,wsum)*r(i,v)*r(i,v)
+      //wsum += w(i,v)
+    }
+
+    //console.log("sum = "+sum+" wsum = "+wsum);
+
+    //sum = Math.sqrt(sum/wsum)
+    sum = Math.sqrt(sum)
+
+    return sum
+
+  }
+
+  function jacobian(v,n,dr){
+
+    var J = []
+
+    for(var i=0;i<n;i++){
+
+      var row = []
+      for(var j=0;j<dr.length;j++){
+        row.push(dr[j](i,v))
+      }
+      J[i] = row
+
+    }
+
+    return J
+
+  }
+
+  // normalized weight
+  function wn(i,v,wsum){
+
+    return w(i,v)/wsum
+
+  }
+
+  // sum of weights for normalization
+  function ws(v,n){
+
+    var wsum = 0
+
+    for(var i=0;i<n;i++){
+      wsum += w(i,v)
+    }
+
+    return wsum
+
+  }
+
+}
+
+
+
+
 // v   - is a vector of parameters
 // n   - number of measurements
 // r   - residual function
@@ -204,21 +399,26 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
   var xn = r.length;
 
   if (w===undefined){
-    w = function(){
-      return 1;
-    };
+    w = []
+    for(var j=0;j<xn;j++){
+      w.push(
+        function(){
+          return 1;
+        }
+      );
+    }
   }
 
   while(!stop){
 
     counter++
 
-    var v1 = iterate(v0,n,r,dr)
+    var v1 = iterate(v0,n,r,dr,w)
 
     //console.log(v1);
 
-    var s0 = sigma(v0,n,r)
-    var s1 = sigma(v1,n,r)
+    var s0 = sigma(v0,n,r,w)
+    var s1 = sigma(v1,n,r,w)
 
     if((Math.abs(s1-s0)<epsilon)||(counter==limit)){
       stop = true
@@ -235,7 +435,7 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
   }
 
   //functions
-  function iterate(v,n,r,dr){
+  function iterate(v,n,r,dr,w){
 
     var xn = r.length;
 
@@ -243,7 +443,7 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
     var J = []
 
     for(var j=0;j<xn;j++){
-      wsum += ws(v,n,j)
+      wsum += ws(v,n,w[j])
       J = J.concat(jacobian(v,n,dr[j]))
     }
 
@@ -253,7 +453,7 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
 
     for(var j=0;j<xn;j++){
       for(var i=0;i<n;i++){
-        J = numbers.matrix.rowScale(J,n*j+i,wn(i,v,wsum,j))
+        J = numbers.matrix.rowScale(J,n*j+i,wn(i,v,wsum,w[j]))
       }
     }
 
@@ -269,7 +469,7 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
 
     for(var j=0;j<xn;j++){
       for(var i=0;i<n;i++){
-        V.push([wn(i,v,wsum,j)*r[j](i,v)])
+        V.push([wn(i,v,wsum,w[j])*r[j](i,v)])
       }
     }
 
@@ -288,20 +488,20 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
 
   }
 
-  function sigma(v,n,r){
+  function sigma(v,n,r,w){
 
     var xn = r.length;
     var sum = 0
 
     var wsum = 0;
     for(var j=0;j<xn;j++){
-      wsum += ws(v,n,j)
+      wsum += ws(v,n,w[j])
     }
 
 
     for(var j=0;j<xn;j++){
       for(var i=0;i<n;i++){
-        sum += wn(i,v,wsum,j)*r[j](i,v)*r[j](i,v)
+        sum += wn(i,v,wsum,w[j])*r[j](i,v)*r[j](i,v)
         //wsum += w(i,v)
       }
     }
@@ -334,19 +534,19 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
   }
 
   // normalized weight
-  function wn(i,v,wsum,xn){
+  function wn(i,v,wsum,w){
 
-    return w[xn](i,v)/wsum
+    return w(i,v)/wsum
 
   }
 
   // sum of weights for normalization
-  function ws(v,n,xn){
+  function ws(v,n,w){
 
     var wsum = 0
 
     for(var i=0;i<n;i++){
-      wsum += w[xn](i,v)
+      wsum += w(i,v)
     }
 
     return wsum
