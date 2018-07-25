@@ -198,17 +198,12 @@ numbers.calculus.GaussNewton = function(v,n,r,dr,eps,w){
  */
 numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
 
-  // divide delta by 2
-  var D_DIV = 1
   // degrees
   var STEP_SIZE_LIMIT = 10
-
-  console.log("Will divide delta by "+D_DIV)
 
   var epsilon = eps || 1e-8
   //var limit = 1000
   var limit = 50
-  var delta_divider = D_DIV
 
   var stop = false
   var counter = 0
@@ -236,10 +231,6 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
       rs0.push(r(i,v0))
       rs1.push(r(i,v1))
       diff.push(r(i,v1)-r(i,v0))
-      if (diff[i]>STEP_SIZE_LIMIT){
-        reiterate = true
-        break
-      }
     }
 
     console.log("residuals old:")
@@ -249,24 +240,34 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
     console.log("difference:")
     console.log(diff)
 
-    if (!reiterate){
+    var max = Math.max(...diff)
+    var sscale = 0;
 
-      delta_divider = D_DIV
+    if (max>STEP_SIZE_LIMIT){
+      console.log("LAT or LON EXCEEDED STEP SIZE")
+      sscale = STEP_SIZE_LIMIT/max;
 
-      var s0 = sigma(v0,n,r)
-      var s1 = sigma(v1,n,r)
-
-      if((Math.abs(s1-s0)<epsilon)||(counter==limit)){
-        stop = true
-      }
-
-      v0 = v1
-    }else{
-
-      delta_divider *= 2
-
-      console.log("REITERATE WITH A SMALLER JUMP")
     }
+
+    if ((v1[2]-v0[2])>STEP_SIZE_LIMIT){
+      console.log("DELTA HEADING EXCEEDED STEP SIZE")
+      sscale = STEP_SIZE_LIMIT/(v1[2]-v0[2]);
+    }
+
+    if (sscale!=0){
+      for(var i=0;i<n;i++){
+        v1[i] = v0[i] + diff[i]*sscale
+      }
+    }
+
+    var s0 = sigma(v0,n,r)
+    var s1 = sigma(v1,n,r)
+
+    if((Math.abs(s1-s0)<epsilon)||(counter==limit)){
+      stop = true
+    }
+
+    v0 = v1
 
   }
 
@@ -311,7 +312,7 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
     var res = []
 
     for(var i=0;i<v.length;i++){
-      res[i] = v[i]-delta[i][0]/delta_divider
+      res[i] = v[i]-delta[i][0]
     }
 
     return res
