@@ -264,7 +264,7 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
 
       console.log("SCALE = "+sscale)
 
-      for(var i=0;i<n;i++){
+      for(var i=0;i<v0.length;i++){
         v1[i] = v0[i]+sscale*(v1[i]-v0[i])
       }
 
