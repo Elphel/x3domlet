@@ -319,8 +319,8 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
 
     var delta = numbers.matrix.multiply(J,V)
 
-    //console.log("delta: ");
-    //console.log(delta);
+    console.log("delta: ");
+    console.log(delta);
 
     var res = []
 
