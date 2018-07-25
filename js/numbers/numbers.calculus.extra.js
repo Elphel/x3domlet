@@ -233,7 +233,7 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
     for(var i=0;i<n;i++){
       rs0.push(r(i,v0))
       rs1.push(r(i,v1))
-      diff.push(r(i,v1)-r(i,v0))
+      diff.push(rs1[i]-rs0[i])
     }
 
     console.log("V1:")
