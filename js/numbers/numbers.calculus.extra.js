@@ -247,7 +247,7 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
     console.log(diff)
 
     var max = Math.max(...diff)
-    var sscale = 0;
+    var sscale = 1;
 
     if (max>STEP_SIZE_LIMIT){
       console.log("LAT or LON EXCEEDED STEP SIZE")
@@ -260,12 +260,12 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
       sscale = STEP_SIZE_LIMIT/(v1[2]-v0[2]);
     }
 
-    if (sscale!=0){
+    if (sscale!=1){
 
       console.log("SCALE = "+sscale)
 
       for(var i=0;i<n;i++){
-        v1[i] = v0[i] + diff[i]*sscale
+        v1[i] = v0[i]+sscale*(v1[i]-v0[i])
       }
 
       console.log("Corrected V1:")
