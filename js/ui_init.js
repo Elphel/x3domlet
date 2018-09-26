@@ -80,8 +80,8 @@ var SETTINGS = {
       y: 0,
       z: -0.12
     },
-    'clipnear': -20000,
-    'clipfar' : 20000
+    'clipnear': 0,
+    'clipfar' : 200
 //     'kml'    : "scene.kml"
 }
 
@@ -110,6 +110,8 @@ var MPR = {
 
 // recorded marks restored
 var MPR_MARKS_LOADED = false;
+
+var LIDAR_MODE = false;
 
 // no comments
 function parseURL(){
@@ -286,8 +288,8 @@ function light_init(){
         '    <transform id=\'x3d_transform\' class=\'inline_wrapper\'>',
         '      <transform translation=\''+([SETTINGS.mountshift.x,SETTINGS.mountshift.y,SETTINGS.mountshift.z].join(','))+'\'>',
         '        <inline name="x3d_'+model_name+'" namespacename="x3d_'+model_name+'" url="'+model_url+'"></inline>',
-        '        <clipplane id=\'clipfar_cp\'  enabled="true" on="true" plane="0,0,1,20000"></clipplane>',
-        '        <clipplane id=\'clipnear_cp\' enabled="true" on="true" plane="0,0,-1,20000"></clipplane>',
+        '        <clipplane id=\'clipfar_cp\' class=\'clipplanes\' enabled="true" on="false" plane="0,0,1,200"></clipplane>',
+        '        <clipplane id=\'clipnear_cp\' class=\'clipplanes\' enabled="true" on="false" plane="0,0,-1,0"></clipplane>',
         '      </transform>',
         '    </transform>',
         '  </switch>',

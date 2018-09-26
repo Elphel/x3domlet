@@ -103,6 +103,20 @@ function menu_init(){
 
     });
 
+    $("#toggle_lidar_button").on('click',function(e){
+
+        if (LIDAR_MODE===false){
+          $(this).css({"background-color": "rgba(200,250,200,1)"});
+          $('.clipplanes').attr('on',true);
+        }else{
+          $(this).css({"background-color": "white"});
+          $('.clipplanes').attr('on',false);
+        }
+
+        LIDAR_MODE = !LIDAR_MODE;
+
+    });
+
     $("#window-error").on('click',function(){
       $(this).hide();
     });

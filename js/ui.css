@@ -200,6 +200,7 @@ html, body, #x3d_wrapper {
     height:25px;
 }
 
+#toggle_lidar_button,
 #exit_button,
 #align_button,
 #align_button_heading,
@@ -219,6 +220,10 @@ html, body, #x3d_wrapper {
     border: 0px solid white;
     border-radius: 2px;
     margin-bottom: 2px;
+}
+
+#toggle_lidar_button{
+    background-image:url('images/baseline_track_changes_black_48dp.png');
 }
 
 #exit_button{
@@ -253,6 +258,7 @@ html, body, #x3d_wrapper {
     background-color: rgba(240,150,150,1);
 }
 
+#toggle_lidar_button:hover,
 #align_button:hover,
 #align_button_heading:hover,
 #align_button_location:hover,
