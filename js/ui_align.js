@@ -402,19 +402,40 @@ function x3dom_align_hll3(){
 
   //var result = numbers.calculus.GaussNewton(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
 
-  var result = numbers.calculus.GaussNewton_forHeading(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
+  //var result = numbers.calculus.GaussNewton_forHeading(xyh,Data.markers.length,hll3_r_i,[hll3_dr_dx_i,hll3_dr_dy_i],epsilon,hll3_w_i);
 
-  /*
-  var rs_i = [hll3_r_i,hll3_r_i];
+  var rs_i = [hll4a_r_i,hll4b_r_i];
   var drs_i = [
-    [hll3_dr_dx_i, hll3_dr_dy_i],
-    [hll3_dr_dx_i, hll3_dr_dy_i]
+    [hll4a_dr_dx_i, hll4a_dr_dy_i],
+    [hll4b_dr_dx_i, hll4b_dr_dy_i]
   ];
 
-  var ws_i = [hll3_w_i,hll3_w_i];
-  */
+  var ws_i = [hll4a_w_i,hll4b_w_i];
 
-  //var result = numbers.calculus.GaussNewton_nD(xyh,Data.markers.length,rs_i,drs_i,epsilon,ws_i);
+  var result = numbers.calculus.GaussNewton_nD(xyh,Data.markers.length,rs_i,drs_i,epsilon,ws_i);
+
+  // print result as csv
+
+  var history = result.history;
+  var history_csved = "";
+  var markers_csved = "";
+
+  // print markers data
+  for(var i=0;i<Data.markers.length;i++){
+    var mark = Data.markers[i];
+    markers_csved += mark.align.latitude+","+mark.align.longitude+"\n";
+  }
+  console.log(markers_csved);
+
+  //print initial approximation
+  var initial_csved = Data.camera.kml.latitude+","+Data.camera.kml.longitude;
+  console.log(initial_csved);
+
+  // print history
+  for(var i=0;i<history.length;i++){
+    history_csved += history[i][0]+","+history[i][1]+"\n";
+  }
+  console.log(history_csved);
 
 
   xyh = [result.v[0],result.v[1],h0];
