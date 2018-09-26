@@ -228,8 +228,6 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
     rs1 = []
     diff = []
 
-    var reiterate = false
-
     for(var i=0;i<n;i++){
       rs0.push(r(i,v0))
       rs1.push(r(i,v1))
@@ -238,7 +236,6 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
 
     console.log("V1:")
     console.log(v1)
-
     console.log("residuals old:")
     console.log(rs0)
     console.log("residuals new:")
@@ -403,8 +400,13 @@ numbers.calculus.GaussNewton_forHeading = function(v,n,r,dr,eps,w){
 
 numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
 
+  console.log("GaussNewton_nD")
+
+  // degrees
+  var STEP_SIZE_LIMIT = 10
+
   var epsilon = eps || 1e-8
-  var limit = 1000
+  var limit = 50
 
   var stop = false
   var counter = 0
@@ -423,13 +425,64 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
     }
   }
 
+  console.log("V0:")
+  console.log(v0)
+
+  var history = []
+
   while(!stop){
 
     counter++
 
     var v1 = iterate(v0,n,r,dr,w)
 
-    //console.log(v1);
+    rs0 = []
+    rs1 = []
+    diff = []
+
+    for(var j=0;j<xn;j++){
+      for(var i=0;i<n;i++){
+        rs0.push(r[j](i,v0))
+        rs1.push(r[j](i,v1))
+        diff.push(r[j](i,v1)-r[j](i,v0))
+      }
+    }
+
+    console.log("V1:")
+    console.log(v1)
+    console.log("residuals old:")
+    console.log(rs0)
+    console.log("residuals new:")
+    console.log(rs1)
+    console.log("difference:")
+    console.log(diff)
+
+    var max = Math.max(...diff)
+    var sscale = 1;
+
+    if (max>STEP_SIZE_LIMIT){
+      console.log("LAT or LON EXCEEDED STEP SIZE")
+      sscale = STEP_SIZE_LIMIT/max;
+
+    }
+
+    if ((v1[2]-v0[2])>STEP_SIZE_LIMIT){
+      console.log("DELTA HEADING EXCEEDED STEP SIZE")
+      sscale = STEP_SIZE_LIMIT/(v1[2]-v0[2]);
+    }
+
+    if (sscale!=1){
+
+      console.log("SCALE = "+sscale)
+
+      for(var i=0;i<v0.length;i++){
+        v1[i] = v0[i]+sscale*(v1[i]-v0[i])
+      }
+
+      console.log("Corrected V1:")
+      console.log(v1)
+
+    }
 
     var s0 = sigma(v0,n,r,w)
     var s1 = sigma(v1,n,r,w)
@@ -439,10 +492,12 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
     }
 
     v0 = v1
+    history.push(v1)
 
   }
 
   return {
+    history: history,
     count: counter,
     error: s1,
     v: v0
