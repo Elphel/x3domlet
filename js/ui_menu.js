@@ -109,7 +109,10 @@ function menu_init(){
 
     crosshair_init();
     shiftspeed_init();
+
     marker_size_color_init();
+    clipping_planes_init();
+
     reset_view_init();
     remove_markers_init();
     align_init();
@@ -162,6 +165,40 @@ function marker_size_color_init(){
         SETTINGS.markercolor = $(this).val();
     });
     $('#markercolor').change();
+
+}
+
+function clipping_planes_init(){
+
+    $('#clipnear').on('change',function(e){
+
+        SETTINGS.clipnear = $(this).val();
+
+        if ($("#clipnear_cp")!==undefined){
+          var dist = $("#clipnear_cp").attr("plane");
+          if (dist!==undefined){
+            var vals = dist.split(",");
+            $("#clipnear_cp").attr("plane",[vals[0],vals[1],vals[2],-SETTINGS.clipnear].join(","));
+          }
+        }
+
+    });
+    $('#clipnear').change();
+
+    $('#clipfar').on('change',function(e)
+    {
+        SETTINGS.clipfar = $(this).val();
+
+        if ($("#clipfar_cp")!==undefined){
+          var dist = $("#clipfar_cp").attr("plane");
+          if (dist!==undefined){
+            var vals = dist.split(",");
+            $("#clipfar_cp").attr("plane",[vals[0],vals[1],vals[2],SETTINGS.clipfar].join(","));
+          }
+        }
+
+    });
+    $('#clipfar').change();
 
 }
 

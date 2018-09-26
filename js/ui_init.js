@@ -79,7 +79,9 @@ var SETTINGS = {
       x: 0,
       y: 0,
       z: -0.12
-    }
+    },
+    'clipnear': -20000,
+    'clipfar' : 20000
 //     'kml'    : "scene.kml"
 }
 
@@ -128,6 +130,10 @@ function parseURL(){
             case "slidingdrag":  SETTINGS.slidingdrag = true; break;
             case "shiftspeed":   SETTINGS.shiftspeed = parseFloat(parameters[i][1]); break;
             case "markersize":   SETTINGS.markersize = parseFloat(parameters[i][1]); break;
+
+            case "clipnear":     SETTINGS.clipNear = parseFloat(parameters[i][1]); break;
+            case "clipfar":      SETTINGS.clipFar  = parseFloat(parameters[i][1]); break;
+
             case "basepath":     SETTINGS.basepath = parameters[i][1]; break;
             case "group":        SETTINGS.group = parameters[i][1]; break;
             case "path":         SETTINGS.path = parameters[i][1]; break;
@@ -280,6 +286,8 @@ function light_init(){
         '    <transform id=\'x3d_transform\' class=\'inline_wrapper\'>',
         '      <transform translation=\''+([SETTINGS.mountshift.x,SETTINGS.mountshift.y,SETTINGS.mountshift.z].join(','))+'\'>',
         '        <inline name="x3d_'+model_name+'" namespacename="x3d_'+model_name+'" url="'+model_url+'"></inline>',
+        '        <clipplane id=\'clipfar_cp\'  enabled="true" on="true" plane="0,0,1,20000"></clipplane>',
+        '        <clipplane id=\'clipnear_cp\' enabled="true" on="true" plane="0,0,-1,20000"></clipplane>',
         '      </transform>',
         '    </transform>',
         '  </switch>',
