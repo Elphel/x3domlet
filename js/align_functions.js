@@ -305,8 +305,145 @@ function hll3_w_i(i,v){
  * Functions for position latitude and longitude (heading is fixed)
  * hll4a_...
  */
+// p0 = new L.LatLng(lat0,lng0)
+// p1 = new L.LatLng(lat0,lng0)
+// p0.distanceTo(p1)
 
+function hll4a_r_i(i,v){
+  return hll3_r_i(i,v);
+}
 
+function hll4a_dr_dx_i(i,v){
+  return hll3_dr_dx_i(i,v);
+}
+
+function hll4a_dr_dy_i(i,v){
+  return hll3_dr_dy_i(i,v);
+}
+
+function hll4a_w_i(i,v){
+  return hll3_w_i(i,v);
+}
+
+function hll4b_3d_i(i,v){
+
+  var base = Data.camera;
+  var mark = Data.markers[i];
+
+  // 3D model part
+  var xyz_real = x3dom_scene_to_heading(mark.align.x,mark.align.y,mark.align.z);
+  var vec_xz = new x3dom.fields.SFVec3f(xyz_real.x,0,xyz_real.z);
+  var d_3d = vec_xz.length();
+
+  return d_3d;
+
+}
+
+function hll4b_map_i(i,v){
+
+  var base = Data.camera;
+  var mark = Data.markers[i];
+
+  var p1_ll = new L.LatLng(v[0],v[1]);
+  var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
+
+  var d_map = p1_ll.distanceTo(p2_ll);
+
+  return d_map;
+
+}
+
+function hll4b_r_i(i,v){
+
+  var base = Data.camera;
+  var mark = Data.markers[i];
+
+  // 3D model part
+  var d_3d = hll4b_3d_i(i,v);
+  // Map part
+  var d_map = hll4b_map_i(i,v);
+
+  // bring error to degrees:
+  var result = Math.atan((d_3d-d_map)/d_3d)*180/Math.PI;
+
+  return result;
+}
+
+// latitude
+function hll4b_dr_dx_i(i,v){
+
+  var mark = Data.markers[i];
+
+  var p1_ll = new L.LatLng(v[0],v[1]);
+  var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
+
+  p1_ll.lat = p1_ll.lat*Math.PI/180;
+  p1_ll.lng = p1_ll.lng*Math.PI/180;
+
+  p2_ll.lat = p2_ll.lat*Math.PI/180;
+  p2_ll.lng = p2_ll.lng*Math.PI/180;
+
+  var dlat = p2_ll.lat-p1_ll.lat;
+  var dlon = p2_ll.lng-p1_ll.lng;
+
+  // L.CRS.Earth.R - distance in meters
+
+  var a = Math.sin(dlat/2)*Math.sin(dlat/2)+Math.cos(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.sin(dlon/2)*Math.sin(dlon/2);
+  var da = -1/2*Math.sin(dlat/4)-Math.sin(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.sin(dlon/2)*Math.sin(dlon/2)*(-1);
+
+  var res = L.CRS.Earth.R*(1/Math.sqrt(a))*(1/Math.sqrt(1-a))*da;
+
+  // extra coeff
+  var d_3d  = hll4b_3d_i(i,v);
+  var d_map = hll4b_map_i(i,v);
+  //var k = -1/d_3d*180/Math.PI;
+
+  var result = 1/(1+((d_3d-d_map)/d_3d))*(-1)*res*180/Math.PI;
+
+  return result;
+
+}
+
+// longitude
+function hll4b_dr_dy_i(i,v){
+
+  var mark = Data.markers[i];
+
+  var p1_ll = new L.LatLng(v[0],v[1]);
+  var p2_ll = new L.LatLng(mark.align.latitude,mark.align.longitude);
+
+  p1_ll.lat = p1_ll.lat*Math.PI/180;
+  p1_ll.lng = p1_ll.lng*Math.PI/180;
+
+  p2_ll.lat = p2_ll.lat*Math.PI/180;
+  p2_ll.lng = p2_ll.lng*Math.PI/180;
+
+  var dlat = p2_ll.lat-p1_ll.lat;
+  var dlon = p2_ll.lng-p1_ll.lng;
+
+  // L.CRS.Earth.R - distance in meters
+
+  var a = Math.sin(dlat/2)*Math.sin(dlat/2)+Math.cos(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.sin(dlon/2)*Math.sin(dlon/2);
+  var da = (-1/2)*Math.cos(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.sin(dlon/2)*Math.cos(dlon/2);
+
+  var res = L.CRS.Earth.R*(1/Math.sqrt(a))*(1/Math.sqrt(1-a))*da;
+
+  // extra coeff
+  var d_3d  = hll4b_3d_i(i,v);
+  var d_map = hll4b_map_i(i,v);
+  //var k = -1/d_3d*180/Math.PI;
+
+  var result = 1/(1+((d_3d-d_map)/d_3d))*(-1)*res*180/Math.PI;
+
+  return result;
+
+}
+
+function hll4b_w_i(i,v){
+
+  return 1;
+
+}
 
 /**
  * Functions for relative altitude, tilt and roll
