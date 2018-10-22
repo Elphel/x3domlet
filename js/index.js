@@ -28,7 +28,7 @@ $(function(){
 });
 
 function init(){
-  
+
   parseURL();
   init_maps();
   init_help();
@@ -48,7 +48,7 @@ function init(){
       init_dragging();
       map.fire('moveend');
     }
-  });  
+  });
 }
 
 var SETTINGS = {
@@ -189,6 +189,7 @@ function update_links(){
       var group = $(this).attr("group");
 
       var vlist = "";
+      var latest_version = "";
       $(this).find("version").each(function(i,v){
           var comments = $(this).find("comments").text();
 
@@ -215,11 +216,13 @@ function update_links(){
 
           var link = "<a title='"+comments+"' href='"+link_url+"'>"+$(this).attr("name")+"</a>,&nbsp;";
           vlist += link;
+          latest_version = $(this).attr("name");
       });
       vlist = vlist.slice(0,-7);
 
       $(arow).attr("vlist",vlist);
       markers[$(arow).attr("index")][0].vlist = vlist;
+      markers[$(arow).attr("index")][0].latest_version = latest_version;
       var tmp = popup_message(markers[$(arow).attr("index")]);
       markers[$(arow).attr("index")][0]._popup.setContent(tmp);
     });
@@ -321,7 +324,22 @@ function parse_list(res){
 
 function popup_message(marker){
 
-  var msg = "<div><img class='pimg' alt='n/a' src='"+SETTINGS.basepath+"/"+marker[0].group+"/"+marker[0].name+"/thumb.jpeg' index='"+marker[0].index+"' ></img></div>";
+  var center = map.getCenter();
+  var zoom = map.getZoom();
+
+  var link_url = [
+    "viewer.html",
+    "?basepath="+SETTINGS.basepath,
+    "&group="+marker[0].group,
+    "&path="+marker[0].name,
+    "&ver="+marker[0].latest_version,
+    "&rating="+SETTINGS.rating,
+    "&lat="+center.lat.toFixed(8),
+    "&lng="+center.lng.toFixed(8),
+    "&zoom="+zoom
+  ].join("");
+
+  var msg = "<div><a href='"+link_url+"'><img class='pimg' alt='n/a' src='"+SETTINGS.basepath+"/"+marker[0].group+"/"+marker[0].name+"/thumb.jpeg' index='"+marker[0].index+"' ></img></a></div>";
 
   markers.forEach(function(c,i){
     if (marker[0].lat==c[0].lat){
@@ -381,6 +399,8 @@ function register_row_events(elem){
             // find all markers under this marker
             var tmp = popup_message(markers[index]);
             markers[index][0]._popup.setContent(tmp);
+            // autopan make popup always visible
+            markers[index][0]._popup.options.autoPan = false;
             markers[index][0].openPopup();
 
             $(".plist").each(function(i,c){
@@ -468,7 +488,7 @@ function init_maps(){
 
   var mbxurl1   = "https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.png?access_token="+mbxtoken;
   var mbxurl2   = "https://api.mapbox.com/v4/mapbox.pencil/{z}/{x}/{y}@2x.png?access_token="+mbxtoken;
-  
+
   var MBXTiles1 = L.tileLayer(mbxurl1,
     {
       maxZoom: 21,
@@ -482,7 +502,7 @@ function init_maps(){
       attribution: mapboxattr
     }
   );
-  
+
   if (mbxtoken==""){
     selected_layer = googleSat;
 
@@ -504,7 +524,7 @@ function init_maps(){
     };
 
   }
-  
+
   map = L.map('leaflet_map',{
     layers:[selected_layer],
     zoomControl:false,
