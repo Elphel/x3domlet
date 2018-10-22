@@ -262,6 +262,41 @@ Instructions:
     <div id='help-content'>
         <div>
             <h2>3D Scene + Map</h2>
+            <h3 style='color:rgba(200,200,255,1);'>3D navigation</h3>
+            <table>
+            <tr>
+                <td><b>mouse left button</b></td>
+                <td>look around</td>
+            </tr>
+            <tr>
+                <td><b>mouse right button</b></td>
+                <td>move camera forward/backward</td>
+            </tr>
+            <tr>
+                <td><b>mouse wheel (scroll)</b></td>
+                <td>
+                    <ul>
+                        <li>change field of view (= camera focal length)</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><b>mouse wheel (drag)</b></td>
+                <td>
+                    <ul>
+                        <li>move camera over its XY (= parallel shift)</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><b>r</b>-key</td>
+                <td>reset view (heading = initial, tilt = 0, roll = 0)</td>
+            </tr>
+            <tr>
+                <td><b>t</b>-key</td>
+                <td>reset view (heading = initial, tilt = initial, roll = 0)</td>
+            </tr>
+            </table>
             <h3 style='color:rgba(200,200,255,1);'>Comparing 3D model and Map (satellite imagery) measurements</h3>
             <ul>
                 <li>Place a marker in the 3D scene near the feature of interest. Drag the marker closer if needed.<br/>This will set the 3D model distance.</li>
@@ -300,24 +335,8 @@ Instructions:
                 <td><b>ctrl + left click</b></td>
                 <td>
                     <ul>
-                        <li>create markers, relative height = surface hitting point height</li>
-                        <li>remove markers</li>
-                    </ul>
-                </td>
-            </tr>
-            <tr>
-                <td><b>mouse wheel (scroll)</b></td>
-                <td>
-                    <ul>
-                        <li>change field of view (= camera focal length)</li>
-                    </ul>
-                </td>
-            </tr>
-            <tr>
-                <td><b>mouse wheel (drag)</b></td>
-                <td>
-                    <ul>
-                        <li>move camera over its XY (= parallel shift)</li>
+                        <li>create marker, relative height = surface hitting point height</li>
+                        <li>remove marker</li>
                     </ul>
                 </td>
             </tr>
@@ -329,14 +348,6 @@ Instructions:
                         <li>markers only</li>
                     </ul>
                 </td>
-            </tr>
-            <tr>
-                <td><b>r</b>-key</td>
-                <td>reset view (heading = initial, tilt = 0, roll = 0)</td>
-            </tr>
-            <tr>
-                <td><b>t</b>-key</td>
-                <td>reset view (heading = initial, tilt = initial, roll = 0)</td>
             </tr>
             <tr>
                 <td><button>Close</button></td>
