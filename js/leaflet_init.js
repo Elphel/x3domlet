@@ -190,6 +190,9 @@ LeafletObject.prototype.highlightMarker = function(index){
     this.marker._measureMarkers[index]._tooltip.bringToFront();
     this.marker._measureLines[index].setStyle(style).bringToFront();
 
+    // see x3dom_deltas.js
+    theLastMovedMarker = index;
+
 }
 
 LeafletObject.prototype.dehighlightMarker = function(index){
