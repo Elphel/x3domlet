@@ -406,7 +406,8 @@ numbers.calculus.GaussNewton_nD = function(v,n,r,dr,eps,w){
   var STEP_SIZE_LIMIT = 10
 
   var epsilon = eps || 1e-8
-  var limit = 50
+  //var limit = 50
+  var limit = 1000
 
   var stop = false
   var counter = 0
