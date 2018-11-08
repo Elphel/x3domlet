@@ -68,6 +68,10 @@ function align_init(){
     });
     */
 
+    $("#markers_delta_button").on("click",function(){
+        x3dom_delta_markers();
+    });
+
 }
 
 // position extra buttons
@@ -86,6 +90,13 @@ function align_position(){
       position:"absolute",
       top: pos.top+"px",
       left: -(2*(width+2))+"px"
+    });
+
+    // this is experimental and for testing
+    $("#markers_delta_button").css({
+      position:"absolute",
+      top: pos.top+"px",
+      left: -(3*(width+2))+"px"
     });
 
 }
@@ -425,10 +436,12 @@ function x3dom_align_hll3(){
     var mark = Data.markers[i];
     markers_csved += mark.align.latitude+","+mark.align.longitude+"\n";
   }
+  console.log("markers:");
   console.log(markers_csved);
 
   //print initial approximation
   var initial_csved = Data.camera.kml.latitude+","+Data.camera.kml.longitude;
+  console.log("initial position:");
   console.log(initial_csved);
 
   // print history
