@@ -532,7 +532,7 @@ X3DOMObject.prototype.createMarker = function(x,y,z,id){
       '    <transform translation="'+x+' '+y+' '+z+'" rotation="0 0 0 0">',
       '      <shape class="shapemarker">',
       '        <appearance>',
-      '          <material diffuseColor="'+color+'" transparency="0.0" myColor="'+color+'"></material>',
+      '          <material diffuseColor="'+color+'" transparency="0.3" myColor="'+color+'"></material>',
       '        </appearance>',
       '        <Sphere DEF="sphere" radius="'+size+'" />',
       '      </shape>',
