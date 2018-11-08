@@ -209,7 +209,8 @@ html, body, #x3d_wrapper {
 #download_button,
 #download_button_ml,
 #view_src_images_button,
-#extra_models_button{
+#extra_models_button,
+#markers_delta_button{
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: center;
@@ -254,6 +255,10 @@ html, body, #x3d_wrapper {
     background-image:url('images/ic_add_location_black_48dp_1x.png');
 }
 
+/*#markers_delta_button{
+    background-image:url('images/ic_horizon_black_48dp_1x.png');
+}*/
+
 #exit_button:hover{
     background-color: rgba(240,150,150,1);
 }
@@ -266,12 +271,12 @@ html, body, #x3d_wrapper {
 #download_button:hover,
 #download_button_ml:hover,
 #view_src_images_button:hover,
-#extra_models_button:hover{
+#extra_models_button:hover,
+#markers_delta_button:hover
+{
 /*     background-image:url('images/align.png'); */
     background-color: rgba(240,240,240,1);
 }
-
-
 
 .crosshair{
     background: rgba(50,200,50,0.5);
@@ -430,6 +435,15 @@ html, body, #x3d_wrapper {
 
 #download_button_ml{
     background-color: rgba(200,250,200,1);
+}
+
+#markers_delta_button{
+    background-image:url('images/ic_horizon_black_48dp_1x.png');
+    background-color: rgba(100,220,200,1);
+}
+
+#markers_delta_button{
+  display: block;
 }
 
 #align_button,
