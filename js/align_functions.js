@@ -270,10 +270,19 @@ function hll3_r_i(i,v){
   var f1 = hll_f_3d_i(i,[v[0],v[1],heading]);
   var f2 = hll_f_map_i(i,[v[0],v[1],heading]);
 
+  console.log("f1 vs f2 ==  start");
+  console.log("1: "+f1+" vs "+f2);
+
   f1 -= heading;
   f2 -= heading;
+
+  console.log("2: "+f1+" vs "+f2);
+
   f1 = bring_degrees_to_n180_180(f1);
   f2 = bring_degrees_to_n180_180(f2);
+
+  console.log("3: "+f1+" vs "+f2);
+  console.log("f1 vs f2 ==  stop");
 
   //return (f1-f2+360)%360;
   return (f1-f2);
