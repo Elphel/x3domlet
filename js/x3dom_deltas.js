@@ -28,7 +28,8 @@ function x3dom_delta_markers(){
   // E2: draw vertical ellipsoid
 
   // just a coefficient
-  var e2_k = 1/2;
+  //var e2_k = 1/2;
+  var e2_k = 1;
   var e2_abc = [e2_k*1,e2_k*30,e2_k*1];
   //var e2_scale = e2_abc.join(",");
   //x3dom_draw_ellipsoid("e2","green",e2_c.toString(),"",e2_scale);
@@ -38,7 +39,7 @@ function x3dom_delta_markers(){
     Ox: new x3dom.fields.SFVec3f(e2_abc[0],         0,         0),
     Oy: new x3dom.fields.SFVec3f(        0, e2_abc[1],         0),
     Oz: new x3dom.fields.SFVec3f(        0,         0, e2_abc[2])
-  },0.0);
+  },transparency=0.5);
 
   var RE2 = x3dom.fields.SFMatrix4f.identity();
   //RE2.setValue(xa,ya,za);
@@ -61,6 +62,9 @@ function x3dom_delta_markers(){
   //x3dom_draw_line("test4","royalblue", e2_c.add(za.multiply(e2_abc[2])), new x3dom.fields.SFVec3f(0,0,100));
 
 
+  $("#helper_line0").remove();
+  $("#helper_line1").remove();
+
   // e1 direction
   x3dom_draw_line("helper_line0","white", e1_c, new x3dom.fields.SFVec3f(0,0,0));
   // e1 direction from e2_c
@@ -70,7 +74,8 @@ function x3dom_delta_markers(){
   // E1: draw tilted ellipsoid
 
   var e1_d = x3dom_3d_distance(e1_c.x,e1_c.y,e1_c.z,false);
-  var e1_k = 20;
+  //var e1_k = 20;
+  var e1_k = 1;
   var e1_abc = [e1_k*0.00038*e1_d,e1_k*0.00038*e1_d,2*e1_k*e1_d*e1_d/10000];
 
   console.log("e1 abc: "+e1_abc.join(" "));
@@ -83,16 +88,6 @@ function x3dom_delta_markers(){
   var ya = xa.cross(e1_dir);
   var za = e1_dir.negate();
 
-  // need to normalize?
-  /*
-  xa = xa.normalize();
-  ya = ya.normalize();
-  za = za.normalize();
-  */
-
-  var R0 = Data.camera.Matrices.R0;
-  var R0i = R0.inverse();
-
   // next construct rotation matrix
   var RE1 = x3dom.fields.SFMatrix4f.identity();
   RE1.setValue(xa,ya,za);
@@ -104,7 +99,7 @@ function x3dom_delta_markers(){
     Ox: xa.multiply(e1_abc[0]),
     Oy: ya.multiply(e1_abc[1]),
     Oz: za.multiply(e1_abc[2])
-  },0.0);
+  },transparency=0.0);
 
   // now let's get to covariance matrix
   var JE1 = x3dom_ellipsoid_inertia_tensor_v2(1,e1_abc[0],e1_abc[1],e1_abc[2]);
@@ -117,6 +112,7 @@ function x3dom_delta_markers(){
   var C2 = RE2xJE2.mult(RE2xJE2.transpose());
 
   var C = C1.add(C2);
+  //var C = C1.add(C1);
 
   Cn = matrix_x3dom_to_numeric(C);
   Bn = numeric.eig(Cn);
@@ -143,7 +139,7 @@ function x3dom_delta_markers(){
     Ox: RE1n.e0().multiply(ee_a),
     Oy: RE1n.e1().multiply(ee_b),
     Oz: RE1n.e2().multiply(ee_c)
-  },0.5);
+  },transparency=0.5);
 
   return 0;
 
@@ -180,10 +176,14 @@ function x3dom_draw_ellipsoid_by_semiaxes_and_center(id,color,e,transparency=0.5
   var q = rotation.toAxisAngle();
   var q_str = q[0].toString()+" "+q[1];
 
+  $("#"+id+"_xa").remove();
+  $("#"+id+"_ya").remove();
+  $("#"+id+"_za").remove();
+
   // draw semi-axes
-  x3dom_draw_line("xa","red",   e.O, e.O.add(e.Ox));
-  x3dom_draw_line("ya","green", e.O, e.O.add(e.Oy));
-  x3dom_draw_line("za","blue",  e.O, e.O.add(e.Oz));
+  x3dom_draw_line(id+"_xa","red",   e.O, e.O.add(e.Ox));
+  x3dom_draw_line(id+"_ya","green", e.O, e.O.add(e.Oy));
+  x3dom_draw_line(id+"_za","blue",  e.O, e.O.add(e.Oz));
 
   x3dom_draw_ellipsoid(id,color,transl,q_str,scale,transparency);
 
