@@ -34,12 +34,14 @@ function x3dom_delta_markers(){
   //var e2_scale = e2_abc.join(",");
   //x3dom_draw_ellipsoid("e2","green",e2_c.toString(),"",e2_scale);
 
+  /*
   x3dom_draw_ellipsoid_by_semiaxes_and_center("e2","green",{
     O:  e2_c,
     Ox: new x3dom.fields.SFVec3f(e2_abc[0],         0,         0),
     Oy: new x3dom.fields.SFVec3f(        0, e2_abc[1],         0),
     Oz: new x3dom.fields.SFVec3f(        0,         0, e2_abc[2])
   },transparency=0.5);
+  */
 
   var RE2 = x3dom.fields.SFMatrix4f.identity();
   //RE2.setValue(xa,ya,za);
@@ -64,12 +66,14 @@ function x3dom_delta_markers(){
 
   $("#helper_line0").remove();
   $("#helper_line1").remove();
+  $("#helper_line3").remove();
 
   // e1 direction
-  x3dom_draw_line("helper_line0","white", e1_c, new x3dom.fields.SFVec3f(0,0,0));
+  //x3dom_draw_line("helper_line0","white", e1_c, new x3dom.fields.SFVec3f(0,0,0));
   // e1 direction from e2_c
-  x3dom_draw_line("helper_line1","white", e2_c.add(e1_c), e2_c.subtract(e1_c));
+  //x3dom_draw_line("helper_line1","white", e2_c.add(e1_c), e2_c.subtract(e1_c));
 
+  x3dom_draw_line("helper_line3","white", e1_c, e2_c);
 
   // E1: draw tilted ellipsoid
 
@@ -94,12 +98,14 @@ function x3dom_delta_markers(){
 
   console.log(RE1.toString());
 
+  /*
   x3dom_draw_ellipsoid_by_semiaxes_and_center("e1b","green",{
     O:  e2_c,
     Ox: xa.multiply(e1_abc[0]),
     Oy: ya.multiply(e1_abc[1]),
     Oz: za.multiply(e1_abc[2])
-  },transparency=0.0);
+  },transparency=0.5);
+  */
 
   // now let's get to covariance matrix
   var JE1 = x3dom_ellipsoid_inertia_tensor_v2(1,e1_abc[0],e1_abc[1],e1_abc[2]);
@@ -112,34 +118,64 @@ function x3dom_delta_markers(){
   var C2 = RE2xJE2.mult(RE2xJE2.transpose());
 
   var C = C1.add(C2);
+  // testing
   //var C = C1.add(C1);
 
   Cn = matrix_x3dom_to_numeric(C);
   Bn = numeric.eig(Cn);
 
-  console.log(Bn);
+  //console.log(Bn);
 
-  var ee_a = Math.sqrt(Bn.lambda.x[0]);
-  var ee_b = Math.sqrt(Bn.lambda.x[1]);
-  var ee_c = Math.sqrt(Bn.lambda.x[2]);
+  var es_a = Math.sqrt(Bn.lambda.x[0]);
+  var es_b = Math.sqrt(Bn.lambda.x[1]);
+  var es_c = Math.sqrt(Bn.lambda.x[2]);
 
-  console.log("e1 restored abc: "+[ee_a,ee_b,ee_c].join(" "));
+  console.log("e1 restored abc: "+[es_a,es_b,es_c].join(" "));
 
-  var RE1n = new x3dom.fields.SFMatrix4f(
+  var RES = new x3dom.fields.SFMatrix4f(
                Bn.E.x[0][0], Bn.E.x[0][1], Bn.E.x[0][2], 0,
                Bn.E.x[1][0], Bn.E.x[1][1], Bn.E.x[1][2], 0,
                Bn.E.x[2][0], Bn.E.x[2][1], Bn.E.x[2][2], 0,
-                          0,             0,           0, 1
+                          0,            0,            0, 1
              );
 
-  console.log(RE1n.toString());
+  console.log(RES.toString());
 
   x3dom_draw_ellipsoid_by_semiaxes_and_center("e1c","red",{
     O:  e2_c,
-    Ox: RE1n.e0().multiply(ee_a),
-    Oy: RE1n.e1().multiply(ee_b),
-    Oz: RE1n.e2().multiply(ee_c)
-  },transparency=0.5);
+    Ox: RES.e0().multiply(es_a),
+    Oy: RES.e1().multiply(es_b),
+    Oz: RES.e2().multiply(es_c)
+  },transparency=0.7);
+
+  // now get error:
+
+  // we have:
+  // 1. e1_c
+  // 2. RES and es_a, es_b, es_c
+
+  // RES x e1_c
+
+  var RESi = RES.inverse();
+
+  var E = RESi.multMatrixVec(e1_c.subtract(e2_c));
+
+  console.log("delta vector in ellipsoid:");
+  console.log(E.toString());
+
+  E = E.multComponents(new x3dom.fields.SFVec3f(1/es_a, 1/es_b, 1/es_c));
+
+  console.log(E.toString());
+  console.log(E.length()*E.length());
+
+  // scale the result ellipsoid so it with touch another marker
+  // and it did - it only tests that the scale is correct
+  x3dom_draw_ellipsoid_by_semiaxes_and_center("e1d","gold",{
+    O:  e2_c,
+    Ox: RES.e0().multiply(E.length()*es_a),
+    Oy: RES.e1().multiply(E.length()*es_b),
+    Oz: RES.e2().multiply(E.length()*es_c)
+  },transparency=0.7);
 
   return 0;
 
