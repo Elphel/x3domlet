@@ -166,7 +166,7 @@ function x3dom_delta_markers(){
   E = E.multComponents(new x3dom.fields.SFVec3f(1/es_a, 1/es_b, 1/es_c));
 
   console.log(E.toString());
-  console.log(E.length()*E.length());
+  console.log("E^2 from eigen: " +E.length()*E.length());
 
   // scale the result ellipsoid so it with touch another marker
   // and it did - it only tests that the scale is correct
@@ -176,6 +176,15 @@ function x3dom_delta_markers(){
     Oy: RES.e1().multiply(E.length()*es_b),
     Oz: RES.e2().multiply(E.length()*es_c)
   },transparency=0.7);
+
+  // alternative calculations where E^2 = delta^T x C^-1 x delta
+  var delta = e1_c.subtract(e2_c);
+  var Ci = C.inverse();
+
+  var Ci_x_delta = Ci.multMatrixVec(delta);
+  var E2 = delta.dot(Ci_x_delta);
+
+  console.log("E^2 from d^T x C^-1 x d: "+E2);
 
   return 0;
 
