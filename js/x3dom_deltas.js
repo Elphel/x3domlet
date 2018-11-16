@@ -12,20 +12,21 @@ function x3dom_delta_markers(){
 
   var Camera = Map.marker;
 
-  // calling this function
-  Av_f({
+  var marker_i = {
       map: { lat: marker.latitude, lng: marker.longitude, alt: marker.altitude},
       model: {x: marker.x, y: marker.y, z: marker.z}
-    },
-    {
+    };
+
+  var parameters = {
       lat:     Data.camera.kml.latitude,
       lng:     Data.camera.kml.longitude,
       alt:     Data.camera.kml.altitude,
       heading: Data.camera.kml.heading,
       tilt:    Data.camera.kml.tilt,
       roll:    Data.camera.kml.roll
-    }
-  );
+    };
+
+  var Error_vector = Av_f(marker_i,parameters);
 
   /*
   var e1_c = new x3dom.fields.SFVec3f(marker.x,marker.y,marker.z);
@@ -44,30 +45,60 @@ function x3dom_delta_markers(){
 
 function Av_f(mark,pars){
 
-  /*
+  var v = v_f(mark,pars);
+  var A = A_f(mark,pars);
+  var Av = A.multMatrixVec(v);
 
-  mark = {
-    map:{ lat: 0, lng: 0, alt: 0},
-    model:{ x: 0, y: 0, z: 0 }
-  }
+  return Av;
 
-  pars = {
-    lat: 0,
-    lng: 0,
-    alt: 0,
-    heading: 0,
-    tilt: 0,
-    roll: 0
-  }
+}
 
-  */
+function v_f(mark,pars){
 
-  /*
-   * 'WORLD' COORDINATE SYSTEM
-   * X - to North
-   * Y - to East
-   * Z - to Earth center
-   */
+  var e1_world = get_e1_w(mark,pars);
+  var e2_world = get_e2_w(mark,pars);
+  // pointing from model mark to map mark
+  var v = e1_world.subtract(e2_world);
+
+  return v;
+}
+
+// model to world (for debugging mainly)
+function get_e1_M2W(mark,pars){
+
+  var heading = pars.heading*Math.PI/180;
+  var tilt    = (pars.tilt-90)*Math.PI/180;
+  var roll    = pars.roll*Math.PI/180;
+
+  // Heading,Tilt,Roll
+  var Mh = x3dom.fields.SFMatrix4f.rotationZ(heading);
+  var Mt = x3dom.fields.SFMatrix4f.rotationY(tilt);
+  var Mr = x3dom.fields.SFMatrix4f.rotationX(roll);
+
+  // I'll need R'
+  var R = Mh.mult(Mt).mult(Mr);
+  // T is constant
+  var T = x3dom_toYawPitchRoll();
+
+  var M2W = R.mult(T);
+
+  return M2W;
+}
+
+// get ellipse 1 in world coordinates
+function get_e1_w(mark,pars){
+
+  var M2W = get_e1_M2W(mark,pars);
+  var W2M = M2W.inverse();
+
+  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
+  var e1_world = M2W.multMatrixVec(e1_model);
+
+  return e1_world;
+}
+
+// get ellipse 2 in world coordinates
+function get_e2_w(mark,pars){
 
   var p0_ll = new L.LatLng(pars.lat, pars.lng);
   var p1_ll = new L.LatLng(mark.map.lat, mark.map.lng);
@@ -92,58 +123,28 @@ function Av_f(mark,pars){
 
   var e2_world = new x3dom.fields.SFVec3f(dx,dy,dz);
 
-  console.log("MARK-on-MAP in WORLD:   "+e2_world.toString());
+  return e2_world;
 
-  var heading = pars.heading*Math.PI/180;
-  var tilt    = (pars.tilt-90)*Math.PI/180;
-  var roll    = pars.roll*Math.PI/180;
+}
 
-  // Heading,Tilt,Roll
-  var Mh = x3dom.fields.SFMatrix4f.rotationZ(heading);
-  var Mt = x3dom.fields.SFMatrix4f.rotationY(tilt);
-  var Mr = x3dom.fields.SFMatrix4f.rotationX(roll);
+function A_f(mark,pars){
 
-  // I'll need R'
-  var R = Mh.mult(Mt).mult(Mr);
-  // T is constant
-  var T = x3dom_toYawPitchRoll();
+  var e1_world = get_e1_w(mark,pars);
+  var e2_world = get_e2_w(mark,pars);
+  var M2W = get_e1_M2W(mark,pars);
+  var W2M = M2W.inverse();
 
-  var M2W = R.mult(T);
-  var W2M = R.mult(T).inverse();
-
-  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
-  var e1_world = M2W.multMatrixVec(e1_model);
-
-  var e2_model = W2M.multMatrixVec(e2_world);
-
-  //x3dom_draw_line("soup0","white", new x3dom.fields.SFVec3f(0,0,0), e1_model);
-  //x3dom_draw_line("soup1","white", new x3dom.fields.SFVec3f(0,0,0), e2_model);
-  //x3dom_draw_line("soup2","white", e1_model, e2_model);
-
-  // world axes are correct - verified
-  //x3dom_draw_line("soup0","red",   e1_model, e1_model.add(W2M.multMatrixVec(new x3dom.fields.SFVec3f(10,0,0))));
-  //x3dom_draw_line("soup1","green", e1_model, e1_model.add(W2M.multMatrixVec(new x3dom.fields.SFVec3f(0,10,0))));
-  //x3dom_draw_line("soup2","blue",  e1_model, e1_model.add(W2M.multMatrixVec(new x3dom.fields.SFVec3f(0,0,10))));
-
-  console.log("MARK-on-MODEL in WORLD: "+e1_world.toString());
-
-  // pointing from model mark to map mark
-  var v = e1_world.subtract(e2_world);
-
-  // Need to find A
-
-  // point in Model
-  // from 0,0,0
+  // e1 depends on distance
   var e1_d = x3dom_3d_distance(e1_world.x,e1_world.y,e1_world.z,false);
-  //var e1_k = 20;
-  var e1_k = 1;
-  var e1_abc = [e1_k*0.00038*e1_d, e1_k*0.00038*e1_d, 2*e1_k*e1_d*e1_d/10000];
-  //var e1_abc = [e1_k*0.00038*e1_d, e1_k*0.00038*e1_d, e1_k*e1_d*e1_d/25000];
+  var e1_k = 20;
+  //var e1_k = 1;
+  // less precise
+  //var e1_abc = [e1_k*0.00038*e1_d, e1_k*0.00038*e1_d, e1_k*e1_d*e1_d/10000];
+  // more precise
+  var e1_abc = [e1_k*0.00038*e1_d, e1_k*0.00038*e1_d, e1_k*e1_d*e1_d/25000];
 
+  // build a right basis
   var e1_dir = e1_world.normalize();
-
-  // -z look upwards in world coordinates
-  //var xa1 = e1_dir.cross(new x3dom.fields.SFVec3f(0,0,-1));
   var xa1 = e1_dir.cross(new x3dom.fields.SFVec3f(0,1,0));
   var ya1 = xa1.cross(e1_dir);
   var za1 = e1_dir.negate();
@@ -157,11 +158,11 @@ function Av_f(mark,pars){
   },transparency=0.5);
   */
 
-
+  // e1 ref system
   var RE1 = x3dom.fields.SFMatrix4f.identity();
   RE1.setValue(xa1,ya1,za1);
-  // and so RE1 is in the world coordinates
 
+  // e2 depens on the map
   var e2_k = 1;
   var e2_abc = [e2_k*1,e2_k*1,e2_k*30];
 
@@ -178,8 +179,10 @@ function Av_f(mark,pars){
   },transparency=0.5);
   */
 
+  // e2 ref system
   // it's vertical in the WORLD
   var RE2 = x3dom.fields.SFMatrix4f.identity();
+
 
   // now let's get to covariance matrix
   var JE1 = x3dom_ellipsoid_inertia_tensor_v2(1,e1_abc[0],e1_abc[1],e1_abc[2]);
@@ -211,8 +214,6 @@ function Av_f(mark,pars){
                vec0.z, vec1.z, vec2.z, 0,
                     0,      0,      0, 1
              );
-  //RESmatrix = RESmatrix.transpose();
-
   var RESaxes = new x3dom.fields.SFMatrix4f(
                es_a,    0,    0, 0,
                   0, es_b,    0, 0,
@@ -220,28 +221,26 @@ function Av_f(mark,pars){
                   0,    0,    0, 1
              );
 
-  var A = RESaxes.inverse().mult(RESmatrix.transpose());
-
+  /*
   x3dom_draw_ellipsoid_by_semiaxes_and_center("ec1","red",{
     O:  W2M.multMatrixVec(e2_world),
     Ox: W2M.multMatrixVec(RESmatrix.transpose().e0().multiply(es_a)),
     Oy: W2M.multMatrixVec(RESmatrix.transpose().e1().multiply(es_b)),
     Oz: W2M.multMatrixVec(RESmatrix.transpose().e2().multiply(es_c))
   },transparency=0.8);
+  */
 
-  // and so, the error vector is E=Av
-  var Av = A.multMatrixVec(v);
-  // draw the vector
-  x3dom_draw_line("err0","gold", e1_model, e1_model.add(W2M.multMatrixVec(Av)));
+  var A = RESaxes.inverse().mult(RESmatrix.transpose());
+  return A;
 
-  // Is it correct? The direction seems right for close and far objects
-
-  // return vector
-  return Av;
 }
 
 function Av_df_dx(){
+
   console.log("Welcome to dAv/dx");
+
+  //dE =
+
 };
 
 /*
