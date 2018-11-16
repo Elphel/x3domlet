@@ -1,5 +1,48 @@
 
-function Av_func(mark,pars){
+var theLastMovedMarker = null;
+
+function x3dom_delta_markers(){
+
+  // what's the last dragged marker? (over map?)
+  // see leaflet_init.js
+  var index = theLastMovedMarker;
+
+  var marker = Data.markers[index];
+  console.log(marker);
+
+  var Camera = Map.marker;
+
+  // calling this function
+  Av_f({
+      map: { lat: marker.latitude, lng: marker.longitude, alt: marker.altitude},
+      model: {x: marker.x, y: marker.y, z: marker.z}
+    },
+    {
+      lat:     Data.camera.kml.latitude,
+      lng:     Data.camera.kml.longitude,
+      alt:     Data.camera.kml.altitude,
+      heading: Data.camera.kml.heading,
+      tilt:    Data.camera.kml.tilt,
+      roll:    Data.camera.kml.roll
+    }
+  );
+
+  /*
+  var e1_c = new x3dom.fields.SFVec3f(marker.x,marker.y,marker.z);
+  x3dom_draw_line("x0","red",   e1_c, e1_c.add(new x3dom.fields.SFVec3f(50, 0, 0)));
+  x3dom_draw_line("y0","green", e1_c, e1_c.add(new x3dom.fields.SFVec3f( 0,50, 0)));
+  x3dom_draw_line("z0","blue",  e1_c, e1_c.add(new x3dom.fields.SFVec3f( 0, 0,50)));
+
+  x3dom_draw_line("x1","red",   new x3dom.fields.SFVec3f(0,0,0), new x3dom.fields.SFVec3f(50, 0, 0));
+  x3dom_draw_line("y1","green", new x3dom.fields.SFVec3f(0,0,0), new x3dom.fields.SFVec3f( 0,50, 0));
+  x3dom_draw_line("z1","blue",  new x3dom.fields.SFVec3f(0,0,0), new x3dom.fields.SFVec3f( 0, 0,50));
+  */
+
+  return 0;
+
+}
+
+function Av_f(mark,pars){
 
   /*
 
@@ -193,52 +236,13 @@ function Av_func(mark,pars){
 
   // Is it correct? The direction seems right for close and far objects
 
-  //
-
+  // return vector
+  return Av;
 }
 
-var theLastMovedMarker = null;
-
-function x3dom_delta_markers(){
-
-  // what's the last dragged marker? (over map?)
-  // see leaflet_init.js
-  var index = theLastMovedMarker;
-
-  var marker = Data.markers[index];
-  console.log(marker);
-
-  var Camera = Map.marker;
-
-  // calling this function
-  Av_func({
-      map: { lat: marker.latitude, lng: marker.longitude, alt: marker.altitude},
-      model: {x: marker.x, y: marker.y, z: marker.z}
-    },
-    {
-      lat:     Data.camera.kml.latitude,
-      lng:     Data.camera.kml.longitude,
-      alt:     Data.camera.kml.altitude,
-      heading: Data.camera.kml.heading,
-      tilt:    Data.camera.kml.tilt,
-      roll:    Data.camera.kml.roll
-    }
-  );
-
-  /*
-  var e1_c = new x3dom.fields.SFVec3f(marker.x,marker.y,marker.z);
-  x3dom_draw_line("x0","red",   e1_c, e1_c.add(new x3dom.fields.SFVec3f(50, 0, 0)));
-  x3dom_draw_line("y0","green", e1_c, e1_c.add(new x3dom.fields.SFVec3f( 0,50, 0)));
-  x3dom_draw_line("z0","blue",  e1_c, e1_c.add(new x3dom.fields.SFVec3f( 0, 0,50)));
-
-  x3dom_draw_line("x1","red",   new x3dom.fields.SFVec3f(0,0,0), new x3dom.fields.SFVec3f(50, 0, 0));
-  x3dom_draw_line("y1","green", new x3dom.fields.SFVec3f(0,0,0), new x3dom.fields.SFVec3f( 0,50, 0));
-  x3dom_draw_line("z1","blue",  new x3dom.fields.SFVec3f(0,0,0), new x3dom.fields.SFVec3f( 0, 0,50));
-  */
-
-  return 0;
-
-}
+function Av_df_dx(){
+  console.log("Welcome to dAv/dx");
+};
 
 /*
  e is an object
