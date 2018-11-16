@@ -1586,6 +1586,8 @@ X3DOMObject.createNewMarker = function(x,y,z){
   // Update marker in Data
   mark.latitude = map_mark._latlng.lat;
   mark.longitude = map_mark._latlng.lng;
+  // used to be zero, but now it's not zero
+  mark.altitude = Data.camera.kml.altitude+xyz_real.y;
 
   // register events for a new marker in Data
   X3DOMObject.MapMarker.registerEvents(map_mark);
