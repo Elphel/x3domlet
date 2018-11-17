@@ -53,80 +53,6 @@ function Av_f(mark,pars){
 
 }
 
-function v_f(mark,pars){
-
-  var e1_world = get_e1_w(mark,pars);
-  var e2_world = get_e2_w(mark,pars);
-  // pointing from model mark to map mark
-  var v = e1_world.subtract(e2_world);
-
-  return v;
-}
-
-// model to world (for debugging mainly)
-function get_e1_M2W(mark,pars){
-
-  var heading = pars.heading*Math.PI/180;
-  var tilt    = (pars.tilt-90)*Math.PI/180;
-  var roll    = pars.roll*Math.PI/180;
-
-  // Heading,Tilt,Roll
-  var Mh = x3dom.fields.SFMatrix4f.rotationZ(heading);
-  var Mt = x3dom.fields.SFMatrix4f.rotationY(tilt);
-  var Mr = x3dom.fields.SFMatrix4f.rotationX(roll);
-
-  // I'll need R'
-  var R = Mh.mult(Mt).mult(Mr);
-  // T is constant
-  var T = x3dom_toYawPitchRoll();
-
-  var M2W = R.mult(T);
-
-  return M2W;
-}
-
-// get ellipse 1 in world coordinates
-function get_e1_w(mark,pars){
-
-  var M2W = get_e1_M2W(mark,pars);
-  var W2M = M2W.inverse();
-
-  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
-  var e1_world = M2W.multMatrixVec(e1_model);
-
-  return e1_world;
-}
-
-// get ellipse 2 in world coordinates
-function get_e2_w(mark,pars){
-
-  var p0_ll = new L.LatLng(pars.lat, pars.lng);
-  var p1_ll = new L.LatLng(mark.map.lat, mark.map.lng);
-
-  // get coordinates of marker in real world coorinates
-  // the world is
-  var pi_ll = new L.LatLng(p0_ll.lat, p1_ll.lng);
-
-  // will need derivatives from this distanceTo
-  var dx = pi_ll.distanceTo(p1_ll);
-  var dy = p0_ll.distanceTo(pi_ll);
-  var dz = (mark.map.alt-pars.alt)*(-1);
-
-  // sign
-  if (p1_ll.lng<p0_ll.lng) dy = -dy;
-  if (p1_ll.lat<p0_ll.lat) dx = -dx;
-
-  // dx,dy,dz - coorinates map marker in 'world' coordinates
-  // with the center in p0
-  //
-  // which is ellipse 2 e2.
-
-  var e2_world = new x3dom.fields.SFVec3f(dx,dy,dz);
-
-  return e2_world;
-
-}
-
 function A_f(mark,pars){
 
   var e1_world = get_e1_w(mark,pars);
@@ -234,6 +160,164 @@ function A_f(mark,pars){
   return A;
 
 }
+
+function v_f(mark,pars){
+
+  var e1_world = get_e1_w(mark,pars);
+  var e2_world = get_e2_w(mark,pars);
+  // pointing from model mark to map mark
+  var v = e1_world.subtract(e2_world);
+
+  return v;
+}
+
+// rads per degree
+var RPD = Math.PI/180;
+
+// v derivatives
+
+function dv_lat(mark,pars){
+
+  // dv = de1 - de2, where de1==0
+  // dv = -de2
+
+  //var dlat = p2_ll.lat-p1_ll.lat;
+  //var dlon = p2_ll.lng-p1_ll.lng;
+  //var dy = Math.sin(dlon)*Math.cos(p2_ll.lat);
+  //var dx = Math.cos(p1_ll.lat)*Math.sin(p2_ll.lat)-Math.sin(p1_ll.lat)*Math.cos(p2_ll.lat)*Math.cos(dlon);
+
+  //
+  var p0_ll = new L.LatLng(pars.lat, pars.lng);
+  var p1_ll = new L.LatLng(mark.map.lat, mark.map.lng);
+
+  //var Earth = 6371000;
+  // take from leaflet
+  var Earth = L.CRS.Earth.R;
+
+
+
+}
+
+function dv_heading(mark,pars){
+
+  // dv = de1 - de2, where de2==0
+  var heading = pars.heading*RPD;
+  var tilt    = (pars.tilt-90)*RPD;
+  var roll    = pars.roll*RPD;
+
+  var M = dHTR(heading,tilt,roll);
+  var T = x3dom_toYawPitchRoll();
+
+  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
+
+  var dv_heading = M.mult(T).multMatrixVec(e1_model).multiply(RPD);
+  return dv_heading;
+
+}
+
+function dv_tilt(mark,pars){
+
+  // dv = de1
+  var heading = pars.heading*RPD;
+  var tilt    = (pars.tilt-90)*RPD;
+  var roll    = pars.roll*RPD;
+
+  var M = HdTR(heading,tilt,roll);
+  var T = x3dom_toYawPitchRoll();
+
+  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
+
+  var dv_tilt = M.mult(T).multMatrixVec(e1_model).multiply(RPD);
+  return dv_tilt;
+
+}
+
+function dv_roll(mark,pars){
+
+  // dv = de1
+  var heading = pars.heading*RPD;
+  var tilt    = (pars.tilt-90)*RPD;
+  var roll    = pars.roll*RPD;
+
+  var M = HTdR(heading,tilt,roll);
+  var T = x3dom_toYawPitchRoll();
+
+  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
+
+  var dv_roll = M.mult(T).multMatrixVec(e1_model).multiply(RPD);
+  return dv_roll;
+
+}
+
+
+
+
+// BASIC FUNCTIONS and DERIVATIVES
+
+// model to world (for debugging mainly)
+function get_e1_M2W(mark,pars){
+
+  var heading = pars.heading*RPD;
+  var tilt    = (pars.tilt-90)*RPD;
+  var roll    = pars.roll*RPD;
+
+  // Heading,Tilt,Roll
+  var Mh = x3dom.fields.SFMatrix4f.rotationZ(heading);
+  var Mt = x3dom.fields.SFMatrix4f.rotationY(tilt);
+  var Mr = x3dom.fields.SFMatrix4f.rotationX(roll);
+
+  // I'll need R'
+  var R = Mh.mult(Mt).mult(Mr);
+  // T is constant
+  var T = x3dom_toYawPitchRoll();
+
+  var M2W = R.mult(T);
+
+  return M2W;
+}
+
+// get ellipse 1 in world coordinates
+function get_e1_w(mark,pars){
+
+  var M2W = get_e1_M2W(mark,pars);
+  var W2M = M2W.inverse();
+
+  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
+  var e1_world = M2W.multMatrixVec(e1_model);
+
+  return e1_world;
+}
+
+// get ellipse 2 in world coordinates
+function get_e2_w(mark,pars){
+
+  var p0_ll = new L.LatLng(pars.lat, pars.lng);
+  var p1_ll = new L.LatLng(mark.map.lat, mark.map.lng);
+
+  // get coordinates of marker in real world coorinates
+  // the world is
+  var pi_ll = new L.LatLng(p0_ll.lat, p1_ll.lng);
+
+  // will need derivatives from this distanceTo
+  var dx = pi_ll.distanceTo(p1_ll);
+  var dy = p0_ll.distanceTo(pi_ll);
+  var dz = (mark.map.alt-pars.alt)*(-1);
+
+  // sign
+  if (p1_ll.lng<p0_ll.lng) dy = -dy;
+  if (p1_ll.lat<p0_ll.lat) dx = -dx;
+
+  // dx,dy,dz - coorinates map marker in 'world' coordinates
+  // with the center in p0
+  //
+  // which is ellipse 2 e2.
+
+  var e2_world = new x3dom.fields.SFVec3f(dx,dy,dz);
+
+  return e2_world;
+
+}
+
 
 function Av_df_dx(){
 
@@ -397,13 +481,103 @@ function matrix_x3dom_to_numeric(m){
 
 }
 
+// for rotation matrices
 
+function Rx(a){
 
+    return new x3dom.fields.SFMatrix4f(
+      1,           0,            0, 0,
+      0, Math.cos(a), -Math.sin(a), 0,
+      0, Math.sin(a),  Math.cos(a), 0,
+      0,           0,            0, 1
+    );
 
+}
 
+function Ry(a){
 
+    return new x3dom.fields.SFMatrix4f(
+       Math.cos(a),  0, Math.sin(a), 0,
+                 0,  1,           0, 0,
+      -Math.sin(a),  0, Math.cos(a), 0,
+                 0,  0,           0, 1
+    );
 
+}
 
+function Rz(a){
+
+    return new x3dom.fields.SFMatrix4f(
+          Math.cos(a), -Math.sin(a), 0, 0,
+          Math.sin(a),  Math.cos(a), 0, 0,
+                    0,            0, 1, 0,
+                    0,            0, 0, 1
+    );
+
+}
+
+function dRx(a){
+
+    return new x3dom.fields.SFMatrix4f(
+      1,           0,             0, 0,
+      0, -Math.sin(a), -Math.cos(a), 0,
+      0,  Math.cos(a), -Math.sin(a), 0,
+      0,           0,             0, 1
+    );
+
+}
+
+function dRy(a){
+
+    return new x3dom.fields.SFMatrix4f(
+      -Math.sin(a),  0,  Math.cos(a), 0,
+                 0,  1,            0, 0,
+      -Math.cos(a),  0, -Math.sin(a), 0,
+                 0,  0,            0, 1
+    );
+
+}
+
+function dRz(a){
+
+    return new x3dom.fields.SFMatrix4f(
+          -Math.sin(a), -Math.cos(a), 0, 0,
+           Math.cos(a), -Math.sin(a), 0, 0,
+                    0,             0, 1, 0,
+                    0,             0, 0, 1
+    );
+
+}
+
+function dHTR(h,t,r){
+
+  var m1 = dRz(h);
+  var m2 = Ry(t);
+  var m3 = Rx(r);
+
+  return m1.mult(m2).mult(m3);
+
+}
+
+function HdTR(h,t,r){
+
+  var m1 = Rz(h);
+  var m2 = dRy(t);
+  var m3 = Rx(r);
+
+  return m1.mult(m2).mult(m3);
+
+}
+
+function HTdR(h,t,r){
+
+  var m1 = Rz(h);
+  var m2 = Ry(t);
+  var m3 = dRx(r);
+
+  return m1.mult(m2).mult(m3);
+
+}
 
 
 
