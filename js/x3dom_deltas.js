@@ -26,7 +26,19 @@ function x3dom_delta_markers(){
       roll:    Data.camera.kml.roll
     };
 
-  var Error_vector = Av_f(marker_i,parameters);
+  var Error_vector = get_E(marker_i,parameters);
+
+
+  var C = get_C(marker_i,parameters);
+  var Ci = C.inverse();
+
+  var A = get_A(marker_i,parameters);
+
+  var AtA = A.transpose().mult(A);
+
+  console.log("Test: C^-1 = AtA ?");
+  console.log("Ci: "+Ci.toString());
+  console.log("AtA: "+AtA.toString());
 
   /*
   var e1_c = new x3dom.fields.SFVec3f(marker.x,marker.y,marker.z);
@@ -43,23 +55,26 @@ function x3dom_delta_markers(){
 
 }
 
-function Av_f(mark,pars){
+function get_E(mark,pars){
 
-  var v = v_f(mark,pars);
-  var A = A_f(mark,pars);
+  var v = get_v(mark,pars);
+  var A = get_A(mark,pars);
   var Av = A.multMatrixVec(v);
 
   return Av;
 
 }
 
+
+
+// J1
 function get_JE1(mark,pars){
 
   var e1_world = get_e1_w(mark,pars);
 
   var e1_d = x3dom_3d_distance(e1_world.x,e1_world.y,e1_world.z,false);
   // multiplier for debugging
-  var e1_k = 1;
+  var e1_k = 40;
   // less precise
   //var e1_abc = [e1_k*0.00038*e1_d, e1_k*0.00038*e1_d, e1_k*e1_d*e1_d/10000];
   // more precise
@@ -70,6 +85,7 @@ function get_JE1(mark,pars){
 
 }
 
+// R1
 function get_RE1(mark,pars){
 
   var e1_world = get_e1_w(mark,pars);
@@ -89,9 +105,11 @@ function get_RE1(mark,pars){
 
 }
 
+// J2
 function get_JE2(mark,pars){
 
   // e2 depens on the map
+  // multiplier for debugging
   var e2_k = 1;
   var e2_abc = [e2_k*1,e2_k*1,e2_k*30];
 
@@ -101,6 +119,7 @@ function get_JE2(mark,pars){
 
 }
 
+// R2
 function get_RE2(mark,pars){
 
   var RE2 = x3dom.fields.SFMatrix4f.identity();
@@ -116,12 +135,39 @@ function get_C(mark,pars){
   var JE2 = get_JE2(mark,pars);
   var RE2 = get_RE2(mark,pars);
 
+
+  // debugging
+  var e2_world = get_e2_w(mark,pars);
+  var M2W = get_e1_M2W(mark,pars);
+  var W2M = M2W.inverse();
+
+  x3dom_draw_ellipsoid_by_semiaxes_and_center("e1","orange",{
+    O:  W2M.multMatrixVec(e2_world),
+    Ox: W2M.multMatrixVec(RE1.e0().multiply(JE1._00)),
+    Oy: W2M.multMatrixVec(RE1.e1().multiply(JE1._11)),
+    Oz: W2M.multMatrixVec(RE1.e2().multiply(JE1._22))
+  },transparency=0.3);
+
+  x3dom_draw_ellipsoid_by_semiaxes_and_center("e2","orange",{
+    O:  W2M.multMatrixVec(e2_world),
+    Ox: W2M.multMatrixVec(RE2.e0().multiply(JE2._00)),
+    Oy: W2M.multMatrixVec(RE2.e1().multiply(JE2._11)),
+    Oz: W2M.multMatrixVec(RE2.e2().multiply(JE2._22))
+  },transparency=0.3);
+
   // now let's get to covariance matrix
   var RE1xJE1 = RE1.mult(JE1);
   var RE2xJE2 = RE2.mult(JE2);
 
   var C1 = RE1xJE1.mult(RE1xJE1.transpose());
   var C2 = RE2xJE2.mult(RE2xJE2.transpose());
+
+  //console.log(C1);
+  //console.log(C1.toString());
+
+  //console.log(C2);
+  //console.log(C2.toString());
+
   var C = C1.add(C2);
   //var C = C1.add(C1);
   //var C = C2.add(C2);
@@ -144,14 +190,14 @@ function get_dC(mark,pars){
 function get_A(mark,pars){
 
   var  C =  get_C(mark,pars);
-  var dC = get_dC(mark,pars);
+  //var dC = get_dC(mark,pars);
 
   Cn = matrix_x3dom_to_numeric(C);
   Bn = numeric.eig(Cn);
 
-  var a = Math.sqrt(Bn.lambda.x[0]);
-  var b = Math.sqrt(Bn.lambda.x[1]);
-  var c = Math.sqrt(Bn.lambda.x[2]);
+  var a = Bn.lambda.x[0];
+  var b = Bn.lambda.x[1];
+  var c = Bn.lambda.x[2];
 
   var sa = Math.sqrt(a);
   var sb = Math.sqrt(b);
@@ -178,6 +224,30 @@ function get_A(mark,pars){
   var Ji = J.inverse();
 
   var JiR = Ji.mult(R);
+
+  var e2_world = get_e2_w(mark,pars);
+  var M2W = get_e1_M2W(mark,pars);
+  var W2M = M2W.inverse();
+
+  x3dom_draw_ellipsoid_by_semiaxes_and_center("ec1","red",{
+    O:  W2M.multMatrixVec(e2_world),
+    Ox: W2M.multMatrixVec(R.transpose().e0().multiply(sa)),
+    Oy: W2M.multMatrixVec(R.transpose().e1().multiply(sb)),
+    Oz: W2M.multMatrixVec(R.transpose().e2().multiply(sc))
+  },transparency=0.6);
+
+  console.log("Eigen test:");
+  console.log("C = RAR^-1: "+C.toString());
+  console.log("A: "+J.mult(J).toString());
+
+  // incorrect
+  var T1 = R.mult(J).mult(J).mult(R.inverse());
+  // That's how it got decomposed:
+  var T2 = R.transpose().mult(J).mult(J).mult(R);
+  //var T1 = R.mult(J).mult(J).mult(J).mult(J).mult(R.inverse());
+
+  //console.log("T1: "+T1.toString());
+  //console.log("T2: "+T2.toString());
 
   return JiR;
 
@@ -268,8 +338,8 @@ function get_dE(mark,pars){
   var A  = get_A(mark,pars);
   var dA = get_dA(mark,pars);
 
-  var v  = v_f(mark,pars);
-  var dv = dv_f(mark,pars);
+  var v  = get_v(mark,pars);
+  var dv = get_dv(mark,pars);
 
   var p1 =  A.multMatrixVec(dv);
   var p2 = dA.multMatrixVec(v);
@@ -279,81 +349,7 @@ function get_dE(mark,pars){
 
 }
 
-function A_f(mark,pars){
-
-  /*
-  var e1_world = get_e1_w(mark,pars);
-  var e2_world = get_e2_w(mark,pars);
-  var M2W = get_e1_M2W(mark,pars);
-  var W2M = M2W.inverse();
-  */
-
-  /*
-  x3dom_draw_ellipsoid_by_semiaxes_and_center("e1","green",{
-    O:  W2M.multMatrixVec(e2_world),
-    Ox: W2M.multMatrixVec(xa1.multiply(e1_abc[0])),
-    Oy: W2M.multMatrixVec(ya1.multiply(e1_abc[1])),
-    Oz: W2M.multMatrixVec(za1.multiply(e1_abc[2]))
-  },transparency=0.5);
-  */
-
-  /*
-  var xa2 = new x3dom.fields.SFVec3f(e2_abc[0],         0,         0);
-  var ya2 = new x3dom.fields.SFVec3f(        0, e2_abc[1],         0);
-  var za2 = new x3dom.fields.SFVec3f(        0,         0, e2_abc[2]);
-
-  x3dom_draw_ellipsoid_by_semiaxes_and_center("e2","green",{
-    O:  W2M.multMatrixVec(e2_world),
-    Ox: W2M.multMatrixVec(xa2),
-    Oy: W2M.multMatrixVec(ya2),
-    Oz: W2M.multMatrixVec(za2)
-  },transparency=0.5);
-  */
-
-  // e2 ref system
-  // it's vertical in the WORLD
-
-  var C = get_C(mark,pars);
-
-  Cn = matrix_x3dom_to_numeric(C);
-  Bn = numeric.eig(Cn);
-
-  var es_a = Math.sqrt(Bn.lambda.x[0]);
-  var es_b = Math.sqrt(Bn.lambda.x[1]);
-  var es_c = Math.sqrt(Bn.lambda.x[2]);
-
-  var vec0 = new x3dom.fields.SFVec3f(Bn.E.x[0][0],Bn.E.x[0][1],Bn.E.x[0][2]);
-  var vec1 = new x3dom.fields.SFVec3f(Bn.E.x[1][0],Bn.E.x[1][1],Bn.E.x[1][2]);
-  var vec2 = new x3dom.fields.SFVec3f(Bn.E.x[2][0],Bn.E.x[2][1],Bn.E.x[2][2]);
-
-  var RESmatrix = new x3dom.fields.SFMatrix4f(
-               vec0.x, vec1.x, vec2.x, 0,
-               vec0.y, vec1.y, vec2.y, 0,
-               vec0.z, vec1.z, vec2.z, 0,
-                    0,      0,      0, 1
-             );
-  var RESaxes = new x3dom.fields.SFMatrix4f(
-               es_a,    0,    0, 0,
-                  0, es_b,    0, 0,
-                  0,    0, es_c, 0,
-                  0,    0,    0, 1
-             );
-
-  /*
-  x3dom_draw_ellipsoid_by_semiaxes_and_center("ec1","red",{
-    O:  W2M.multMatrixVec(e2_world),
-    Ox: W2M.multMatrixVec(RESmatrix.transpose().e0().multiply(es_a)),
-    Oy: W2M.multMatrixVec(RESmatrix.transpose().e1().multiply(es_b)),
-    Oz: W2M.multMatrixVec(RESmatrix.transpose().e2().multiply(es_c))
-  },transparency=0.8);
-  */
-
-  var A = RESaxes.inverse().mult(RESmatrix.transpose());
-  return A;
-
-}
-
-function v_f(mark,pars){
+function get_v(mark,pars){
 
   var e1_world = get_e1_w(mark,pars);
   var e2_world = get_e2_w(mark,pars);
@@ -361,6 +357,12 @@ function v_f(mark,pars){
   var v = e1_world.subtract(e2_world);
 
   return v;
+}
+
+function get_dv(mark,pars){
+
+  return new x3dom.fields.SFVec3f(0,0,0);
+
 }
 
 // rads per degree
