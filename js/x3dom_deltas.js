@@ -28,17 +28,28 @@ function x3dom_delta_markers(){
 
   var Error_vector = get_E(marker_i,parameters);
 
+  /*
+  var h = 12;
+  var t = 30;
+  var r = 71;
+  // RtR' testing
+  var m1 = Rz(h);
+  var m2 = Ry(t);
+  var m3 = Rx(r);
+  var MX1 = m1.mult(m2).mult(m3);
+  var dm3 = dRx(r);
+  var MX2 = m1.mult(m2).mult(dm3);
+  var RES = MX1.transpose().mult(MX2);
+  console.log("ROTATION DERIVATIVE: "+RES.toString());
+  */
 
   var dx = 1;
 
-  var nd = nd_E_heading(marker_i,parameters,0.00001);
+  var nd = nd_E_heading(marker_i,parameters,100*Number.EPSILON);
   console.log("Numerical dE/dh (vector) = "+nd.toString());
 
   var ad = ad_E_heading(marker_i,parameters);
   console.log("Analytical dE/dh (vector) = "+ad.toString());
-
-  var ad2 = ad2_E_heading(marker_i,parameters);
-  console.log("Analytical2 dE/dh (vector) = "+ad2.toString());
 
   var C = get_C(marker_i,parameters);
   var Ci = C.inverse();
@@ -82,27 +93,6 @@ function get_E(mark,pars){
 function ad_E_heading(mark,pars){
 
   var A  = get_A(mark,pars);
-  var dA = dA_heading(mark,pars);
-  var v  = get_v(mark,pars);
-  var dv = dv_heading(mark,pars);
-
-  console.log("AD1:");
-  console.log("dA1: "+dA.toString());
-  console.log("dv1: "+dv.toString());
-
-  var part1 = A.multMatrixVec(dv);
-  var part2 = dA.multMatrixVec(v);
-
-  var result = part1.add(part2);
-
-  return result;
-
-}
-
-// ad_ == analytical derivative
-function ad2_E_heading(mark,pars){
-
-  var A  = get_A(mark,pars);
   var dA = get_dA(mark,pars,dHTR_dheading);
   var v  = get_v(mark,pars);
   var dv = get_dv(mark,pars,dHTR_dheading);
@@ -143,173 +133,6 @@ function nd_E_heading(mark,pars,dx=0.001){
   var dy = y2.subtract(y1).divide(dx);
 
   return dy;
-
-}
-
-function dC_heading(mark,pars){
-
-  var M1 = dC1_heading(mark,pars);
-  var M2 = dC2_heading(mark,pars);
-
-  var dC = M1.add(M2);
-
-  return dC;
-
-}
-
-function dC1_heading(mark,pars){
-
-  var RE1  = get_RE1(mark,pars);
-  var dRE1 = dRE1_heading(mark,pars);
-  var JE1  = get_JE1(mark,pars);
-
-  var JE1xJE1t = JE1.mult(JE1.transpose());
-
-  var P1 = dRE1.mult(JE1xJE1t).mult(RE1);
-  var P2 = RE1.mult(JE1xJE1t).mult(dRE1);
-
-  var RES = P1.add(P2);
-
-  return RES;
-
-}
-
-function dC2_heading(mark,pars){
-
-  var M = x3dom.fields.SFMatrix4f.zeroMatrix();
-  return M;
-
-}
-
-/*
-function get_dC1(mark,pars){
-
-  var RE1  = get_RE1(mark,pars);
-  var dRE1 = get_dRE1(mark,pars);
-  var JE1  = get_JE1(mark,pars);
-
-  var JE1xJE1t = JE1.mult(JE1.transpose());
-
-  var P1 = dRE1.mult(JE1xJE1t).mult(RE1);
-  var P2 = RE1.mult(JE1xJE1t).mult(dRE1);
-
-  var RES = P1.add(P2);
-
-  return RES;
-
-}
-
-function get_dC2(mark,pars){
-
-  var M = x3dom.fields.SFMatrix4f.zeroMatrix();
-
-  return M;
-
-}
-*/
-
-function dRE1_heading(mark,pars){
-
-  // a'
-  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
-  var e1_world = get_e1_w(mark,pars);
-  var a = e1_world;
-
-  var heading = pars.heading*RPD;
-  var tilt    = (pars.tilt-90)*RPD;
-  var roll    = pars.roll*RPD;
-
-  var T = x3dom_toYawPitchRoll();
-
-  var M = x3dom.fields.SFMatrix4f.zeroMatrix();
-  M.add(dHTR(heading,tilt,roll));
-  //M.add(HdTR(heading,tilt,roll));
-  //M.add(HTdR(heading,tilt,roll));
-
-  var d_e1_world = M.mult(T).multMatrixVec(e1_model).multiply(RPD);
-
-  var da = d_e1_world;
-
-  var dR1 = new x3dom.fields.SFMatrix4f(
-          -da.z,    -da.x*a.z-a.x*da.z, da.x, 0,
-              0, 2*a.x*da.x+2*a.z*da.z, da.y, 0,
-           da.x,    -da.y*a.z-a.y*da.z, da.z, 0,
-              0,                     0,    0, 1
-  );
-
-  return dR1;
-
-}
-
-function dA_heading(mark,pars){
-
-  var  C =  get_C(mark,pars);
-  var dC = dC_heading(mark,pars);
-
-  console.log("dC(dA_heading): "+dC.toString());
-
-  Cn = matrix_x3dom_to_numeric(C);
-  Bn = numeric.eig(Cn);
-
-  var a = Bn.lambda.x[0];
-  var b = Bn.lambda.x[1];
-  var c = Bn.lambda.x[2];
-
-  var sa = Math.sqrt(a);
-  var sb = Math.sqrt(b);
-  var sc = Math.sqrt(c);
-
-  var vec0 = new x3dom.fields.SFVec3f(Bn.E.x[0][0],Bn.E.x[0][1],Bn.E.x[0][2]);
-  var vec1 = new x3dom.fields.SFVec3f(Bn.E.x[1][0],Bn.E.x[1][1],Bn.E.x[1][2]);
-  var vec2 = new x3dom.fields.SFVec3f(Bn.E.x[2][0],Bn.E.x[2][1],Bn.E.x[2][2]);
-
-  var R = new x3dom.fields.SFMatrix4f(
-               vec0.x, vec1.x, vec2.x, 0,
-               vec0.y, vec1.y, vec2.y, 0,
-               vec0.z, vec1.z, vec2.z, 0,
-                    0,      0,      0, 1
-             );
-
-  var J = new x3dom.fields.SFMatrix4f(
-               sa,  0,  0, 0,
-                0, sb,  0, 0,
-                0,  0, sc, 0,
-                0,  0,  0, 1
-             );
-
-  var Ji = J.inverse();
-
-  var da = vec0.dot(dC.multMatrixVec(vec0));
-  var db = vec1.dot(dC.multMatrixVec(vec1));
-  var dc = vec2.dot(dC.multMatrixVec(vec2));
-
-  var dJi = new x3dom.fields.SFMatrix4f(
-               0.5/sa*da,         0,         0, 0,
-                       0, 0.5/sb*db,         0, 0,
-                       0,         0, 0.5/sc*dc, 0,
-                       0,         0,         0, 1
-             );
-
-  var dvec0 = get_dvec(C,dC,a,da,vec0);
-  var dvec1 = get_dvec(C,dC,b,db,vec1);
-  var dvec2 = get_dvec(C,dC,c,dc,vec2);
-
-  var dR = new x3dom.fields.SFMatrix4f(
-               dvec0.x, dvec1.x, dvec2.x, 0,
-               dvec0.y, dvec1.y, dvec2.y, 0,
-               dvec0.z, dvec1.z, dvec2.z, 0,
-                     0,       0,       0, 1
-             );
-
-  // Q = JiR
-  // dQ = dJi x R + Ji x dR
-
-  // dQ = dJi x R + Ji x dR
-
-  var dA = dJi.mult(R).add(Ji.mult(dR));
-
-  // ok
-  return dA;
 
 }
 
@@ -498,6 +321,7 @@ function get_A(mark,pars){
   var T2 = R.transpose().mult(J).mult(J).mult(R);
   //var T1 = R.mult(J).mult(J).mult(J).mult(J).mult(R.inverse());
 
+  //console.log("C: "+C.toString());
   //console.log("T1: "+T1.toString());
   //console.log("T2: "+T2.toString());
 
@@ -507,12 +331,15 @@ function get_A(mark,pars){
 
 //E = Av
 // callback is the needed derivative function
+
+// This is for derivatives for eigenvalues and eigenvectors:
+// https://people.maths.ox.ac.uk/gilesm/files/NA-08-01.pdf
 function get_dA(mark,pars,callback){
 
   var  C =  get_C(mark,pars);
   var dC = get_dC(mark,pars,callback);
 
-  console.log("dC(get_dA): "+dC.toString());
+  //console.log("dC(get_dA): "+dC.toString());
 
   Cn = matrix_x3dom_to_numeric(C);
   Bn = numeric.eig(Cn);
@@ -525,6 +352,10 @@ function get_dA(mark,pars,callback){
   var sb = Math.sqrt(b);
   var sc = Math.sqrt(c);
 
+  var sa3 = Math.pow(sa,3);
+  var sb3 = Math.pow(sb,3);
+  var sc3 = Math.pow(sc,3);
+
   var vec0 = new x3dom.fields.SFVec3f(Bn.E.x[0][0],Bn.E.x[0][1],Bn.E.x[0][2]);
   var vec1 = new x3dom.fields.SFVec3f(Bn.E.x[1][0],Bn.E.x[1][1],Bn.E.x[1][2]);
   var vec2 = new x3dom.fields.SFVec3f(Bn.E.x[2][0],Bn.E.x[2][1],Bn.E.x[2][2]);
@@ -536,42 +367,88 @@ function get_dA(mark,pars,callback){
                     0,      0,      0, 1
              );
 
-  var J = new x3dom.fields.SFMatrix4f(
-               sa,  0,  0, 0,
-                0, sb,  0, 0,
-                0,  0, sc, 0,
-                0,  0,  0, 1
+  var U = R.transpose();
+
+  // testing - C is symmetric
+  //console.log("BIG TEST0: "+C.toString());
+
+  //console.log("BIG TEST1: "+R.mult(R.transpose()).toString());
+  //console.log("BIG TEST2: "+R.transpose().mult(R).toString());
+
+  var L = new x3dom.fields.SFMatrix4f(
+                  a, 0, 0, 0,
+                  0, b, 0, 0,
+                  0, 0, c, 0,
+                  0, 0, 0, 1
              );
 
-  var Ji = J.inverse();
+  // test - Λ is diagonal
+  // console.log("Λ = "+R.mult(C).mult(R.transpose()).toString());
 
+  //var RtdCR = R.transpose().mult(dC).mult(R);
+  var UtdCU = U.transpose().mult(dC).mult(U);
+  //console.log("RdCRt = "+RtdCR.toString());
+
+  // and we take only diag elements because we know
+  var dL = new x3dom.fields.SFMatrix4f(
+             UtdCU._00,         0,         0, 0,
+                     0, UtdCU._11,         0, 0,
+                     0,         0, UtdCU._22, 0,
+                     0,         0,         0, 1
+             );
+
+  /*
   var da = vec0.dot(dC.multMatrixVec(vec0));
   var db = vec1.dot(dC.multMatrixVec(vec1));
   var dc = vec2.dot(dC.multMatrixVec(vec2));
+  */
+
+  var da = dL._00;
+  var db = dL._11;
+  var dc = dL._22;
+
+  //console.log("dL = "+dL.toString());
+
+  var Ji = new x3dom.fields.SFMatrix4f(
+               1/sa,    0,    0, 0,
+                  0, 1/sb,    0, 0,
+                  0,    0, 1/sc, 0,
+                  0,    0,    0, 1
+             );
 
   var dJi = new x3dom.fields.SFMatrix4f(
-               0.5/sa*da,         0,         0, 0,
-                       0, 0.5/sb*db,         0, 0,
-                       0,         0, 0.5/sc*dc, 0,
-                       0,         0,         0, 1
+               -0.5/sa3*da,          0,          0, 0,
+                        0, -0.5/sb3*db,          0, 0,
+                        0,          0, -0.5/sc3*dc, 0,
+                        0,          0,           0, 1
              );
 
-  var dvec0 = get_dvec(C,dC,a,da,vec0);
-  var dvec1 = get_dvec(C,dC,b,db,vec1);
-  var dvec2 = get_dvec(C,dC,c,dc,vec2);
+  // RtdCR
+  var F = new x3dom.fields.SFMatrix4f(
+                  0,  1/(b-a),  1/(c-a), 0,
+            1/(a-b),        0,  1/(c-b), 0,
+            1/(a-c),  1/(b-c),        0, 0,
+                  0,        0,        0, 1
+          );
 
-  var dR = new x3dom.fields.SFMatrix4f(
-               dvec0.x, dvec1.x, dvec2.x, 0,
-               dvec0.y, dvec1.y, dvec2.y, 0,
-               dvec0.z, dvec1.z, dvec2.z, 0,
-                     0,       0,       0, 1
-             );
+  var FhUtdCU = Hadamard_product(F,UtdCU);
+  //console.log("FhRtdCR: "+FhRtdCR.toString());
+
+  var dU = U.mult(FhUtdCU);
+  //console.log("dU "+dU.toString());
+
+  var dR = dU.transpose();
+
+  //var dR = dQ;
+
+  //console.log("Ji:  "+Ji.toString());
+  //console.log("dJi: "+dJi.toString());
+
+  //console.log("R:  "+R.toString());
+  //console.log("dR: "+dR.toString());
 
   // Q = JiR
   // dQ = dJi x R + Ji x dR
-
-  // dQ = dJi x R + Ji x dR
-
   var dA = dJi.mult(R).add(Ji.mult(dR));
 
   // ok
@@ -579,12 +456,49 @@ function get_dA(mark,pars,callback){
 
 }
 
+function Hadamard_product(A,B){
+
+  return new x3dom.fields.SFMatrix4f(
+           A._00*B._00,  A._01*B._01,  A._02*B._02,  0,
+           A._10*B._10,  A._11*B._11,  A._12*B._12,  0,
+           A._20*B._20,  A._21*B._21,  A._22*B._22,  0,
+                     0,            0,            0,  1
+  );
+
+}
+
+// don't need
 function get_dvec(A,dA,lambda,dlambda,vec){
 
+  //console.log("TESTING DVEC");
+
   var I = x3dom.fields.SFMatrix4f.identity();
-  var M1 = A.add(I.multiply(lambda).negate()).inverse();
-  var M2 = I.multiply(dlambda).add(dA.negate());
-  var dvec = M1.mult(M2).multMatrixVec(vec);
+
+  //var M1 = A.add(I.multiply(lambda).negate()).inverse();
+  var M1 = A.add(I.multiply(lambda).negate());
+
+  console.log("A-aI: "+M1.toString());
+  console.log("det(A-aI): "+M1.det());
+
+  //var M1i = M1.inverse();
+  //console.log("(A-aI)^-1: "+M1i.toString());
+
+  //console.log(M1.det());
+
+  //console.log("M1i x M1: "+M1i.mult(M1).toString());
+
+  //var M2 = I.multiply(dlambda).add(dA.negate());
+
+  //console.log("M2: "+M2.toString());
+
+  //var W = M1i.mult(M2);
+
+  //var dvec = W.multMatrixVec(vec);
+
+  //var dvec2 = vec.dot()
+
+  dvec = vec;
+
   return dvec;
 
 }
@@ -658,58 +572,6 @@ function dv_lat(mark,pars){
 
 }
 
-function dv_heading(mark,pars){
-
-  // dv = de1 - de2, where de2==0
-  var heading = pars.heading*RPD;
-  var tilt    = (pars.tilt-90)*RPD;
-  var roll    = pars.roll*RPD;
-
-  var M = dHTR(heading,tilt,roll);
-  var T = x3dom_toYawPitchRoll();
-
-  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
-
-  var dv_heading = M.mult(T).multMatrixVec(e1_model).multiply(RPD);
-  return dv_heading;
-
-}
-
-function dv_tilt(mark,pars){
-
-  // dv = de1
-  var heading = pars.heading*RPD;
-  var tilt    = (pars.tilt-90)*RPD;
-  var roll    = pars.roll*RPD;
-
-  var M = HdTR(heading,tilt,roll);
-  var T = x3dom_toYawPitchRoll();
-
-  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
-
-  var dv_tilt = M.mult(T).multMatrixVec(e1_model).multiply(RPD);
-  return dv_tilt;
-
-}
-
-function dv_roll(mark,pars){
-
-  // dv = de1
-  var heading = pars.heading*RPD;
-  var tilt    = (pars.tilt-90)*RPD;
-  var roll    = pars.roll*RPD;
-
-  var M = HTdR(heading,tilt,roll);
-  var T = x3dom_toYawPitchRoll();
-
-  var e1_model = new x3dom.fields.SFVec3f(mark.model.x,mark.model.y,mark.model.z);
-
-  var dv_roll = M.mult(T).multMatrixVec(e1_model).multiply(RPD);
-  return dv_roll;
-
-}
-
-
 function get_dRE1(mark,pars,callback){
 
   // a'
@@ -766,8 +628,8 @@ function get_dC1(mark,pars,callback){
 
   var JE1xJE1t = JE1.mult(JE1.transpose());
 
-  var P1 = dRE1.mult(JE1xJE1t).mult(RE1);
-  var P2 = RE1.mult(JE1xJE1t).mult(dRE1);
+  var P1 = dRE1.mult(JE1xJE1t).mult(RE1.transpose());
+  var P2 = RE1.mult(JE1xJE1t).mult(dRE1.transpose());
 
   var RES = P1.add(P2);
 
