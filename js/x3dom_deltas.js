@@ -65,6 +65,7 @@ function x3dom_delta_markers(){
   var ad = ad_E_roll(marker_i,parameters);
   console.log("Analytical dE/dr (vector) = "+ad.toString());
 
+
   var C = get_C(marker_i,parameters);
   var Ci = C.inverse();
 
