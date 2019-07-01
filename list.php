@@ -243,6 +243,8 @@ function parse_kml($path,$file){
     if (is_file($master_kml)){
       $xml = simplexml_load_file($master_kml);
       $file = "../".($xml->name)."/".($xml->name);
+      $path = dirname($path);
+      $file = "/".($xml->name)."/".($xml->name);
     }
 
     $pf = "$path/$file.kml";
@@ -260,7 +262,7 @@ function parse_kml($path,$file){
         }
 
     }else{
-        echo "File not found, you suck!\n";
+        //echo "File not found ".$pf."\n";
         $res = <<<TEXT
 <Camera>
     <longitude>-111.9328843</longitude>
