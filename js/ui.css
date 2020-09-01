@@ -365,6 +365,13 @@ html, body, #x3d_wrapper {
     background-color: red;
 }
 
+#window-info-fps{
+    position:absolute;
+    left: 2px;
+    bottom: 2px;
+    color: white;
+}
+
 #info-wrapper{
     position: absolute;
     left:2px;

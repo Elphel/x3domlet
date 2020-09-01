@@ -540,6 +540,7 @@ function deep_init(){
             Scene._X3DOM_SCENE_INIT_DONE = false;
         }
 
+        $("#window-info-fps").html(Scene.element.runtime.fps.toFixed(1)+" fps");        
     };
 
 }
