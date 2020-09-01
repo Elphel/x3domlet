@@ -116,7 +116,9 @@ X3DOMObject.prototype.resize = function(){
         top: (h/2-$("#crosshair_v").height()/2)+"px"
     });
 
-    var fov = w/h*self._FOV;
+    //var fov = w/h*self._FOV;
+    // fixed ratio
+    var fov = 1.8*self._FOV;
 
     //fov = Math.PI/2;
     //console.log(fov);
