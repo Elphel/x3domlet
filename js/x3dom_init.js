@@ -43,7 +43,7 @@ var X3DOMObject = function(element,data,options){
     var defaults = {
         debug: true,        // {boot}, unused
         highlight: true,    // {bool}, highlight surfaces on mouseover
-        fov: 30*Math.PI/180,// {rad}, default vertical fov
+        fov: 55*Math.PI/180,// {rad}, default horizontal fov
         fov_step: 0.025,    // {rad}, min change
     };
 
@@ -119,15 +119,15 @@ X3DOMObject.prototype.resize = function(){
     //var fov = w/h*self._FOV;
     // default vertical FoV is 30 degs, we would like to fit in the window
     // the model w/h ratio is 2592/1904
-    var fov = 1.8*self._FOV;
+    var fov = self._FOV;
     var K_model = 2592/1904;
     var K_window = w/h;
 
     // window is really wide - fit the height
     if (K_window > K_model){
-        fov = 1.8*self._FOV;
+        fov = self._FOV;
     }else{
-        fov = (4.2-1.8*K_window)*self._FOV;
+        fov = K_model/K_window*self._FOV;
     }
 
     //fov = Math.PI/2;
